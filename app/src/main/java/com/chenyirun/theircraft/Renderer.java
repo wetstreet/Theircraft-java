@@ -19,16 +19,15 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 public class Renderer implements GvrView.StereoRenderer {
 
-    private Cube mCube;
     private Floor mFloor;
-    private Grass mGrass;
+    private Grass mGrass[];
     public Point mPosition;
 
     // direction of the body
     public float mYaw;
 
-    private float mHeadingX;
-    private float mHeadingY;
+    public float mHeadingX;
+    public float mHeadingY;
     private float mHeadingAngle;
     private float mHeadingMagnitude;
 
@@ -50,9 +49,10 @@ public class Renderer implements GvrView.StereoRenderer {
     private final float[] view = new float[16];
 
     private Resources resources;
+    private float EYE_HEIGHT = 1.8f;
 
     Renderer(Resources resources) {
-        mPosition = new Point(0.0f, 0.0f, 0.01f);
+        mPosition = new Point(0.0f, EYE_HEIGHT, 0.01f);
         this.resources = resources;
     }
 
@@ -64,17 +64,16 @@ public class Renderer implements GvrView.StereoRenderer {
 
     @Override
     public void onSurfaceCreated(EGLConfig config) {
-        GLES20.glClearColor(0.5f, 0.69f, 1.0f, 1.0f);
-
         mFloor = new Floor();
-        mCube = new Cube(0.0f, 0.0f, 3.5f);
-        mGrass = new Grass(0.0f, 0.0f, -3.5f, resources);
+        mGrass = new Grass[3];
+        mGrass[0] = new Grass(1.0f, 0.5f, -2f, resources);
+        mGrass[1] = new Grass(0.0f, 0.5f, -2f, resources);
+        mGrass[2] = new Grass(-1.0f, 0.5f, -2f, resources);
     }
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        Matrix.rotateM(mCube.modelCube, 0, 0.3f, 0.5f, 0.5f, 1.0f);
-        Matrix.rotateM(mGrass.modelGrass, 0, 0.3f, 0.5f, 0.5f, 1.0f);
+        GLES20.glClearColor(0.5f, 0.69f, 1.0f, 1.0f);
         Matrix.setLookAtM(camera, 0, mPosition.x, mPosition.y, mPosition.z,
                 mPosition.x, mPosition.y, mPosition.z - 0.01f,
                 0.0f, 1.0f, 0.0f);
@@ -97,6 +96,10 @@ public class Renderer implements GvrView.StereoRenderer {
         mPosition.x += speed * (mHeadingY * Math.cos(xAngle) + mHeadingX * -Math.sin(xAngle));
     }
 
+    void moveUp(){
+        mPosition.y += 0.1f;
+    }
+
     void jump(){
     }
 
@@ -116,9 +119,10 @@ public class Renderer implements GvrView.StereoRenderer {
         float[] perspective = eye.getPerspective(0.1f, 100.0f);
         Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
 
-        mCube.draw(view, perspective, lightPosInEyeSpace);
         mFloor.draw(view, perspective, lightPosInEyeSpace);
-        mGrass.draw(view, perspective);
+        for (Grass g : mGrass) {
+            g.draw(view, perspective);
+        }
     }
 
     @Override
@@ -162,8 +166,7 @@ public class Renderer implements GvrView.StereoRenderer {
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    private static float getCenteredAxis(MotionEvent event, InputDevice device,
-                                         int axis, int historyPos) {
+    private static float getCenteredAxis(MotionEvent event, InputDevice device, int axis, int historyPos) {
         final InputDevice.MotionRange range = device.getMotionRange(axis, event.getSource());
         if (range != null) {
             final float flat = range.getFlat();

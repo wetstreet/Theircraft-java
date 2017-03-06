@@ -80,7 +80,10 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public void onCardboardTrigger() {
         vibrator.vibrate(50);
-        Toast.makeText(this, Float.toString(mRenderer.mYaw), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,
+                Float.toString(mRenderer.mHeadingX)+"\n"+Float.toString(mRenderer.mHeadingY),
+                Toast.LENGTH_SHORT).show();
+        mRenderer.moveUp();
     }
 
     @Override

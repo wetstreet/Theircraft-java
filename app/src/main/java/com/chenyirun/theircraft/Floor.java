@@ -18,7 +18,7 @@ public class Floor {
     private final float[] modelView = new float[16];
     private final float[] modelViewProjection = new float[16];
 
-    private float floorDepth = 20f;
+    private float floorDepth = 0f;
 
     private FloatBuffer floorVertices;
     private FloatBuffer floorColors;

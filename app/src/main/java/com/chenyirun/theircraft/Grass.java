@@ -102,4 +102,21 @@ public class Grass {
         GLES20.glDisableVertexAttribArray(grassUVParam);
         GLES20.glDisableVertexAttribArray(grassPositionParam);
     }
+
+    // Convenience vector for extracting the position from a matrix via multiplication.
+    private static final float YAW_LIMIT = 0.12f;
+    private static final float PITCH_LIMIT = 0.12f;
+    private static final float[] POS_MATRIX_MULTIPLY_VEC = {0, 0, 0, 1.0f};
+    private final float[] tempPosition = new float[16];
+
+    private boolean isLookingAtObject(float[] headView) {
+        // Convert object space to camera space. Use the headView from onNewFrame.
+        Matrix.multiplyMM(modelView, 0, headView, 0, modelGrass, 0);
+        Matrix.multiplyMV(tempPosition, 0, modelView, 0, POS_MATRIX_MULTIPLY_VEC, 0);
+
+        float pitch = (float) Math.atan2(tempPosition[1], -tempPosition[2]);
+        float yaw = (float) Math.atan2(tempPosition[0], -tempPosition[2]);
+
+        return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
+    }
 }
