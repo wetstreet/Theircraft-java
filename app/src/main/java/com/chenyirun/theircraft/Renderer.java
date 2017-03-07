@@ -10,20 +10,30 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
+import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.perlin.Generator;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
 import com.google.vr.sdk.base.Viewport;
 
+import java.util.List;
+import java.util.Random;
+
 import javax.microedition.khronos.egl.EGLConfig;
+
+/**
+ * Created by chenyirun on 2017/3/6.
+ */
 
 public class Renderer implements GvrView.StereoRenderer {
 
     private Floor mFloor;
-    private Grass mGrass[];
-    public Point mPosition;
+    private Grass mGrass;
+    public Point3 mPosition;
 
-    // direction of the body
+    // direction of the head
     public float mYaw;
 
     public float mHeadingX;
@@ -33,17 +43,7 @@ public class Renderer implements GvrView.StereoRenderer {
 
     private int mDPadState;
 
-    public class Point{
-        public float x;
-        public float y;
-        public float z;
-
-        Point(float x, float y, float z){
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-    }
+    private Generator generator;
 
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
@@ -52,8 +52,9 @@ public class Renderer implements GvrView.StereoRenderer {
     private float EYE_HEIGHT = 1.8f;
 
     Renderer(Resources resources) {
-        mPosition = new Point(0.0f, EYE_HEIGHT, 0.01f);
+        mPosition = new Point3(0.0f, EYE_HEIGHT, 0.01f);
         this.resources = resources;
+        generator = new Generator(new Random().nextInt());
     }
 
     @Override
@@ -64,11 +65,20 @@ public class Renderer implements GvrView.StereoRenderer {
 
     @Override
     public void onSurfaceCreated(EGLConfig config) {
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+        GLES20.glFrontFace(GLES20.GL_CCW);
+
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glCullFace(GLES20.GL_BACK);
         mFloor = new Floor();
-        mGrass = new Grass[3];
-        mGrass[0] = new Grass(1.0f, 0.5f, -2f, resources);
-        mGrass[1] = new Grass(0.0f, 0.5f, -2f, resources);
-        mGrass[2] = new Grass(-1.0f, 0.5f, -2f, resources);
+        mGrass = new Grass(resources);
+        //mGrass.setList(generator.generateChunk(new Chunk(0, 0, 0)));
+
+        mGrass.add(1.0f,0.5f,-2f);
+        mGrass.add(0.0f,0.5f,-2f);
+        mGrass.add(-1.0f,0.5f,-2f);
+
     }
 
     @Override
@@ -97,7 +107,7 @@ public class Renderer implements GvrView.StereoRenderer {
     }
 
     void moveUp(){
-        mPosition.y += 0.1f;
+        mPosition.y += 1;
     }
 
     void jump(){
@@ -120,9 +130,7 @@ public class Renderer implements GvrView.StereoRenderer {
         Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
 
         mFloor.draw(view, perspective, lightPosInEyeSpace);
-        for (Grass g : mGrass) {
-            g.draw(view, perspective);
-        }
+        mGrass.drawList(view, perspective);
     }
 
     @Override
@@ -139,7 +147,7 @@ public class Renderer implements GvrView.StereoRenderer {
         }
         return true;
     }
-    
+
     private void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
         if (null == device) {
             device = event.getDevice();
@@ -162,6 +170,7 @@ public class Renderer implements GvrView.StereoRenderer {
         //move(historyPos < 0 ? event.getEventTime() : event.getHistoricalEventTime(historyPos));
     }
 
+    public static float mFlat = 0.02f;
     private static float pythag(float x, float y) {
         return (float) Math.sqrt(x * x + y * y);
     }
@@ -169,11 +178,11 @@ public class Renderer implements GvrView.StereoRenderer {
     private static float getCenteredAxis(MotionEvent event, InputDevice device, int axis, int historyPos) {
         final InputDevice.MotionRange range = device.getMotionRange(axis, event.getSource());
         if (range != null) {
-            final float flat = range.getFlat();
+            //mFlat = range.getFlat();
             final float value = historyPos < 0
                     ? event.getAxisValue(axis) : event.getHistoricalAxisValue(axis, historyPos);
 
-            if (Math.abs(value) > flat) {
+            if (Math.abs(value) > mFlat) {
                 return value;
             }
         }

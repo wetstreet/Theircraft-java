@@ -4,9 +4,13 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.chenyirun.theircraft.model.Point3;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by chenyirun on 2017/2/28.
@@ -14,6 +18,12 @@ import java.nio.FloatBuffer;
 
 public class Grass {
     private final int grassProgram;
+
+    private float x;
+    private float y;
+    private float z;
+
+    private List<Point3> list = new ArrayList<>();
 
     public final float[] modelGrass = new float[16];
     private final float[] modelView = new float[16];
@@ -48,7 +58,7 @@ public class Grass {
                     "    gl_FragColor = texture2D(u_texture, v_textureCoord);\n" +
                     "}";
 
-    public Grass(float x, float y, float z, Resources resources){
+    public Grass(Resources resources){
         ByteBuffer bbVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
         bbVertices.order(ByteOrder.nativeOrder());
         cubeVertices = bbVertices.asFloatBuffer();
@@ -75,22 +85,34 @@ public class Grass {
         grassUVParam = GLES20.glGetAttribLocation(grassProgram, "a_textureCoord");
         grassPositionParam = GLES20.glGetAttribLocation(grassProgram, "a_Position");
         grassModelViewProjectionParam = GLES20.glGetUniformLocation(grassProgram, "u_MVP");
-
-        Matrix.setIdentityM(modelGrass, 0);
-        Matrix.translateM(modelGrass, 0, x, y, z);
     }
 
-    public void draw(float[] view, float[] perspective) {
-        Matrix.multiplyMM(modelView, 0, view, 0, modelGrass, 0);
-        Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
+    public void add(float x, float y, float z){
+        list.add(new Point3(x,y,z));
+    }
 
+    public void setList(List<Point3> list){
+        this.list = list;
+    }
+
+    public void drawList(float[] view, float[] perspective){
         GLES20.glUseProgram(grassProgram);
-
         GLES20.glUniform1i(textureHandle, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureData);
 
+        for (Point3 position : list) {
+            draw(position.x,position.y,position.z,view,perspective);
+        }
+    }
+
+    public void draw(float x, float y, float z, float[] view, float[] perspective) {
+        Matrix.setIdentityM(modelGrass, 0);
+        Matrix.translateM(modelGrass, 0, x, y, z);
+        Matrix.multiplyMM(modelView, 0, view, 0, modelGrass, 0);
+        Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
         GLES20.glUniformMatrix4fv(grassModelViewProjectionParam, 1, false, modelViewProjection, 0);
+
         GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, cubeVertices);
         GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, cubeUVs);
 
