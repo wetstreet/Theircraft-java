@@ -36,18 +36,18 @@ public class Renderer implements GvrView.StereoRenderer {
 
     public float mHeadingX;
     public float mHeadingY;
-    private float mHeadingAngle;
-    private float mHeadingMagnitude;
-
-    private int mDPadState;
 
     private Generator generator;
+    public final Performance performance = new Performance();
 
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
 
     private Resources resources;
     private float EYE_HEIGHT = 1.8f;
+
+    private static final float PI = 3.14159265358979323846f;
+    private static final float speed = 4.317f;
 
     Renderer(Resources resources) {
         this.resources = resources;
@@ -84,7 +84,7 @@ public class Renderer implements GvrView.StereoRenderer {
         GLES20.glCullFace(GLES20.GL_BACK);
         mGrass = new Grass(resources);
         mGrass.setList(generator.generateChunk(new Chunk(0, 4, 0)));
-        mPosition = new Point3(0.0f, EYE_HEIGHT+highestSolidY(0f,0f), 0.01f);
+        mPosition = new Point3(0.0f, EYE_HEIGHT + highestSolidY(0.0f, 0.0f), 0.01f);
 
     }
 
@@ -97,24 +97,14 @@ public class Renderer implements GvrView.StereoRenderer {
         float[] eulerAngles = new float[3];
         headTransform.getEulerAngles(eulerAngles, 0);
         mYaw = eulerAngles[1];
-        if (mHeadingX != 0 || mHeadingY != 0){
-            move();
-        }
     }
 
-    private static final float PI = 3.14159265358979323846f;
-    private static final float speed = 0.2f;
-
-    void move(){
+    void move(float dt){
         float xAngle = mYaw - PI/2;
         // move forward and backward
-        mPosition.z += speed * (mHeadingY * -Math.sin(xAngle) + mHeadingX * -Math.cos(xAngle));
+        mPosition.z += dt * speed * (mHeadingY * -Math.sin(xAngle) + mHeadingX * -Math.cos(xAngle));
         // move rightward and leftward
-        mPosition.x += speed * (mHeadingY * Math.cos(xAngle) + mHeadingX * -Math.sin(xAngle));
-    }
-
-    void moveUp(){
-        mPosition.y += 1;
+        mPosition.x += dt * speed * (mHeadingY * Math.cos(xAngle) + mHeadingX * -Math.sin(xAngle));
     }
 
     void jump(){
@@ -128,6 +118,11 @@ public class Renderer implements GvrView.StereoRenderer {
 
     @Override
     public void onDrawEye(Eye eye) {
+        float dt = Math.min(performance.startFrame(), 0.2f);
+        if (mHeadingX != 0 || mHeadingY != 0){
+            move(dt);
+        }
+
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -143,14 +138,11 @@ public class Renderer implements GvrView.StereoRenderer {
     public void onFinishFrame(Viewport viewport) {}
 
     public boolean onGenericMotionEvent(MotionEvent event, InputDevice device) {
-        if (0 == mDPadState) {
-            final int historySize = event.getHistorySize();
-            for (int i = 0; i < historySize; i++) {
-                processJoystickInput(event, i, device);
-            }
-
-            processJoystickInput(event, -1, device);
+        final int historySize = event.getHistorySize();
+        for (int i = 0; i < historySize; i++) {
+            processJoystickInput(event, i, device);
         }
+        processJoystickInput(event, -1, device);
         return true;
     }
 
@@ -168,18 +160,10 @@ public class Renderer implements GvrView.StereoRenderer {
             mHeadingY = getCenteredAxis(event, device, MotionEvent.AXIS_HAT_Y, historyPos);
         }
 
-        mHeadingMagnitude = pythag(mHeadingX, mHeadingY);
-        if (mHeadingMagnitude > 0.1f) {
-            mHeadingAngle = (float) Math.atan2(mHeadingY, mHeadingX);
-        }
-
         //move(historyPos < 0 ? event.getEventTime() : event.getHistoricalEventTime(historyPos));
     }
 
     public static float mFlat = 0.02f;
-    private static float pythag(float x, float y) {
-        return (float) Math.sqrt(x * x + y * y);
-    }
 
     private static float getCenteredAxis(MotionEvent event, InputDevice device, int axis, int historyPos) {
         final InputDevice.MotionRange range = device.getMotionRange(axis, event.getSource());

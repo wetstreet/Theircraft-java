@@ -15,10 +15,6 @@ import net.royawesome.jlibnoise.module.modifier.ScalePoint;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by chenyirun on 2017/3/6.
- */
-
 public class Generator {
 
     private static final int MIN_FOREST_HILLS_Y = 46;
