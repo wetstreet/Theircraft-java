@@ -28,8 +28,6 @@ import javax.microedition.khronos.egl.EGLConfig;
  */
 
 public class Renderer implements GvrView.StereoRenderer {
-
-    private Floor mFloor;
     private Grass mGrass;
     public Point3 mPosition;
 
@@ -52,9 +50,22 @@ public class Renderer implements GvrView.StereoRenderer {
     private float EYE_HEIGHT = 1.8f;
 
     Renderer(Resources resources) {
-        mPosition = new Point3(0.0f, EYE_HEIGHT, 0.01f);
         this.resources = resources;
         generator = new Generator(new Random().nextInt());
+    }
+
+    /** Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block. */
+    private float highestSolidY(float x, float z) {
+        float maxY = Generator.minElevation();
+        for (Point3 block : mGrass.getList()) {
+            if (block.x != x || block.z != z) {
+                continue;
+            }
+            if (block.y > maxY) {
+                maxY = block.y;
+            }
+        }
+        return maxY;
     }
 
     @Override
@@ -71,13 +82,9 @@ public class Renderer implements GvrView.StereoRenderer {
 
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glCullFace(GLES20.GL_BACK);
-        mFloor = new Floor();
         mGrass = new Grass(resources);
-        //mGrass.setList(generator.generateChunk(new Chunk(0, 0, 0)));
-
-        mGrass.add(1.0f,0.5f,-2f);
-        mGrass.add(0.0f,0.5f,-2f);
-        mGrass.add(-1.0f,0.5f,-2f);
+        mGrass.setList(generator.generateChunk(new Chunk(0, 4, 0)));
+        mPosition = new Point3(0.0f, EYE_HEIGHT+highestSolidY(0f,0f), 0.01f);
 
     }
 
@@ -129,7 +136,6 @@ public class Renderer implements GvrView.StereoRenderer {
         float[] perspective = eye.getPerspective(0.1f, 100.0f);
         Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
 
-        mFloor.draw(view, perspective, lightPosInEyeSpace);
         mGrass.drawList(view, perspective);
     }
 

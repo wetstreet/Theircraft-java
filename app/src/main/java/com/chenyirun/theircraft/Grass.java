@@ -95,6 +95,10 @@ public class Grass {
         this.list = list;
     }
 
+    public List<Point3> getList(){
+        return list;
+    }
+
     public void drawList(float[] view, float[] perspective){
         GLES20.glUseProgram(grassProgram);
         GLES20.glUniform1i(textureHandle, 0);

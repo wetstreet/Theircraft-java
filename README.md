@@ -1,7 +1,7 @@
 # Theircraft
-This is a VR mini game using Google VR SDK
+This is a VR mini game using Google VR SDK.
 
-This project is inspired by following:
+This project is inspired by the following:
 
 https://github.com/skligys/cardboard-creeper
 
