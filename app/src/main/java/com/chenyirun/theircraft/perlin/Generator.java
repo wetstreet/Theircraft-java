@@ -4,7 +4,7 @@ import android.content.res.Resources;
 
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.Grass;
-import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.model.Block;
 
 import net.royawesome.jlibnoise.module.Module;
 import net.royawesome.jlibnoise.module.combiner.Add;
@@ -40,7 +40,7 @@ public class Generator {
     }
 
     /** Generates Grasses for a single chunk. */
-    public List<Point3> generateChunk(Chunk chunk) {
+    public List<Block> generateChunk(Chunk chunk) {
         int xOffset = chunk.x * Chunk.CHUNK_SIZE;
         int yOffset = chunk.y * Chunk.CHUNK_SIZE;
         int zOffset = chunk.z * Chunk.CHUNK_SIZE;
@@ -51,13 +51,13 @@ public class Generator {
         float maxElevation = MAX_FOREST_HILLS_Y;
         float height = 0.5f * (maxElevation - minElevation);
 
-        List<Point3> result = new ArrayList<Point3>();
+        List<Block> result = new ArrayList<Block>();
         for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
             for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
                 for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
                     float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
                     if (noiseValue >= 0.0f) {
-                        result.add(new Point3(x + xOffset, y + yOffset, z + zOffset));
+                        result.add(new Block(x + xOffset, y + yOffset, z + zOffset));
                     }
                 }
             }

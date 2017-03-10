@@ -4,7 +4,7 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.model.Block;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -19,11 +19,7 @@ import java.util.List;
 public class Grass {
     private final int grassProgram;
 
-    private float x;
-    private float y;
-    private float z;
-
-    private List<Point3> list = new ArrayList<>();
+    private List<Block> list = new ArrayList<>();
 
     public final float[] modelGrass = new float[16];
     private final float[] modelView = new float[16];
@@ -87,22 +83,22 @@ public class Grass {
         grassModelViewProjectionParam = GLES20.glGetUniformLocation(grassProgram, "u_MVP");
     }
 
-    public void add(float x, float y, float z){
-        list.add(new Point3(x,y,z));
+    public void addBlock(Block block){
+        this.list.add(block);
     }
 
-    public void setList(List<Point3> list){
-        this.list = list;
-    }
-
-    public void addList(List<Point3> list){
-        for (Point3 p : list) {
-            this.list.add(p);
+    public void addList(List<Block> list){
+        for (Block block : list) {
+            this.list.add(block);
         }
     }
 
-    public List<Point3> getList(){
+    public List<Block> getList(){
         return list;
+    }
+
+    public int getBlocksNumber(){
+        return list.size();
     }
 
     public void drawList(float[] view, float[] perspective){
@@ -111,7 +107,7 @@ public class Grass {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureData);
 
-        for (Point3 position : list) {
+        for (Block position : list) {
             draw(position.x,position.y,position.z,view,perspective);
         }
     }
