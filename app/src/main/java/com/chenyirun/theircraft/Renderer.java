@@ -79,13 +79,18 @@ public class Renderer implements GvrView.StereoRenderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
         GLES20.glFrontFace(GLES20.GL_CCW);
-
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         GLES20.glCullFace(GLES20.GL_BACK);
-        mGrass = new Grass(resources);
-        mGrass.setList(generator.generateChunk(new Chunk(0, 4, 0)));
-        mPosition = new Point3(0.0f, EYE_HEIGHT + highestSolidY(0.0f, 0.0f), 0.01f);
 
+        mGrass = new Grass(resources);
+        mGrass.addList(generator.generateChunk(new Chunk(0, 4*4+1, 0)));
+        mGrass.addList(generator.generateChunk(new Chunk(0, 4*4+2, 0)));
+        //mGrass.addList(generator.generateChunk(new Chunk(-1, 4, -1)));
+        //mGrass.addList(generator.generateChunk(new Chunk(0, 4, 0)));
+        //mGrass.addList(generator.generateChunk(new Chunk(0, 4, -1)));
+        int x = Chunk.CHUNK_SIZE / 2;
+        int z = Chunk.CHUNK_SIZE / 2;
+        mPosition = new Point3(x, EYE_HEIGHT + highestSolidY(x, z), z);
     }
 
     @Override
@@ -115,12 +120,13 @@ public class Renderer implements GvrView.StereoRenderer {
 
     private final float[] lightPosInEyeSpace = new float[4];
     private static final float[] LIGHT_POS_IN_WORLD_SPACE = new float[] {0.0f, 2.0f, 0.0f, 1.0f};
+    private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
 
     @Override
     public void onDrawEye(Eye eye) {
         float dt = Math.min(performance.startFrame(), 0.2f);
         if (mHeadingX != 0 || mHeadingY != 0){
-            move(dt);
+            move(dt / PHYSICS_ITERATIONS_PER_FRAME);
         }
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);

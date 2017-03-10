@@ -95,6 +95,12 @@ public class Grass {
         this.list = list;
     }
 
+    public void addList(List<Point3> list){
+        for (Point3 p : list) {
+            this.list.add(p);
+        }
+    }
+
     public List<Point3> getList(){
         return list;
     }

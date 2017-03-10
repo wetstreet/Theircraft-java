@@ -4,7 +4,7 @@ import com.chenyirun.theircraft.Grass;
 
 public class Chunk extends Point3Int {
   /** Blocks per side of a chunk. */
-  public static final int CHUNK_SIZE = 16;
+  public static final int CHUNK_SIZE = 4;
 
   public Chunk(int x, int y, int z) {
     super(x, y, z);

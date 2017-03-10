@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat;
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat.InputDeviceListener;
+import com.chenyirun.theircraft.model.Chunk;
 import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
@@ -80,7 +81,11 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public void onCardboardTrigger() {
         vibrator.vibrate(50);
-        String s = Float.toString(mRenderer.performance.fps());
+        int y = new Float(mRenderer.mPosition.y - 1.8f).intValue();
+        double ChunkY = Math.floor(y / Chunk.CHUNK_SIZE);
+        String s = "y=" + Float.toString(y) + "\n" +
+                "ChunkY=" + Double.toString(ChunkY) + "\n" +
+                "fps=" + Float.toString(mRenderer.performance.fps());
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
