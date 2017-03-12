@@ -39,7 +39,7 @@ import javax.microedition.khronos.egl.EGLConfig;
  */
 
 public class Renderer implements GvrView.StereoRenderer {
-    public Grass mGrass;
+    public final Grass mGrass = new Grass();
     private final Steve steve;
     private Generator generator;
     public final Performance performance = new Performance();
@@ -77,22 +77,22 @@ public class Renderer implements GvrView.StereoRenderer {
 
         // Start the thread for loading chunks in the background.
         chunkLoader = createChunkLoader();
-        //chunkLoader.start();
+        chunkLoader.start();
 
         List<Chunk> preloadedChunks = preloadedChunks();
         for (Chunk chunk : preloadedChunks) {
             chunkChanges.add(new ChunkLoad(chunk));
-        }/*
+        }
+
+        int x = Chunk.CHUNK_SIZE / 2;
+        int z = Chunk.CHUNK_SIZE / 2;
+        steve = new Steve(new Block(x, highestSolidY(x, z), z));/**/
 
         // Wait for the background thread to finish loading all of them.  The whole stack of chunks
         // around the starting position is needed to determine Steve's initial position's y coordinate.
         while (chunkChanges.size() > 0) {
             SystemClock.sleep(100L);
-        }*/
-
-        int x = Chunk.CHUNK_SIZE / 2;
-        int z = Chunk.CHUNK_SIZE / 2;
-        steve = new Steve(new Block(x, highestSolidY(x, z), z));
+        }
 
         Chunk currChunk = steve.currentChunk();
         Set<Chunk> chunksToLoad = neighboringChunks(currChunk);
@@ -250,9 +250,8 @@ public class Renderer implements GvrView.StereoRenderer {
 
     @Override
     public void onSurfaceCreated(EGLConfig config) {
-
-        mGrass = new Grass(resources);
-
+        mGrass.grassInit(resources);
+        /**/
         // make sure that steve will spawn on blocks
         int square = 4;
         for (int x = -square; x <= square; x++){

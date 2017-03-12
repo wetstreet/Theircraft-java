@@ -24,7 +24,7 @@ import java.util.Set;
  */
 
 public class Grass {
-    private final int grassProgram;
+    private int grassProgram;
 
     private VertexIndexTextureList vitList = new VertexIndexTextureList();
     private static final Map<Chunk, Buffers> chunkToBuffers = new HashMap<>();
@@ -102,7 +102,10 @@ public class Grass {
                     "    gl_FragColor = texture2D(u_texture, v_textureCoord);\n" +
                     "}";
 
-    public Grass(Resources resources){
+    public Grass(){
+    }
+
+    public void grassInit(Resources resources){
         grassProgram = GlHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
         GLES20.glUseProgram(grassProgram);
 
@@ -168,15 +171,14 @@ public class Grass {
         GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, cubeBuffer.vertexBuffer);
         GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer.textureCoordBuffer);
 
-        GLES20.glEnableVertexAttribArray(grassPositionParam);
-        GLES20.glEnableVertexAttribArray(grassUVParam);
+        for (Buffers b : chunkToBuffers.values()) {
+            GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, b.vertexBuffer);
+            GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, b.textureCoordBuffer);
 
-        GLES20.glDrawElements(
-                GLES20.GL_TRIANGLES, cubeBuffer.drawListBuffer.limit(),
-                GLES20.GL_UNSIGNED_SHORT, cubeBuffer.drawListBuffer);
-
-        GLES20.glDisableVertexAttribArray(grassUVParam);
-        GLES20.glDisableVertexAttribArray(grassPositionParam);
+            GLES20.glDrawElements(
+                    GLES20.GL_TRIANGLES, b.drawListBuffer.limit(),
+                    GLES20.GL_UNSIGNED_SHORT, b.drawListBuffer);
+        }
     }
 
     // Convenience vector for extracting the position from a matrix via multiplication.
