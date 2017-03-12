@@ -5,12 +5,16 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Point3;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by chenyirun on 2017/2/28.
@@ -20,6 +24,9 @@ public class Grass {
     private final int grassProgram;
 
     private List<Block> list = new ArrayList<>();
+    private List<Block> exposedList = new ArrayList<>();
+    public final Set<Block> blocks = new HashSet<>();
+    private VertexIndexTextureList vitList = new VertexIndexTextureList();
 
     public final float[] modelGrass = new float[16];
     private final float[] modelView = new float[16];
@@ -55,27 +62,10 @@ public class Grass {
                     "}";
 
     public Grass(Resources resources){
-        ByteBuffer bbVertices = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_COORDS.length * 4);
-        bbVertices.order(ByteOrder.nativeOrder());
-        cubeVertices = bbVertices.asFloatBuffer();
-        cubeVertices.put(WorldLayoutData.CUBE_COORDS);
-        cubeVertices.position(0);
-
-        ByteBuffer bbUVs = ByteBuffer.allocateDirect(WorldLayoutData.CUBE_UVS.length * 4);
-        bbUVs.order(ByteOrder.nativeOrder());
-        cubeUVs = bbUVs.asFloatBuffer();
-        cubeUVs.put(WorldLayoutData.CUBE_UVS);
-        cubeUVs.position(0);
-
-        int vertexShader = Renderer.loadShader(GLES20.GL_VERTEX_SHADER, VertexShaderCode);
-        int fragmentShader = Renderer.loadShader(GLES20.GL_FRAGMENT_SHADER, FragmentShaderCode);
-        grassProgram = GLES20.glCreateProgram();
-        GLES20.glAttachShader(grassProgram, vertexShader);
-        GLES20.glAttachShader(grassProgram, fragmentShader);
-        GLES20.glLinkProgram(grassProgram);
+        grassProgram = GlHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
         GLES20.glUseProgram(grassProgram);
 
-        textureData = Renderer.loadTexture(resources, R.drawable.atlas);
+        textureData = GlHelper.loadTexture(resources, R.drawable.atlas);
         textureHandle = GLES20.glGetUniformLocation(grassProgram, "u_texture");
 
         grassUVParam = GLES20.glGetAttribLocation(grassProgram, "a_textureCoord");
@@ -83,21 +73,57 @@ public class Grass {
         grassModelViewProjectionParam = GLES20.glGetUniformLocation(grassProgram, "u_MVP");
     }
 
-    public void addBlock(Block block){
-        this.list.add(block);
-    }
-
-    public void addList(List<Block> list){
-        for (Block block : list) {
-            this.list.add(block);
+    private void add(VertexIndexTextureList vitList, Block block){
+        if (!blocks.contains(new Block(block.x, block.y + 1, block.z))) {
+            addTopFace(vitList, block);
+        }
+        if (!blocks.contains(new Block(block.x, block.y, block.z + 1))) {
+            addFrontFace(vitList, block);
+        }
+        if (!blocks.contains(new Block(block.x - 1, block.y, block.z))) {
+            addLeftFace(vitList, block);
+        }
+        if (!blocks.contains(new Block(block.x + 1, block.y, block.z))) {
+            addRightFace(vitList, block);
+        }
+        if (!blocks.contains(new Block(block.x, block.y, block.z - 1))) {
+            addBackFace(vitList, block);
+        }
+        if (!blocks.contains(new Block(block.x, block.y - 1, block.z))) {
+            addBottomFace(vitList, block);
         }
     }
 
-    public List<Block> getList(){
-        return list;
+    public void addBlock(Block block){
+        add(vitList, block);
+        blocks.add(block);
     }
 
+    public void addList(List<Block> list){
+        for (Block block : list){
+            add(vitList, block);
+        }
+        blocks.addAll(list);
+    }
+
+    public void setBufferFromList(){
+        cubeBuffer = new Buffers(
+                GlHelper.createFloatBuffer(vitList.getVertexArray()),
+                GlHelper.createShortBuffer(vitList.getIndexArray()),
+                GlHelper.createFloatBuffer(vitList.getTextureCoordArray()));
+    }
+
+    public Set<Block> getBlocks(){
+        return blocks;
+    }
+
+    public int getExposedNumber(){
+        return exposedList.size();
+    }
     public int getBlocksNumber(){
+        return blocks.size();
+    }
+    public int getListNumber(){
         return list.size();
     }
 
@@ -107,25 +133,20 @@ public class Grass {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureData);
 
-        for (Block position : list) {
-            draw(position.x,position.y,position.z,view,perspective);
-        }
-    }
-
-    public void draw(float x, float y, float z, float[] view, float[] perspective) {
         Matrix.setIdentityM(modelGrass, 0);
-        Matrix.translateM(modelGrass, 0, x, y, z);
         Matrix.multiplyMM(modelView, 0, view, 0, modelGrass, 0);
         Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
         GLES20.glUniformMatrix4fv(grassModelViewProjectionParam, 1, false, modelViewProjection, 0);
 
-        GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, cubeVertices);
-        GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, cubeUVs);
+        GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, cubeBuffer.vertexBuffer);
+        GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer.textureCoordBuffer);
 
         GLES20.glEnableVertexAttribArray(grassPositionParam);
         GLES20.glEnableVertexAttribArray(grassUVParam);
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
+        GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES, cubeBuffer.drawListBuffer.limit(),
+                GLES20.GL_UNSIGNED_SHORT, cubeBuffer.drawListBuffer);
 
         GLES20.glDisableVertexAttribArray(grassUVParam);
         GLES20.glDisableVertexAttribArray(grassPositionParam);
@@ -146,5 +167,147 @@ public class Grass {
         float yaw = (float) Math.atan2(tempPosition[0], -tempPosition[2]);
 
         return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
+    }
+
+    private List<Block> shownBlocks(List<Block> blocks) {
+        List<Block> result = new ArrayList<Block>();
+        if (blocks == null) {
+            return result;
+        }
+
+        for (Block block : blocks) {
+            if (exposed(block)) {
+                result.add(block);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Checks all 6 faces of the given block and returns true if at least one face is not covered
+     * by another block in {@code blocks}.
+     */
+    private boolean exposed(Block block) {
+        return !blocks.contains(new Block(block.x - 1, block.y, block.z)) ||
+                !blocks.contains(new Block(block.x + 1, block.y, block.z)) ||
+                !blocks.contains(new Block(block.x, block.y - 1, block.z)) ||
+                !blocks.contains(new Block(block.x, block.y + 1, block.z)) ||
+                !blocks.contains(new Block(block.x, block.y, block.z - 1)) ||
+                !blocks.contains(new Block(block.x, block.y, block.z + 1));
+    }
+
+    private Buffers cubeBuffer;
+
+    private static class Buffers {
+        private final FloatBuffer vertexBuffer;
+        private final ShortBuffer drawListBuffer;
+        private final FloatBuffer textureCoordBuffer;
+
+        Buffers(FloatBuffer vertexBuffer, ShortBuffer drawListBuffer, FloatBuffer textureCoordBuffer) {
+            this.vertexBuffer = vertexBuffer;
+            this.drawListBuffer = drawListBuffer;
+            this.textureCoordBuffer = textureCoordBuffer;
+        }
+    }
+
+    // OpenGL coordinates:
+    //        ^ y
+    //        |     x
+    //        +--->
+    //   z   /
+    //      v
+    private static final Point3 TOP_FACE[] = {
+            new Point3(-0.5f, 0.5f, 0.5f),  // front left
+            new Point3(0.5f, 0.5f, 0.5f),  // front right
+            new Point3(0.5f, 0.5f, -0.5f),  // rear right
+            new Point3(-0.5f, 0.5f, -0.5f)  // rear left
+    };
+
+    private static final short[] FACE_DRAW_LIST_IDXS = {
+            0, 1, 3,
+            3, 1, 2,
+    };
+
+    // Flip top and bottom since bitmaps are loaded upside down.
+    private static final float[] TOP_FACE_TEXTURE_COORDS = {
+            0.0f, 1.0f,
+            0.5f, 1.0f,
+            0.5f, 0.5f,
+            0.0f, 0.5f,
+    };
+
+    private void addTopFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, TOP_FACE, FACE_DRAW_LIST_IDXS, TOP_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 FRONT_FACE[] = {
+            new Point3(-0.5f, -0.5f, 0.5f),  // bottom left
+            new Point3(0.5f, -0.5f, 0.5f),  // bottom right
+            new Point3(0.5f, 0.5f, 0.5f),  // top right
+            new Point3(-0.5f, 0.5f, 0.5f)  // top left
+    };
+
+    // Flip top and bottom since bitmaps are loaded upside down.
+    private static final float[] SIDE_FACE_TEXTURE_COORDS = {
+            0.5f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.5f,
+            0.5f, 0.5f,
+    };
+
+    private void addFrontFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, FRONT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 LEFT_FACE[] = {
+            new Point3(-0.5f, -0.5f, -0.5f),  // rear bottom
+            new Point3(-0.5f, -0.5f, 0.5f),  // front bottom
+            new Point3(-0.5f, 0.5f, 0.5f),  // front top
+            new Point3(-0.5f, 0.5f, -0.5f)  // rear top
+    };
+
+    private void addLeftFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, LEFT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 RIGHT_FACE[] = {
+            new Point3(0.5f, -0.5f, 0.5f),  // front bottom
+            new Point3(0.5f, -0.5f, -0.5f),  // rear bottom
+            new Point3(0.5f, 0.5f, -0.5f),  // rear top
+            new Point3(0.5f, 0.5f, 0.5f)  // front top
+    };
+
+    private void addRightFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, RIGHT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 BACK_FACE[] = {
+            new Point3(0.5f, -0.5f, -0.5f),  // bottom right
+            new Point3(-0.5f, -0.5f, -0.5f),  // bottom left
+            new Point3(-0.5f, 0.5f, -0.5f),  // top left
+            new Point3(0.5f, 0.5f, -0.5f)  // top right
+    };
+
+    private void addBackFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, BACK_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 BOTTOM_FACE[] = {
+            new Point3(-0.5f, -0.5f, -0.5f),  // rear left
+            new Point3(0.5f, -0.5f, -0.5f),  // rear right
+            new Point3(0.5f, -0.5f, 0.5f),  // front right
+            new Point3(-0.5f, -0.5f, 0.5f)  // front left
+    };
+
+    // Flip top and bottom since bitmaps are loaded upside down.
+    private static final float[] BOTTOM_FACE_TEXTURE_COORDS = {
+            0.0f, 0.5f,
+            0.5f, 0.5f,
+            0.5f, 0.0f,
+            0.0f, 0.0f,
+    };
+
+    private void addBottomFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, BOTTOM_FACE, FACE_DRAW_LIST_IDXS, BOTTOM_FACE_TEXTURE_COORDS);
     }
 }

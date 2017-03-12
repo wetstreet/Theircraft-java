@@ -82,11 +82,9 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     public void onCardboardTrigger() {
         vibrator.vibrate(50);
         int y = new Float(mRenderer.steve.position().y - 1.8f).intValue();
-        double ChunkY = Math.floor(y / Chunk.CHUNK_SIZE);
-        String s = "y=" + Float.toString(y) + "\n" +
-                "ChunkY=" + Double.toString(ChunkY) + "\n" +
-                "Blocks=" + Double.toString(mRenderer.mGrass.getBlocksNumber()) + "\n" +
-                "fps=" + Float.toString(mRenderer.performance.fps());
+        String s =
+                        "Blocks=" + Double.toString(mRenderer.mGrass.getBlocksNumber()) + "\n" +
+                        "fps=" + Float.toString(mRenderer.performance.fps());
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 

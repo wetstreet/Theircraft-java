@@ -26,6 +26,7 @@ public class Physics {
         }
         steve.setVerticalSpeed(verticalSpeed);
 
+        // -1<=x<=1,-1<=y<=1
         float x = steve.mHeadingX;
         float y = steve.mHeadingY;
         float xAngle = steve.mYaw - PI/2;

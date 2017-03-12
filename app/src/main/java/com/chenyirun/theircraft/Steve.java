@@ -4,6 +4,7 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 
 import java.util.HashSet;
@@ -23,13 +24,29 @@ class Steve {
   public float mHeadingX;
   public float mHeadingY;
 
+  private final Object currentChunkLock = new Object();
+  private Chunk currentChunk;
+
   /** Create Steve based on block he is standing on. */
   Steve(Block block) {
     /**
      * Initially, the eye is located at (block.x, block.z) in xz plane, at height block.y + 2.12
      * (feet to eye 1.62 + 0.5 displacement from block the feet are on).
      */
-    eye = new Eye(block.x, block.y + 0.50001f + STEVE_EYE_LEVEL, block.z);
+    eye = new Eye(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z);
+    currentChunk = new Chunk(block);
+  }
+
+  Chunk currentChunk() {
+    synchronized(currentChunkLock) {
+      return currentChunk;
+    }
+  }
+
+  public void setCurrentChunk(Chunk chunk) {
+    synchronized(currentChunkLock) {
+      this.currentChunk = chunk;
+    }
   }
 
   public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
