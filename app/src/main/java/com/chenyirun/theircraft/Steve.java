@@ -102,6 +102,9 @@ class Steve {
   void setPosition(Point3 eyePosition) {
     eye.setPosition(eyePosition);
   }
+  void setPosition(Block block) {
+    eye.setPosition(new Point3(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z));
+  }
 
   /**
    * Given Steve's eye position, returns a set of blocks corresponding to all 8 corners of his

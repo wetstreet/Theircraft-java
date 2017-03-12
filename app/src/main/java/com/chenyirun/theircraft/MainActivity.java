@@ -81,9 +81,9 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public void onCardboardTrigger() {
         vibrator.vibrate(50);
-        int y = new Float(mRenderer.steve.position().y - 1.8f).intValue();
         String s =
-                        "Blocks=" + Double.toString(mRenderer.mGrass.getBlocksNumber()) + "\n" +
+                "y=" + Double.toString(mRenderer.getSteve().position().y) + "\n" +
+                        "Blocks=" + Double.toString(mRenderer.blocks.size()) + "\n" +
                         "fps=" + Float.toString(mRenderer.performance.fps());
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
@@ -131,7 +131,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
                         mRenderer.pressX();
                         break;
                     case KeyEvent.KEYCODE_BUTTON_X:
-                        mRenderer.steve.jump();
+                        mRenderer.jump();
                         break;
                 }
             }

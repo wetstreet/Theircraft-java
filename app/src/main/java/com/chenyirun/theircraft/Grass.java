@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 
 import java.nio.ByteBuffer;
@@ -12,8 +13,10 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,23 +26,61 @@ import java.util.Set;
 public class Grass {
     private final int grassProgram;
 
-    private List<Block> list = new ArrayList<>();
-    private List<Block> exposedList = new ArrayList<>();
-    public final Set<Block> blocks = new HashSet<>();
     private VertexIndexTextureList vitList = new VertexIndexTextureList();
+    private static final Map<Chunk, Buffers> chunkToBuffers = new HashMap<>();
 
     public final float[] modelGrass = new float[16];
     private final float[] modelView = new float[16];
     private final float[] modelViewProjection = new float[16];
-
-    private FloatBuffer cubeVertices;
-    private FloatBuffer cubeUVs;
-
+    
     private int textureHandle;
     private int textureData;
     private int grassPositionParam;
     private int grassUVParam;
     private int grassModelViewProjectionParam;
+
+    void load(Chunk chunk, List<Block> blocks, Set<Block> allBlocks) {
+        Buffers buffers = createBuffers(blocks, allBlocks);
+        synchronized(chunkToBuffers) {
+            chunkToBuffers.put(chunk, buffers);
+        }
+    }
+
+    void unload(Chunk chunk) {
+        synchronized(chunkToBuffers) {
+            chunkToBuffers.remove(chunk);
+        }
+    }
+
+     private Buffers createBuffers(List<Block> blocks, Set<Block> allBlocks) {
+        VertexIndexTextureList vitList = new VertexIndexTextureList();
+        for (Block block : blocks) {
+            // Only add faces that are not between two blocks and thus invisible.
+            if (!allBlocks.contains(new Block(block.x, block.y + 1, block.z))) {
+                addTopFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x, block.y, block.z + 1))) {
+                addFrontFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x - 1, block.y, block.z))) {
+                addLeftFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x + 1, block.y, block.z))) {
+                addRightFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x, block.y, block.z - 1))) {
+                addBackFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x, block.y - 1, block.z))) {
+                addBottomFace(vitList, block);
+            }
+        }
+
+        return new Buffers(
+                GlHelper.createFloatBuffer(vitList.getVertexArray()),
+                GlHelper.createShortBuffer(vitList.getIndexArray()),
+                GlHelper.createFloatBuffer(vitList.getTextureCoordArray()));
+    }
 
     private static final String VertexShaderCode =
             "uniform mat4 u_MVP;\n" +
@@ -73,37 +114,37 @@ public class Grass {
         grassModelViewProjectionParam = GLES20.glGetUniformLocation(grassProgram, "u_MVP");
     }
 
-    private void add(VertexIndexTextureList vitList, Block block){
-        if (!blocks.contains(new Block(block.x, block.y + 1, block.z))) {
+    private void add(VertexIndexTextureList vitList, Block block, Set<Block> allBlocks){
+        if (!allBlocks.contains(new Block(block.x, block.y + 1, block.z))) {
             addTopFace(vitList, block);
         }
-        if (!blocks.contains(new Block(block.x, block.y, block.z + 1))) {
+        if (!allBlocks.contains(new Block(block.x, block.y, block.z + 1))) {
             addFrontFace(vitList, block);
         }
-        if (!blocks.contains(new Block(block.x - 1, block.y, block.z))) {
+        if (!allBlocks.contains(new Block(block.x - 1, block.y, block.z))) {
             addLeftFace(vitList, block);
         }
-        if (!blocks.contains(new Block(block.x + 1, block.y, block.z))) {
+        if (!allBlocks.contains(new Block(block.x + 1, block.y, block.z))) {
             addRightFace(vitList, block);
         }
-        if (!blocks.contains(new Block(block.x, block.y, block.z - 1))) {
+        if (!allBlocks.contains(new Block(block.x, block.y, block.z - 1))) {
             addBackFace(vitList, block);
         }
-        if (!blocks.contains(new Block(block.x, block.y - 1, block.z))) {
+        if (!allBlocks.contains(new Block(block.x, block.y - 1, block.z))) {
             addBottomFace(vitList, block);
         }
     }
 
-    public void addBlock(Block block){
-        add(vitList, block);
-        blocks.add(block);
+    public void addBlock(Block block, Set<Block> allBlocks){
+        add(vitList, block, allBlocks);
+        allBlocks.add(block);
     }
 
-    public void addList(List<Block> list){
+    public void addList(List<Block> list, Set<Block> allBlocks){
         for (Block block : list){
-            add(vitList, block);
+            add(vitList, block, allBlocks);
         }
-        blocks.addAll(list);
+        allBlocks.addAll(list);
     }
 
     public void setBufferFromList(){
@@ -113,21 +154,7 @@ public class Grass {
                 GlHelper.createFloatBuffer(vitList.getTextureCoordArray()));
     }
 
-    public Set<Block> getBlocks(){
-        return blocks;
-    }
-
-    public int getExposedNumber(){
-        return exposedList.size();
-    }
-    public int getBlocksNumber(){
-        return blocks.size();
-    }
-    public int getListNumber(){
-        return list.size();
-    }
-
-    public void drawList(float[] view, float[] perspective){
+    public void draw(float[] view, float[] perspective){
         GLES20.glUseProgram(grassProgram);
         GLES20.glUniform1i(textureHandle, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -167,33 +194,6 @@ public class Grass {
         float yaw = (float) Math.atan2(tempPosition[0], -tempPosition[2]);
 
         return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
-    }
-
-    private List<Block> shownBlocks(List<Block> blocks) {
-        List<Block> result = new ArrayList<Block>();
-        if (blocks == null) {
-            return result;
-        }
-
-        for (Block block : blocks) {
-            if (exposed(block)) {
-                result.add(block);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Checks all 6 faces of the given block and returns true if at least one face is not covered
-     * by another block in {@code blocks}.
-     */
-    private boolean exposed(Block block) {
-        return !blocks.contains(new Block(block.x - 1, block.y, block.z)) ||
-                !blocks.contains(new Block(block.x + 1, block.y, block.z)) ||
-                !blocks.contains(new Block(block.x, block.y - 1, block.z)) ||
-                !blocks.contains(new Block(block.x, block.y + 1, block.z)) ||
-                !blocks.contains(new Block(block.x, block.y, block.z - 1)) ||
-                !blocks.contains(new Block(block.x, block.y, block.z + 1));
     }
 
     private Buffers cubeBuffer;
