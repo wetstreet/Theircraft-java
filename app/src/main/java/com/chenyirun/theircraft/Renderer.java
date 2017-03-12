@@ -47,22 +47,6 @@ public class Renderer implements GvrView.StereoRenderer {
 
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
-
-    private static interface ChunkChange {}
-    private static class ChunkLoad implements ChunkChange {
-        private final Chunk chunk;
-
-        ChunkLoad(Chunk chunk) {
-            this.chunk = chunk;
-        }
-    }
-    private static class ChunkUnload implements ChunkChange {
-        private final Chunk chunk;
-
-        ChunkUnload(Chunk chunk) {
-            this.chunk = chunk;
-        }
-    }
     private final Object blocksLock = new Object();
     public final Set<Block> blocks = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
@@ -99,6 +83,82 @@ public class Renderer implements GvrView.StereoRenderer {
         chunksToLoad.removeAll(preloadedChunks);
         for (Chunk chunk : chunksToLoad) {
             chunkChanges.add(new ChunkLoad(chunk));
+        }
+    }
+
+    @Override
+    public void onRendererShutdown() {}
+
+    @Override
+    public void onSurfaceChanged(int width, int height) {}
+
+    @Override
+    public void onSurfaceCreated(EGLConfig config) {
+        mGrass.grassInit(resources);
+
+        int x = Chunk.CHUNK_SIZE / 2;
+        int z = Chunk.CHUNK_SIZE / 2;
+        steve.setPosition(new Block(x, highestSolidY(x, z), z));
+    }
+
+    @Override
+    public void onNewFrame(HeadTransform headTransform) {
+        GLES20.glClearColor(0.5f, 0.69f, 1.0f, 1.0f);
+        float x = steve.position().x;
+        float y = steve.position().y;
+        float z = steve.position().z;
+        Matrix.setLookAtM(camera, 0, x, y, z, x, y, z - 0.01f, 0.0f, 1.0f, 0.0f);
+        float[] eulerAngles = new float[3];
+        headTransform.getEulerAngles(eulerAngles, 0);
+        steve.mYaw = eulerAngles[1];
+    }
+
+    void pressX(){
+    }
+
+    private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
+    @Override
+    public void onDrawEye(Eye eye) {
+        float dt = Math.min(performance.startFrame(), 0.2f);
+        for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
+            physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, blocks);
+        }
+
+        Chunk beforeChunk = steve.currentChunk();
+        Chunk afterChunk = new Chunk(steve.position());
+        if (!afterChunk.equals(beforeChunk)) {
+            queueChunkLoads(beforeChunk, afterChunk);
+            steve.setCurrentChunk(afterChunk);
+        }
+
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+        GLES20.glFrontFace(GLES20.GL_CCW);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glCullFace(GLES20.GL_BACK);
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        float[] perspective = eye.getPerspective(0.1f, 100.0f);
+        Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
+
+        mGrass.draw(view, perspective);
+        performance.endFrame();
+    }
+
+    private interface ChunkChange {}
+    private static class ChunkLoad implements ChunkChange {
+        private final Chunk chunk;
+
+        ChunkLoad(Chunk chunk) {
+            this.chunk = chunk;
+        }
+    }
+    private static class ChunkUnload implements ChunkChange {
+        private final Chunk chunk;
+
+        ChunkUnload(Chunk chunk) {
+            this.chunk = chunk;
         }
     }
 
@@ -240,87 +300,6 @@ public class Renderer implements GvrView.StereoRenderer {
             }
         }
         return maxY;
-    }
-
-    @Override
-    public void onRendererShutdown() {}
-
-    @Override
-    public void onSurfaceChanged(int width, int height) {}
-
-    @Override
-    public void onSurfaceCreated(EGLConfig config) {
-        mGrass.grassInit(resources);
-        /**/
-        // make sure that steve will spawn on blocks
-        int square = 4;
-        for (int x = -square; x <= square; x++){
-            for (int z = -square; z <= square; z++){
-                mGrass.addBlock(new Block(x,70,z), blocks);
-                if (x<=1 && x>=-1 && z<=1 && z>=-1){
-                    mGrass.addBlock(new Block(x,71,z), blocks);
-                }
-            }
-        }
-
-        // generate chunks
-        int chunkY = 4*4 + 2;
-        for (int x = -1; x <= 1; x++){
-            for (int z = -1; z <= 1; z++){
-                mGrass.addList(generator.generateChunk(new Chunk(x, chunkY, z)), blocks);
-            }
-        }
-        mGrass.setBufferFromList();
-
-        int x = Chunk.CHUNK_SIZE / 2;
-        int z = Chunk.CHUNK_SIZE / 2;
-        steve.setPosition(new Block(x, highestSolidY(x, z), z));
-    }
-
-    @Override
-    public void onNewFrame(HeadTransform headTransform) {
-        GLES20.glClearColor(0.5f, 0.69f, 1.0f, 1.0f);
-        float x = steve.position().x;
-        float y = steve.position().y;
-        float z = steve.position().z;
-        Matrix.setLookAtM(camera, 0, x, y, z, x, y, z - 0.01f, 0.0f, 1.0f, 0.0f);
-        float[] eulerAngles = new float[3];
-        headTransform.getEulerAngles(eulerAngles, 0);
-        steve.mYaw = eulerAngles[1];
-    }
-
-    void pressX(){
-    }
-
-    private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
-
-    @Override
-    public void onDrawEye(Eye eye) {
-        float dt = Math.min(performance.startFrame(), 0.2f);
-        for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
-            physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, blocks);
-        }
-
-        Chunk beforeChunk = steve.currentChunk();
-        Chunk afterChunk = new Chunk(steve.position());
-        if (!afterChunk.equals(beforeChunk)) {
-            queueChunkLoads(beforeChunk, afterChunk);
-            steve.setCurrentChunk(afterChunk);
-        }
-
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-        GLES20.glFrontFace(GLES20.GL_CCW);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
-        GLES20.glCullFace(GLES20.GL_BACK);
-
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
-        float[] perspective = eye.getPerspective(0.1f, 100.0f);
-        Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
-
-        mGrass.draw(view, perspective);
-        performance.endFrame();
     }
 
     private void queueChunkLoads(Chunk beforeChunk, Chunk afterChunk) {

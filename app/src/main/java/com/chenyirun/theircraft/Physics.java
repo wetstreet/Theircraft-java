@@ -1,16 +1,15 @@
 package com.chenyirun.theircraft;
 
+import android.util.Log;
+
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Point3;
 
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by chenyirun on 2017/3/10.
- */
-
 public class Physics {
+    private static final String TAG = "Physics";
 
     private static final float PI = 3.14159265358979323846f;
     private static final float STEVE_WALKING_SPEED = 4.317f;  // m/s
@@ -20,29 +19,30 @@ public class Physics {
     public static final float JUMP_SPEED = (float)Math.sqrt(2.0f * GRAVITY * MAX_JUMP_HEIGHT);
 
     void move(Steve steve, float dt, Set<Block> blocks){
-        float verticalSpeed = 0;
-        if (steve.jumping){
-            verticalSpeed = Math.max(steve.verticalSpeed() - dt * GRAVITY, -TERMINAL_VELOCITY);
+        if (dt <= 0.0f) {
+            return;
         }
-        steve.setVerticalSpeed(verticalSpeed);
 
-        // -1<=x<=1,-1<=y<=1
+        if (dt > 0.05f) {
+            Log.i(TAG, "Skipped physics, dt: " + dt);
+            return;
+        }
+
+        float verticalSpeed = Math.max(steve.verticalSpeed() - dt * GRAVITY, -TERMINAL_VELOCITY);
+
+        // -1 <= x <= 1, -1 <= y <= 1
         float x = steve.mHeadingX;
         float y = steve.mHeadingY;
         float xAngle = steve.mYaw - PI/2;
-        // move along z axis
         double dz = dt * STEVE_WALKING_SPEED * (y * -Math.sin(xAngle) + x * -Math.cos(xAngle));
-        // move along x axis
         double dx = dt * STEVE_WALKING_SPEED * (y * Math.cos(xAngle) + x * -Math.sin(xAngle));
-        // move vertically
         double dy = dt * verticalSpeed;
         Point3 newPosition = steve.position().plus(new Point3((float)dx,(float)dy,(float)dz));
         PositionStopVertical adjusted = collisionAdjust(steve, newPosition, blocks);
         steve.setPosition(adjusted.position);
-        if (adjusted.stopVertical){
-            steve.setVerticalSpeed(0);
-            steve.jumping = false;
-        }
+
+        verticalSpeed = adjusted.stopVertical ? 0.0f : verticalSpeed;
+        steve.setVerticalSpeed(verticalSpeed);
     }
 
     private static class PositionStopVertical {
