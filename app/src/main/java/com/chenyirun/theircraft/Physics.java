@@ -42,6 +42,9 @@ public class Physics {
         steve.setPosition(adjusted.position);
 
         verticalSpeed = adjusted.stopVertical ? 0.0f : verticalSpeed;
+        if(adjusted.stopVertical){
+            steve.jumping = false;
+        }
         steve.setVerticalSpeed(verticalSpeed);
     }
 

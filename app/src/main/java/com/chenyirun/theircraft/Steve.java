@@ -81,17 +81,12 @@ class Steve {
         this.verticalSpeed = verticalSpeed;
     }
 
-    private static final Point3 ZERO_VECTOR = new Point3(0.0f, 0.0f, 0.0f);
-
     Point3 position() {
         return eye.position();
     }
 
     void setPosition(Point3 eyePosition) {
         eye.setPosition(eyePosition);
-    }
-    void setPosition(Block block) {
-        eye.setPosition(new Point3(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z));
     }
 
     Chunk currentChunk() {

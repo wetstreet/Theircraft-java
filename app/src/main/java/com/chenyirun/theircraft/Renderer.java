@@ -10,6 +10,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
@@ -47,16 +48,20 @@ public class Renderer implements GvrView.StereoRenderer {
 
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
+    // pitch, yaw, roll(in radian)
+    private final float[] eulerAngles = new float[3];
     private final Object blocksLock = new Object();
     public final Set<Block> blocks = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
     private final BlockingDeque<ChunkChange> chunkChanges = new LinkedBlockingDeque<>();
     private final Thread chunkLoader;
+    private final TextView textView;
 
     private Resources resources;
 
-    Renderer(Resources resources) {
+    Renderer(Resources resources, TextView textView) {
         this.resources = resources;
+        this.textView = textView;
         generator = new Generator(new Random().nextInt());
 
         // Start the thread for loading chunks in the background.
@@ -104,12 +109,28 @@ public class Renderer implements GvrView.StereoRenderer {
         float y = steve.position().y;
         float z = steve.position().z;
         Matrix.setLookAtM(camera, 0, x, y, z, x, y, z - 0.01f, 0.0f, 1.0f, 0.0f);
-        float[] eulerAngles = new float[3];
         headTransform.getEulerAngles(eulerAngles, 0);
         steve.mYaw = eulerAngles[1];
     }
 
-    void pressX(){
+    private float getAngle(float radian){
+        return radian * 180/3.1415926f;
+    }
+
+    private String floatIntString(float f){
+        return Integer.toString(Math.round(f));
+    }
+
+    public void updateInformation(){
+        float pitch = getAngle(eulerAngles[0]);
+        float yaw = getAngle(eulerAngles[1]);
+        float roll = getAngle(eulerAngles[2]);
+        String message = "pitch=" + floatIntString(pitch) + "°\n" +
+                "yaw=" + floatIntString(yaw) + "°\n" +
+                "roll=" + floatIntString(roll) + "°\n" +
+                "Blocks=" + Integer.toString(blocks.size()) + "\n" +
+                "fps=" + floatIntString(performance.fps());
+        textView.setText(message);
     }
 
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
@@ -326,10 +347,8 @@ public class Renderer implements GvrView.StereoRenderer {
         return true;
     }
 
+    public void pressX(){}
     public void jump(){
         steve.jump();
-    }
-    public Steve getSteve(){
-        return steve;
     }
 }

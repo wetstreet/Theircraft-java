@@ -6,6 +6,7 @@ import android.os.Vibrator;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat;
@@ -34,7 +35,6 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         super.onCreate(savedInstanceState);
 
         initializeGvrView();
-
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         mInputManager = InputManagerCompat.Factory.getInputManager(getApplicationContext());
@@ -49,7 +49,9 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         //and stencilSize, and exactly the specified redSize, greenSize, blueSize and alphaSize.
         gvrView.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
 
-        mRenderer = new Renderer(this.getResources());
+        TextView textView = (TextView) findViewById(R.id.textView);
+
+        mRenderer = new Renderer(this.getResources(), textView);
         gvrView.setRenderer(mRenderer);
 
         gvrView.setTransitionViewEnabled(true);
@@ -80,11 +82,9 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
     @Override
     public void onCardboardTrigger() {
+        // do nothing, but give user feedback
+        mRenderer.updateInformation();
         vibrator.vibrate(50);
-        String s =
-                        "Blocks=" + Double.toString(mRenderer.blocks.size()) + "\n" +
-                        "fps=" + Float.toString(mRenderer.performance.fps());
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -127,11 +127,11 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
             if (event.getRepeatCount() == 0) {
                 switch (keyCode){
                     case KeyEvent.KEYCODE_BUTTON_A:
-                        mRenderer.pressX();
-                        break;
-                    case KeyEvent.KEYCODE_BUTTON_X:
                         mRenderer.jump();
-                        break;
+                        return true;
+                    case KeyEvent.KEYCODE_BUTTON_X:
+                        mRenderer.pressX();
+                        return true;
                 }
             }
         }
