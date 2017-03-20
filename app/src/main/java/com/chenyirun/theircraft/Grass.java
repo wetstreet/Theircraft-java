@@ -79,13 +79,17 @@ public class Grass {
         GLES20.glEnableVertexAttribArray(grassPositionParam);
         GLES20.glEnableVertexAttribArray(grassUVParam);
 
-        for (Buffers b : chunkToBuffers.values()) {
-            GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, b.vertexBuffer);
-            GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, b.textureCoordBuffer);
+        synchronized(chunkToBuffers) {
+            if (!chunkToBuffers.isEmpty()){
+                for (Buffers b : chunkToBuffers.values()) {
+                    GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, b.vertexBuffer);
+                    GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, b.textureCoordBuffer);
 
-            GLES20.glDrawElements(
-                    GLES20.GL_TRIANGLES, b.drawListBuffer.limit(),
-                    GLES20.GL_UNSIGNED_SHORT, b.drawListBuffer);
+                    GLES20.glDrawElements(
+                            GLES20.GL_TRIANGLES, b.drawListBuffer.limit(),
+                            GLES20.GL_UNSIGNED_SHORT, b.drawListBuffer);
+                }
+            }
         }
     }
 

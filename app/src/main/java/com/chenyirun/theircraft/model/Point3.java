@@ -12,8 +12,12 @@ public class Point3 {
     this.z = z;
   }
 
-  public Point3 plus(Point3 p2) {
-    return new Point3(x + p2.x, y + p2.y, z + p2.z);
+  public Point3 plus(float x, float y, float z) {
+    return new Point3(this.x + x, this.y + y, this.z + z);
+  }
+
+  public Point3 plus(Point3 p) {
+    return new Point3(x + p.x, y + p.y, z + p.z);
   }
 
   public Point3 times(float mult) {

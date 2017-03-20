@@ -16,10 +16,6 @@ import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
 
-/**
- * Created by chenyirun on 2017/3/6.
- */
-
 public class MainActivity extends GvrActivity implements InputDeviceListener {
     public MainActivity() {
         super();
@@ -49,9 +45,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         //and stencilSize, and exactly the specified redSize, greenSize, blueSize and alphaSize.
         gvrView.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
 
-        TextView textView = (TextView) findViewById(R.id.textView);
-
-        mRenderer = new Renderer(this.getResources(), textView);
+        mRenderer = new Renderer(this.getResources());
         gvrView.setRenderer(mRenderer);
 
         gvrView.setTransitionViewEnabled(true);
@@ -82,9 +76,10 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
     @Override
     public void onCardboardTrigger() {
-        // do nothing, but give user feedback
+        // always give user feedback
         mRenderer.updateInformation();
         vibrator.vibrate(50);
+        //mRenderer.chunkChangesTest();
     }
 
     @Override
@@ -123,10 +118,15 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
+            processVolumeUp(event.getAction(), event.getRepeatCount());
+            return true;
+        }
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
             if (event.getRepeatCount() == 0) {
                 switch (keyCode){
                     case KeyEvent.KEYCODE_BUTTON_A:
+                    case KeyEvent.KEYCODE_BUTTON_THUMBL:
                         mRenderer.jump();
                         return true;
                     case KeyEvent.KEYCODE_BUTTON_X:
@@ -136,5 +136,21 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    private void processVolumeUp(int action, int repeatCount) {
+        // On long press, we receive a sequence of ACTION_DOWN, ignore all after the first one.
+        if (repeatCount > 0) {
+            return;
+        }
+
+        switch (action) {
+            case KeyEvent.ACTION_DOWN:
+                mRenderer.walk(true);
+                break;
+            case KeyEvent.ACTION_UP:
+                mRenderer.walk(false);
+                break;
+        }
     }
 }

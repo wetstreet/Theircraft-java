@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 class Steve {
-    private static final float STEVE_EYE_LEVEL = 1.62f;  // meters from feet.
-    private static final float STEVE_HITBOX_HEIGHT = 1.8f;  // meters from feet.
-    private static final float STEVE_HITBOX_WIDTH = 0.6f;  // meters
+    public static final float STEVE_EYE_LEVEL = 1.62f;  // meters from feet.
+    public static final float STEVE_HITBOX_HEIGHT = 1.8f;  // meters from feet.
+    public static final float STEVE_HITBOX_WIDTH = 0.6f;  // meters
 
     private final Eye eye;
-    public boolean jumping = false;
+    private boolean walking = false;
     /** Speed in axis y direction (up), in m/s. */
     private float verticalSpeed = 0.0f;
 
@@ -67,9 +67,8 @@ class Steve {
     }
 
     void jump(){
-        if (!jumping){
+        if (verticalSpeed == 0){
             verticalSpeed = Physics.JUMP_SPEED;
-            jumping = true;
         }
     }
 
@@ -87,6 +86,25 @@ class Steve {
 
     void setPosition(Point3 eyePosition) {
         eye.setPosition(eyePosition);
+    }
+
+    void walk(boolean walking){
+        this.walking = walking;
+    }
+    boolean isWalking(){
+        return walking;
+    }
+
+    private static final Point3 ZERO_VECTOR = new Point3(0.0f, 0.0f, 0.0f);
+    Point3 motionVector() {
+        if (!walking) {
+            return ZERO_VECTOR;
+        }
+
+        float xAngle = mYaw - 3.1415926f/2;
+        float x = (float)Math.cos(xAngle);
+        float y = (float)Math.sin(xAngle);
+        return new Point3(x, 0.0f, y);
     }
 
     Chunk currentChunk() {
@@ -139,7 +157,7 @@ class Steve {
         Hitbox hit = hitbox(eyePosition);
         float kneeY = 0.5f * (hit.minY + hit.maxY);
 
-        Set<Block> result = new HashSet<Block>();
+        Set<Block> result = new HashSet<>();
         result.add(new Block(hit.minX, kneeY, hit.minZ));
         result.add(new Block(hit.maxX, kneeY, hit.minZ));
         result.add(new Block(hit.minX, kneeY, hit.maxZ));

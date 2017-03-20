@@ -1,5 +1,6 @@
 package com.chenyirun.theircraft;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
@@ -35,11 +37,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-/**
- * Created by chenyirun on 2017/3/6.
- */
-
 public class Renderer implements GvrView.StereoRenderer {
+    private static final String TAG = "Renderer";
     public final Grass mGrass = new Grass();
     private final Steve steve;
     private Generator generator;
@@ -55,13 +54,11 @@ public class Renderer implements GvrView.StereoRenderer {
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
     private final BlockingDeque<ChunkChange> chunkChanges = new LinkedBlockingDeque<>();
     private final Thread chunkLoader;
-    private final TextView textView;
 
     private Resources resources;
 
-    Renderer(Resources resources, TextView textView) {
+    Renderer(Resources resources) {
         this.resources = resources;
-        this.textView = textView;
         generator = new Generator(new Random().nextInt());
 
         // Start the thread for loading chunks in the background.
@@ -113,24 +110,9 @@ public class Renderer implements GvrView.StereoRenderer {
         steve.mYaw = eulerAngles[1];
     }
 
-    private float getAngle(float radian){
-        return radian * 180/3.1415926f;
-    }
-
-    private String floatIntString(float f){
-        return Integer.toString(Math.round(f));
-    }
-
     public void updateInformation(){
-        float pitch = getAngle(eulerAngles[0]);
-        float yaw = getAngle(eulerAngles[1]);
-        float roll = getAngle(eulerAngles[2]);
-        String message = "pitch=" + floatIntString(pitch) + "°\n" +
-                "yaw=" + floatIntString(yaw) + "°\n" +
-                "roll=" + floatIntString(roll) + "°\n" +
-                "Blocks=" + Integer.toString(blocks.size()) + "\n" +
-                "fps=" + floatIntString(performance.fps());
-        textView.setText(message);
+        String message = String.format("fps:%f", performance.fps());
+        //Log.i(TAG, message);
     }
 
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
@@ -159,7 +141,11 @@ public class Renderer implements GvrView.StereoRenderer {
         float[] perspective = eye.getPerspective(0.1f, 100.0f);
         Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
 
+        performance.startRendering();
         mGrass.draw(view, perspective);
+        performance.endRendering();
+
+        updateInformation();
         performance.endFrame();
     }
 
@@ -229,7 +215,9 @@ public class Renderer implements GvrView.StereoRenderer {
                 while (true) {
                     try {
                         ChunkChange cc = chunkChanges.takeFirst();
+                        Log.i(TAG, "run: get chunk change");
                         if (cc instanceof ChunkLoad) {
+                            Log.i(TAG, "run: chunk loading");
                             performance.startChunkLoad();
                             Chunk chunk = ((ChunkLoad) cc).chunk;
                             synchronized(blocksLock) {
@@ -238,6 +226,7 @@ public class Renderer implements GvrView.StereoRenderer {
                             }
                             performance.endChunkLoad();
                         } else if (cc instanceof ChunkUnload) {
+                            Log.i(TAG, "run: chunk unloading");
                             performance.startChunkUnload();
                             Chunk chunk = ((ChunkUnload) cc).chunk;
                             synchronized(blocksLock) {
@@ -246,6 +235,7 @@ public class Renderer implements GvrView.StereoRenderer {
                             }
                             performance.endChunkUnload();
                         } else {
+                            Log.i(TAG, "run: no chunk loading");
                             throw new RuntimeException("Unknown ChunkChange subtype: " + cc.getClass().getName());
                         }
                     } catch (InterruptedException e) {
@@ -350,5 +340,9 @@ public class Renderer implements GvrView.StereoRenderer {
     public void pressX(){}
     public void jump(){
         steve.jump();
+    }
+
+    public void walk(boolean walking){
+        steve.walk(walking);
     }
 }

@@ -29,23 +29,28 @@ public class Physics {
         }
 
         float verticalSpeed = Math.max(steve.verticalSpeed() - dt * GRAVITY, -TERMINAL_VELOCITY);
-
-        // -1 <= x <= 1, -1 <= y <= 1
-        float x = steve.mHeadingX;
-        float y = steve.mHeadingY;
-        float xAngle = steve.mYaw - PI/2;
-        double dz = dt * STEVE_WALKING_SPEED * (y * -Math.sin(xAngle) + x * -Math.cos(xAngle));
-        double dx = dt * STEVE_WALKING_SPEED * (y * Math.cos(xAngle) + x * -Math.sin(xAngle));
-        double dy = dt * verticalSpeed;
-        Point3 newPosition = steve.position().plus(new Point3((float)dx,(float)dy,(float)dz));
+        Point3 newPosition;
+        if (steve.isWalking()){
+            Point3 dxyz = steve.motionVector().times(dt * STEVE_WALKING_SPEED).plusY(dt * verticalSpeed);
+            newPosition = steve.position().plus(dxyz);
+        } else {
+            // -1 <= x <= 1, -1 <= y <= 1
+            float x = steve.mHeadingX;
+            float y = steve.mHeadingY;
+            float xAngle = steve.mYaw - PI/2;
+            double dz = dt * STEVE_WALKING_SPEED * (y * -Math.sin(xAngle) + x * -Math.cos(xAngle));
+            double dx = dt * STEVE_WALKING_SPEED * (y * Math.cos(xAngle) + x * -Math.sin(xAngle));
+            double dy = dt * verticalSpeed;
+            newPosition = steve.position().plus((float)dx,(float)dy,(float)dz);
+        }
         PositionStopVertical adjusted = collisionAdjust(steve, newPosition, blocks);
         steve.setPosition(adjusted.position);
 
         verticalSpeed = adjusted.stopVertical ? 0.0f : verticalSpeed;
-        if(adjusted.stopVertical){
-            steve.jumping = false;
-        }
         steve.setVerticalSpeed(verticalSpeed);
+        if (shouldJump(steve, newPosition, blocks)) {
+            steve.jump();
+        }
     }
 
     private static class PositionStopVertical {
@@ -59,7 +64,7 @@ public class Physics {
     }
 
     private PositionStopVertical collisionAdjust(Steve steve, Point3 eyePosition, Set<Block> blocks) {
-        Set<Block> collidingBlocks = new HashSet<Block>();
+        Set<Block> collidingBlocks = new HashSet<>();
         for (Block block : steve.hitboxCornerBlocks(eyePosition)) {
             if (blocks.contains(block)) {
                 collidingBlocks.add(block);
@@ -152,4 +157,17 @@ public class Physics {
         }
     }
 
+    public boolean shouldJump(Steve steve, Point3 eyePosition, Set<Block> blocks) {
+        return intersects(steve.kneeBlocks(eyePosition), blocks) &&
+                !intersects(steve.headBlocks(eyePosition), blocks);
+    }
+
+    public static <T> boolean intersects(Set<T> smallSet, Set<T> largeSet) {
+        for (T el : smallSet) {
+            if (largeSet.contains(el)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
