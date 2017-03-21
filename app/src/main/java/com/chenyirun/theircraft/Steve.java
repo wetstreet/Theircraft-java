@@ -1,5 +1,6 @@
 package com.chenyirun.theircraft;
 
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
@@ -15,8 +16,12 @@ class Steve {
     public static final float STEVE_HITBOX_HEIGHT = 1.8f;  // meters from feet.
     public static final float STEVE_HITBOX_WIDTH = 0.6f;  // meters
 
+    public static final int NOT_WALKING = 0;
+    public static final int WALKING_FORWARD = 1;
+    public static final int WALKING_BACKWARD = 2;
+
     private final Eye eye;
-    private boolean walking = false;
+    private int walking = NOT_WALKING;
     /** Speed in axis y direction (up), in m/s. */
     private float verticalSpeed = 0.0f;
 
@@ -88,23 +93,30 @@ class Steve {
         eye.setPosition(eyePosition);
     }
 
-    void walk(boolean walking){
-        this.walking = walking;
+    void walk(int status){
+        this.walking = status;
     }
     boolean isWalking(){
-        return walking;
+        return walking == WALKING_BACKWARD || walking == WALKING_FORWARD;
     }
 
     private static final Point3 ZERO_VECTOR = new Point3(0.0f, 0.0f, 0.0f);
     Point3 motionVector() {
-        if (!walking) {
+        if (walking == NOT_WALKING) {
             return ZERO_VECTOR;
         }
 
         float xAngle = mYaw - 3.1415926f/2;
-        float x = (float)Math.cos(xAngle);
-        float y = (float)Math.sin(xAngle);
-        return new Point3(x, 0.0f, y);
+        float z = 0;
+        float x = 0;
+        if (walking == WALKING_BACKWARD){
+            z = (float)-Math.sin(xAngle);
+            x = (float)Math.cos(xAngle);
+        } else if (walking == WALKING_FORWARD){
+            z = (float)Math.sin(xAngle);
+            x = (float)-Math.cos(xAngle);
+        }
+        return new Point3(x, 0.0f, z);
     }
 
     Chunk currentChunk() {

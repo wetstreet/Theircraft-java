@@ -111,7 +111,7 @@ public class Renderer implements GvrView.StereoRenderer {
     }
 
     public void updateInformation(){
-        String message = String.format("fps:%f", performance.fps());
+        String message = String.format("yaw:%f", performance.fps());
         //Log.i(TAG, message);
     }
 
@@ -215,9 +215,7 @@ public class Renderer implements GvrView.StereoRenderer {
                 while (true) {
                     try {
                         ChunkChange cc = chunkChanges.takeFirst();
-                        Log.i(TAG, "run: get chunk change");
                         if (cc instanceof ChunkLoad) {
-                            Log.i(TAG, "run: chunk loading");
                             performance.startChunkLoad();
                             Chunk chunk = ((ChunkLoad) cc).chunk;
                             synchronized(blocksLock) {
@@ -226,7 +224,6 @@ public class Renderer implements GvrView.StereoRenderer {
                             }
                             performance.endChunkLoad();
                         } else if (cc instanceof ChunkUnload) {
-                            Log.i(TAG, "run: chunk unloading");
                             performance.startChunkUnload();
                             Chunk chunk = ((ChunkUnload) cc).chunk;
                             synchronized(blocksLock) {
@@ -235,7 +232,6 @@ public class Renderer implements GvrView.StereoRenderer {
                             }
                             performance.endChunkUnload();
                         } else {
-                            Log.i(TAG, "run: no chunk loading");
                             throw new RuntimeException("Unknown ChunkChange subtype: " + cc.getClass().getName());
                         }
                     } catch (InterruptedException e) {
@@ -342,7 +338,7 @@ public class Renderer implements GvrView.StereoRenderer {
         steve.jump();
     }
 
-    public void walk(boolean walking){
+    public void walk(int walking){
         steve.walk(walking);
     }
 }

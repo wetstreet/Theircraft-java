@@ -77,9 +77,8 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public void onCardboardTrigger() {
         // always give user feedback
-        mRenderer.updateInformation();
         vibrator.vibrate(50);
-        //mRenderer.chunkChangesTest();
+        mRenderer.pressX();
     }
 
     @Override
@@ -118,9 +117,13 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
-            processVolumeUp(event.getAction(), event.getRepeatCount());
-            return true;
+        switch (keyCode){
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                processVolumeUp(event.getAction(), event.getRepeatCount());
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                processVolumeDown(event.getAction(), event.getRepeatCount());
+                return true;
         }
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
             if (event.getRepeatCount() == 0) {
@@ -146,10 +149,26 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
         switch (action) {
             case KeyEvent.ACTION_DOWN:
-                mRenderer.walk(true);
+                mRenderer.walk(Steve.WALKING_FORWARD);
                 break;
             case KeyEvent.ACTION_UP:
-                mRenderer.walk(false);
+                mRenderer.walk(Steve.NOT_WALKING);
+                break;
+        }
+    }
+
+    private void processVolumeDown(int action, int repeatCount) {
+        // On long press, we receive a sequence of ACTION_DOWN, ignore all after the first one.
+        if (repeatCount > 0) {
+            return;
+        }
+
+        switch (action) {
+            case KeyEvent.ACTION_DOWN:
+                mRenderer.walk(Steve.WALKING_BACKWARD);
+                break;
+            case KeyEvent.ACTION_UP:
+                mRenderer.walk(Steve.NOT_WALKING);
                 break;
         }
     }
