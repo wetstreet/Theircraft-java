@@ -45,7 +45,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         //and stencilSize, and exactly the specified redSize, greenSize, blueSize and alphaSize.
         gvrView.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
 
-        mRenderer = new Renderer(this.getResources());
+        mRenderer = new Renderer(getApplicationContext(), this.getResources());
         gvrView.setRenderer(mRenderer);
 
         gvrView.setTransitionViewEnabled(true);
@@ -72,6 +72,12 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy(){
+        mRenderer.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -134,6 +140,9 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
                         return true;
                     case KeyEvent.KEYCODE_BUTTON_X:
                         mRenderer.pressX();
+                        return true;
+                    case KeyEvent.KEYCODE_BUTTON_B:
+                        mRenderer.pressB();
                         return true;
                 }
             }

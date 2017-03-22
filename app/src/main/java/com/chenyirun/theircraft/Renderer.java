@@ -1,18 +1,16 @@
 package com.chenyirun.theircraft;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
@@ -23,8 +21,6 @@ import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
 import com.google.vr.sdk.base.Viewport;
 
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,12 +50,15 @@ public class Renderer implements GvrView.StereoRenderer {
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
     private final BlockingDeque<ChunkChange> chunkChanges = new LinkedBlockingDeque<>();
     private final Thread chunkLoader;
-
+    private final DBService mDBService;
     private Resources resources;
 
-    Renderer(Resources resources) {
+    Renderer(Context context, Resources resources) {
         this.resources = resources;
-        generator = new Generator(new Random().nextInt());
+        mDBService = new DBService(context);
+
+        int seed = mDBService.getSeed();
+        generator = new Generator(seed);
 
         // Start the thread for loading chunks in the background.
         chunkLoader = createChunkLoader();
@@ -76,9 +75,7 @@ public class Renderer implements GvrView.StereoRenderer {
             SystemClock.sleep(100L);
         }
 
-        int x = Chunk.CHUNK_SIZE / 2;
-        int z = Chunk.CHUNK_SIZE / 2;
-        steve = new Steve(new Block(x, highestSolidY(x, z), z));
+        steve = new Steve(mDBService.getSteve(blocks));
 
         Chunk currChunk = steve.currentChunk();
         Set<Chunk> chunksToLoad = neighboringChunks(currChunk);
@@ -110,11 +107,6 @@ public class Renderer implements GvrView.StereoRenderer {
         steve.mYaw = eulerAngles[1];
     }
 
-    public void updateInformation(){
-        String message = String.format("yaw:%f", performance.fps());
-        //Log.i(TAG, message);
-    }
-
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
     @Override
     public void onDrawEye(Eye eye) {
@@ -122,6 +114,7 @@ public class Renderer implements GvrView.StereoRenderer {
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
             physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, blocks);
         }
+        //mDBService.updateSteve(new Block(steve.position()));
 
         Chunk beforeChunk = steve.currentChunk();
         Chunk afterChunk = new Chunk(steve.position());
@@ -144,8 +137,6 @@ public class Renderer implements GvrView.StereoRenderer {
         performance.startRendering();
         mGrass.draw(view, perspective);
         performance.endRendering();
-
-        updateInformation();
         performance.endFrame();
     }
 
@@ -252,6 +243,21 @@ public class Renderer implements GvrView.StereoRenderer {
         }
 
         List<Block> blocksInChunk = generator.generateChunk(chunk);
+        if(mDBService.DBEnabled){
+            List<Block> list = mDBService.getBlockChangesInChunk(chunk);
+            for (Block block : list) {
+                switch (block.type){
+                    case Block.BLOCK_AIR:
+                        blocksInChunk.remove(block);
+                        break;
+                    case Block.BLOCK_GRASS:
+                        blocksInChunk.add(block);
+                        break;
+                }
+            }
+        } else {
+            blocksInChunk = generator.generateChunk(chunk);
+        }
         addChunkBlocks(chunk, blocksInChunk);
     }
 
@@ -268,6 +274,7 @@ public class Renderer implements GvrView.StereoRenderer {
         chunkBlocks.remove(chunk);
         blocks.removeAll(blocksInChunk);
     }
+
     private List<Block> shownBlocks(List<Block> blocks) {
         List<Block> result = new ArrayList<>();
         if (blocks == null) {
@@ -289,20 +296,6 @@ public class Renderer implements GvrView.StereoRenderer {
                 !blocks.contains(new Block(block.x, block.y + 1, block.z)) ||
                 !blocks.contains(new Block(block.x, block.y, block.z - 1)) ||
                 !blocks.contains(new Block(block.x, block.y, block.z + 1));
-    }
-
-    /** Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block. */
-    private float highestSolidY(float x, float z) {
-        float maxY = Generator.minElevation();
-        for (Block block : blocks) {
-            if (block.x != x || block.z != z) {
-                continue;
-            }
-            if (block.y > maxY) {
-                maxY = block.y;
-            }
-        }
-        return maxY;
     }
 
     private void queueChunkLoads(Chunk beforeChunk, Chunk afterChunk) {
@@ -333,12 +326,49 @@ public class Renderer implements GvrView.StereoRenderer {
         return true;
     }
 
-    public void pressX(){}
+    private void addBlock(Block block){
+        List<Block> blocksInChunk = chunkBlocks.get(new Chunk(block));
+        if (!blocksInChunk.contains(block)){
+            blocksInChunk.add(block);
+        }
+        blocks.add(block);
+        chunkChanges.add(new ChunkLoad(new Chunk(block)));
+        mDBService.insertBlock(block);
+    }
+
+    private void destroyBlock(Block block){
+        chunkBlocks.get(steve.currentChunk()).remove(block);
+        blocks.remove(block);
+        chunkChanges.add(new ChunkLoad(new Chunk(block)));
+        mDBService.deleteBlock(block);
+    }
+
+    public void pressX(){
+        Point3 p = steve.position();
+        Block floatingBlock = new Block(p.x, p.y+2, p.z);
+        if (!blocks.contains(floatingBlock)){
+            addBlock(floatingBlock);
+            Log.i(TAG, "pressX: add floating block");
+        } else {
+            Log.i(TAG, "pressX: block already exists!");
+        }
+    }
+
+    public void pressB(){
+        Point3 p = steve.position();
+        Block floatingBlock = new Block(p.x, p.y+2, p.z);
+        destroyBlock(floatingBlock);
+    }
+
     public void jump(){
         steve.jump();
     }
 
     public void walk(int walking){
         steve.walk(walking);
+    }
+
+    public void onDestroy(){
+        mDBService.onDestroy();
     }
 }

@@ -51,7 +51,7 @@ public class Generator {
         float maxElevation = MAX_FOREST_HILLS_Y;
         float height = 0.5f * (maxElevation - minElevation);
 
-        List<Block> result = new ArrayList<Block>();
+        List<Block> result = new ArrayList<>();
         for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
             for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
                 for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
