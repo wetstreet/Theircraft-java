@@ -10,7 +10,7 @@ import android.provider.BaseColumns;
  */
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 7;
     public static final String DATABASE_NAME = "database.db";
     public static final String TABLE_BLOCK = "block";
     public static final String TABLE_SEED = "seed";

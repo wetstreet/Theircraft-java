@@ -42,6 +42,17 @@ class Steve {
         currentChunk = new Chunk(block);
     }
 
+    public boolean isOnTheGround(){
+        return verticalSpeed == 0;
+    }
+
+    public Block getBlock(){
+        int x = (int)position().x;
+        int y = (int)(position().y - 0.5f - STEVE_EYE_LEVEL);
+        int z = (int)position().z;
+        return new Block(x, y, z);
+    }
+
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
         if (null == device) {
             device = event.getDevice();

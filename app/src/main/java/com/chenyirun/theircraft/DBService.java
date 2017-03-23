@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
-import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.perlin.Generator;
 
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ import java.util.Set;
 public class DBService {
     private static final String TAG = "DBService";
     private DBHelper mDBHelper;
+    private Block stevePosition;
     public static final boolean DBEnabled = true;
 
     public DBService(Context context){
@@ -87,10 +87,12 @@ public class DBService {
                 int y = cursor.getInt(cursor.getColumnIndexOrThrow("y"));
                 int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
                 block = new Block(x,y,z);
+                stevePosition = block;
                 Log.i(TAG, "getSteve: found steve at "+block);
             } else {
                 Log.i(TAG, "getSteve: no steve in database");
                 block = new Block(0, highestSolidY(0, 0, blocks), 0);
+                stevePosition = block;
                 insertSteve(block);
             }
             cursor.close();
@@ -116,28 +118,36 @@ public class DBService {
     }
 
     void updateSteve(Block block){
+        if (block.equals(stevePosition)){
+            //Log.i(TAG, "updateSteve: block does not chnge");
+            return;
+        }
         if (isSteveExisted()){
             SQLiteDatabase db = mDBHelper.getWritableDatabase();
-            db.delete(DBHelper.TABLE_STEVE, null, null);
             ContentValues values = new ContentValues();
             values.put("x", block.x);
             values.put("y", block.y);
             values.put("z", block.z);
             db.update(DBHelper.TABLE_STEVE, values, null, null);
-            Log.i(TAG, "update steve position"+block);
+            stevePosition = block;
+            Log.i(TAG, "update steve position at "+block);
         } else {
             Log.i(TAG, "updateSteve: steve does not exist!");
         }
     }
 
     void insertSteve(Block block){
+        if (isSteveExisted()){
+            Log.i(TAG, "insertSteve: steve exists");
+            return;
+        }
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
-        db.delete(DBHelper.TABLE_STEVE, null, null);
         ContentValues values = new ContentValues();
         values.put("x", block.x);
         values.put("y", block.y);
         values.put("z", block.z);
         long newRowId = db.insert(DBHelper.TABLE_STEVE, null, values);
+        stevePosition = block;
         Log.i(TAG, "insert new steve! position"+block+" row id:"+ newRowId);
     }
 

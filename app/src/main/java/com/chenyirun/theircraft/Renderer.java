@@ -75,7 +75,8 @@ public class Renderer implements GvrView.StereoRenderer {
             SystemClock.sleep(100L);
         }
 
-        steve = new Steve(mDBService.getSteve(blocks));
+        Block steveBlock = mDBService.getSteve(blocks);
+        steve = new Steve(steveBlock);
 
         Chunk currChunk = steve.currentChunk();
         Set<Chunk> chunksToLoad = neighboringChunks(currChunk);
@@ -114,7 +115,9 @@ public class Renderer implements GvrView.StereoRenderer {
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
             physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, blocks);
         }
-        //mDBService.updateSteve(new Block(steve.position()));
+        if (steve.isOnTheGround()){
+            mDBService.updateSteve(steve.getBlock());
+        }
 
         Chunk beforeChunk = steve.currentChunk();
         Chunk afterChunk = new Chunk(steve.position());
