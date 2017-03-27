@@ -17,6 +17,6 @@ Added database and controller support.
 - Press button B to destroy the block above steve.
 
 ### Info
-I need to focus on the national entrance exam for postgraduate to be held on 30th December 2017, so I won't have much time updating this project until then.
+I need to focus on the national entrance exam for postgraduate to be held at the end of 2017, so I won't have much time updating this project until then.
 
 I will add more features as soon as I finish the exam.
