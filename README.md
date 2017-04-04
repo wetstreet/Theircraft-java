@@ -15,8 +15,3 @@ Added database and controller support.
 - Press left analog stick button or button A to jump.
 - Press button X to put a grass block above steve.
 - Press button B to destroy the block above steve.
-
-### Info
-I need to focus on the national entrance exam for postgraduate to be held at the end of 2017, so I won't have much time updating this project until then.
-
-I will add more features as soon as I finish the exam.
