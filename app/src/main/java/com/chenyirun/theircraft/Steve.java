@@ -1,6 +1,5 @@
 package com.chenyirun.theircraft;
 
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
@@ -20,7 +19,7 @@ class Steve {
     public static final int WALKING_FORWARD = 1;
     public static final int WALKING_BACKWARD = 2;
 
-    private final Eye eye;
+    private final SteveEye eye;
     private int walking = NOT_WALKING;
     /** Speed in axis y direction (up), in m/s. */
     private float verticalSpeed = 0.0f;
@@ -40,7 +39,7 @@ class Steve {
          * Initially, the eye is located at (block.x, block.z) in xz plane, at height block.y + 2.12
          * (feet to eye 1.62 + 0.5 displacement from block the feet are on).
          */
-        eye = new Eye(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z);
+        eye = new SteveEye(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z);
         currentChunk = new Chunk(block);
     }
 

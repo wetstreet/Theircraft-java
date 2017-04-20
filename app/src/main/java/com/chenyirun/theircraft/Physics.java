@@ -200,12 +200,12 @@ public class Physics {
         }
     }
 
-    public boolean shouldJump(Steve steve, Point3 eyePosition, Set<Block> blocks) {
+    private boolean shouldJump(Steve steve, Point3 eyePosition, Set<Block> blocks) {
         return intersects(steve.kneeBlocks(eyePosition), blocks) &&
                 !intersects(steve.headBlocks(eyePosition), blocks);
     }
 
-    public static <T> boolean intersects(Set<T> smallSet, Set<T> largeSet) {
+    private static <T> boolean intersects(Set<T> smallSet, Set<T> largeSet) {
         for (T el : smallSet) {
             if (largeSet.contains(el)) {
                 return true;

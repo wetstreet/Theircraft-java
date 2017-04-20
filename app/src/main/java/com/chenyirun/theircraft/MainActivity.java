@@ -6,12 +6,9 @@ import android.os.Vibrator;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat;
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat.InputDeviceListener;
-import com.chenyirun.theircraft.model.Chunk;
 import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
@@ -84,7 +81,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     public void onCardboardTrigger() {
         // always give user feedback
         vibrator.vibrate(50);
-        mRenderer.pressX();
+        mRenderer.onCardboardTrigger();
     }
 
     @Override
@@ -106,79 +103,19 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent ev) {
-        int eventSource = ev.getSource();
-        if ((((eventSource & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
-                ((eventSource & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))
-                && ev.getAction() == MotionEvent.ACTION_MOVE) {
-            int id = ev.getDeviceId();
-            if (-1 != id) {
-                if (mRenderer.onGenericMotionEvent(ev, mInputDevice)) {
-                    return true;
-                }
-            }
+        if (mRenderer.dispatchGenericMotionEvent(ev, mInputDevice)){
+            return true;
+        } else {
+            return super.dispatchGenericMotionEvent(ev);
         }
-        return super.dispatchGenericMotionEvent(ev);
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        switch (keyCode){
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                processVolumeUp(event.getAction(), event.getRepeatCount());
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                processVolumeDown(event.getAction(), event.getRepeatCount());
-                return true;
-        }
-        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
-            if (event.getRepeatCount() == 0) {
-                switch (keyCode){
-                    case KeyEvent.KEYCODE_BUTTON_A:
-                    case KeyEvent.KEYCODE_BUTTON_THUMBL:
-                        mRenderer.jump();
-                        return true;
-                    case KeyEvent.KEYCODE_BUTTON_X:
-                        mRenderer.pressX();
-                        return true;
-                    case KeyEvent.KEYCODE_BUTTON_B:
-                        mRenderer.pressB();
-                        return true;
-                }
-            }
-        }
-        return super.dispatchKeyEvent(event);
-    }
-
-    private void processVolumeUp(int action, int repeatCount) {
-        // On long press, we receive a sequence of ACTION_DOWN, ignore all after the first one.
-        if (repeatCount > 0) {
-            return;
-        }
-
-        switch (action) {
-            case KeyEvent.ACTION_DOWN:
-                mRenderer.walk(Steve.WALKING_FORWARD);
-                break;
-            case KeyEvent.ACTION_UP:
-                mRenderer.walk(Steve.NOT_WALKING);
-                break;
-        }
-    }
-
-    private void processVolumeDown(int action, int repeatCount) {
-        // On long press, we receive a sequence of ACTION_DOWN, ignore all after the first one.
-        if (repeatCount > 0) {
-            return;
-        }
-
-        switch (action) {
-            case KeyEvent.ACTION_DOWN:
-                mRenderer.walk(Steve.WALKING_BACKWARD);
-                break;
-            case KeyEvent.ACTION_UP:
-                mRenderer.walk(Steve.NOT_WALKING);
-                break;
+        if (mRenderer.dispatchKeyEvent(event)){
+            return true;
+        } else{
+            return super.dispatchKeyEvent(event);
         }
     }
 }
