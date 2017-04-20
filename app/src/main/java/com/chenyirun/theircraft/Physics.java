@@ -3,9 +3,13 @@ package com.chenyirun.theircraft;
 import android.util.Log;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.model.Point3Int;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Physics {
@@ -18,7 +22,46 @@ public class Physics {
     private static final float MAX_JUMP_HEIGHT = 1.252f;  // m
     public static final float JUMP_SPEED = (float)Math.sqrt(2.0f * GRAVITY * MAX_JUMP_HEIGHT);
 
-    void move(Steve steve, float dt, Set<Block> blocks){
+    private static final int SAMPLE_RATE = 32;
+    private static final int REACH_DISTANCE = 8;
+    public Point3Int hitTest(boolean previous, Map<Chunk, List<Block>> chunkBlocks, Steve steve){
+        Point3 pos = new Point3(steve.position());
+        Point3Int prevBlockPos = new Point3Int(pos);
+        List<Block> steveChunkBlocks = chunkBlocks.get(steve.getChunk());
+        if (steveChunkBlocks == null){
+            Log.i(TAG, "hitTest: steve chunk blocks null");
+            return null;
+        }
+        // get the position of the first block in the sight direction
+        for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
+            Point3Int newBlockPos = new Point3Int(pos);
+            if (!prevBlockPos.equals(newBlockPos)){
+                Block b = getBlock(newBlockPos, steveChunkBlocks);
+                if (b != null){
+                    Log.i(TAG, "hitTest: block at"+ newBlockPos +" got hit");
+                    if (previous){
+                        return prevBlockPos;
+                    } else {
+                        return b;
+                    }
+                }
+                prevBlockPos = newBlockPos;
+            }
+            pos.add(steve.getSightVector().divide(SAMPLE_RATE));
+        }
+        return null;
+    }
+
+    public Block getBlock(Point3Int blockPos, List<Block> blocks){
+        for (Block block : blocks) {
+            if (block.x == blockPos.x && block.y == blockPos.y && block.z == blockPos.z){
+                return block;
+            }
+        }
+        return null;
+    }
+
+    public void move(Steve steve, float dt, Set<Block> blocks){
         if (dt <= 0.0f) {
             return;
         }

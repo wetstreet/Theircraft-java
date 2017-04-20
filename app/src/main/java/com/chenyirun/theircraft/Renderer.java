@@ -1,10 +1,7 @@
 package com.chenyirun.theircraft;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.SystemClock;
@@ -15,6 +12,7 @@ import android.view.MotionEvent;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.perlin.Generator;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
@@ -26,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -46,7 +43,7 @@ public class Renderer implements GvrView.StereoRenderer {
     // pitch, yaw, roll(in radian)
     private final float[] eulerAngles = new float[3];
     private final Object blocksLock = new Object();
-    public final Set<Block> blocks = new HashSet<>();
+    private final Set<Block> blocks = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
     private final BlockingDeque<ChunkChange> chunkChanges = new LinkedBlockingDeque<>();
     private final Thread chunkLoader;
@@ -105,7 +102,9 @@ public class Renderer implements GvrView.StereoRenderer {
         float z = steve.position().z;
         Matrix.setLookAtM(camera, 0, x, y, z, x, y, z - 0.01f, 0.0f, 1.0f, 0.0f);
         headTransform.getEulerAngles(eulerAngles, 0);
+        steve.mPitch = eulerAngles[0];
         steve.mYaw = eulerAngles[1];
+        steve.mRoll = eulerAngles[2];
     }
 
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
@@ -115,7 +114,7 @@ public class Renderer implements GvrView.StereoRenderer {
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
             physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, blocks);
         }
-        if (steve.isOnTheGround()){
+        if (steve.isOnTheGround() && !mDBService.compareStevePosition(steve.position())){
             mDBService.updateSteve(steve.getBlock());
         }
 
@@ -346,20 +345,29 @@ public class Renderer implements GvrView.StereoRenderer {
         mDBService.deleteBlock(block);
     }
 
+    private void resetSteve(){
+        Block block = new Block(0, 74, 0);
+        steve.setPosition(block);
+        steve.setCurrentChunk(new Chunk(block));
+        mDBService.updateSteve(block);
+    }
+
     public void pressX(){
-        Point3 p = steve.position();
-        Block floatingBlock = new Block(p.x, p.y+2, p.z);
+        Point3Int pos = physics.hitTest(false, chunkBlocks, steve);
+        Log.i(TAG, "pressX: "+pos);
+        //resetSteve();
+        /*
+        Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         if (!blocks.contains(floatingBlock)){
             addBlock(floatingBlock);
             Log.i(TAG, "pressX: add floating block");
         } else {
             Log.i(TAG, "pressX: block already exists!");
-        }
+        }*/
     }
 
     public void pressB(){
-        Point3 p = steve.position();
-        Block floatingBlock = new Block(p.x, p.y+2, p.z);
+        Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         destroyBlock(floatingBlock);
     }
 

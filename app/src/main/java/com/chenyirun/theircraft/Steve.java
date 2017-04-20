@@ -25,7 +25,9 @@ class Steve {
     /** Speed in axis y direction (up), in m/s. */
     private float verticalSpeed = 0.0f;
 
+    public float mPitch;
     public float mYaw;
+    public float mRoll;
     public float mHeadingX;
     public float mHeadingY;
 
@@ -46,11 +48,30 @@ class Steve {
         return verticalSpeed == 0;
     }
 
+    public Point3 getSightVector(){
+        double m = Math.cos(mPitch);
+        float xAngle = mYaw - 3.1415926f/2;
+        double x = Math.cos(xAngle) * m;
+        double y = Math.sin(mPitch);
+        double z = Math.sin(xAngle) * m;
+        return new Point3((float)x,(float)y,(float)z);
+    }
+
+    public float distance(Block block){
+        return (float)Math.sqrt(Math.pow(block.x - eye.position().x, 2) +
+                Math.pow(block.y - eye.position().y, 2) +
+                Math.pow(block.z - eye.position().z, 2));
+    }
+
     public Block getBlock(){
         int x = (int)position().x;
         int y = (int)(position().y - 0.5f - STEVE_EYE_LEVEL);
         int z = (int)position().z;
         return new Block(x, y, z);
+    }
+
+    public Chunk getChunk(){
+        return new Chunk(getBlock());
     }
 
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
@@ -100,8 +121,14 @@ class Steve {
         return eye.position();
     }
 
+    void setPosition(Block block){
+        eye.setPosition(new Point3(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z));
+        verticalSpeed = 0;
+    }
+
     void setPosition(Point3 eyePosition) {
         eye.setPosition(eyePosition);
+        verticalSpeed = 0;
     }
 
     void walk(int status){

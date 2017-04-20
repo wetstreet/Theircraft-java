@@ -3,14 +3,9 @@ package com.chenyirun.theircraft;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
-
-/**
- * Created by chenyirun on 2017/3/21.
- */
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 7;
+    public static final int DATABASE_VERSION = 8;
     public static final String DATABASE_NAME = "database.db";
     public static final String TABLE_BLOCK = "block";
     public static final String TABLE_SEED = "seed";

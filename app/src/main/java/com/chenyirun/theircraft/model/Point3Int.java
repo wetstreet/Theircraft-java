@@ -2,42 +2,54 @@ package com.chenyirun.theircraft.model;
 
 /** Immutable 3d integer coordinates of a point. */
 public class Point3Int {
-  public final int x;
-  public final int y;
-  public final int z;
+    public int x;
+    public int y;
+    public int z;
 
-  Point3Int(int x, int y, int z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
+    public Point3Int(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
-  Point3Int(float x, float y, float z) {
-    this.x = Math.round(x);
-    this.y = Math.round(y);
-    this.z = Math.round(z);
-  }
+    public Point3Int(float x, float y, float z) {
+        this.x = Math.round(x);
+        this.y = Math.round(y);
+        this.z = Math.round(z);
+    }
 
-  public Point3 toPoint3() {
-    return new Point3(x, y, z);
-  }
+    public Point3Int(Point3 point) {
+        this.x = Math.round(point.x);
+        this.y = Math.round(point.y);
+        this.z = Math.round(point.z);
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    public void add(Point3 point){
+        this.x += Math.round(point.x);
+        this.y += Math.round(point.y);
+        this.z += Math.round(point.z);
+    }
 
-    Point3Int point3Int = (Point3Int) o;
-    return (x == point3Int.x) && (y == point3Int.y) && (z == point3Int.z);
-  }
+    public Point3 toPoint3() {
+        return new Point3(x, y, z);
+    }
 
-  @Override
-  public int hashCode() {
-    return 31 * 31 * x + 31 * y + z;
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-  @Override
-  public String toString() {
-    return "Point3Int{x=" + x + ", y=" + y + ", z=" + z + '}';
-  }
+        Point3Int point3Int = (Point3Int) o;
+        return (x == point3Int.x) && (y == point3Int.y) && (z == point3Int.z);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * 31 * x + 31 * y + z;
+    }
+
+    @Override
+    public String toString() {
+        return "Point3Int{x=" + x + ", y=" + y + ", z=" + z + '}';
+    }
 }

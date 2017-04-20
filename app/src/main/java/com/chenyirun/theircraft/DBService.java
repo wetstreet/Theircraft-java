@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.perlin.Generator;
 
 import java.util.ArrayList;
@@ -115,6 +116,10 @@ public class DBService {
         }
         cursor.close();
         return result;
+    }
+
+    boolean compareStevePosition(Point3 point){
+        return stevePosition.equals(new Block(point));
     }
 
     void updateSteve(Block block){
