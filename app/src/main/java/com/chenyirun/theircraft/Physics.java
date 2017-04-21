@@ -29,7 +29,6 @@ public class Physics {
         Point3Int prevBlockPos = new Point3Int(pos);
         List<Block> steveChunkBlocks = chunkBlocks.get(steve.getChunk());
         if (steveChunkBlocks == null){
-            Log.i(TAG, "hitTest: steve chunk blocks null");
             return null;
         }
         // get the position of the first block in the sight direction
@@ -38,7 +37,7 @@ public class Physics {
             if (!prevBlockPos.equals(newBlockPos)){
                 Block b = getBlock(newBlockPos, steveChunkBlocks);
                 if (b != null){
-                    Log.i(TAG, "hitTest: block at"+ newBlockPos +" got hit");
+                    Log.i(TAG, "hitTest: block hit at" + b);
                     if (previous){
                         return prevBlockPos;
                     } else {
@@ -49,6 +48,7 @@ public class Physics {
             }
             pos.add(steve.getSightVector().divide(SAMPLE_RATE));
         }
+        Log.i(TAG, "hitTest: no block got hit");
         return null;
     }
 

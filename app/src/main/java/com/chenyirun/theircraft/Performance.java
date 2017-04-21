@@ -30,6 +30,14 @@ class Performance {
   private long chunkUnloadTimestamp = 0L;
   private long chunkUnloadSpent = 0L;
 
+  private static final Performance performance = new Performance();
+
+  private Performance(){}
+
+  static Performance getInstance(){
+    return performance;
+  }
+
   /**
    * Returns interval in seconds since the last tick, if any.  If this is the first tick,
    * returns a negative number.  Updates internal data to compute FPS.

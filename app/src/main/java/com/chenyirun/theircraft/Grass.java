@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 
@@ -54,10 +55,10 @@ public class Grass {
     }
 
     public void grassInit(Resources resources){
-        grassProgram = GlHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
+        grassProgram = GLHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
         GLES20.glUseProgram(grassProgram);
 
-        textureData = GlHelper.loadTexture(resources, R.drawable.atlas);
+        textureData = GLHelper.loadTexture(resources, R.drawable.atlas);
         textureHandle = GLES20.glGetUniformLocation(grassProgram, "u_texture");
 
         grassUVParam = GLES20.glGetAttribLocation(grassProgram, "a_textureCoord");
@@ -131,11 +132,11 @@ public class Grass {
         }
 
         return new Buffers(
-                GlHelper.createFloatBuffer(vitList.getVertexArray()),
-                GlHelper.createShortBuffer(vitList.getIndexArray()),
-                GlHelper.createFloatBuffer(vitList.getTextureCoordArray()));
+                GLHelper.createFloatBuffer(vitList.getVertexArray()),
+                GLHelper.createShortBuffer(vitList.getIndexArray()),
+                GLHelper.createFloatBuffer(vitList.getTextureCoordArray()));
     }
-
+/*
     private static class Buffers {
         private final FloatBuffer vertexBuffer;
         private final ShortBuffer drawListBuffer;
@@ -146,7 +147,7 @@ public class Grass {
             this.drawListBuffer = drawListBuffer;
             this.textureCoordBuffer = textureCoordBuffer;
         }
-    }
+    }*/
 
     // OpenGL coordinates:
     //        ^ y

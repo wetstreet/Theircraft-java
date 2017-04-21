@@ -12,10 +12,10 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-class GlHelper {
-    private static final String TAG = "GlHelper";
+class GLHelper {
+    private static final String TAG = "GLHelper";
 
-    private GlHelper() {}  // No instantiation.
+    private GLHelper() {}  // No instantiation.
 
     private static final int FLOAT_SIZE_IN_BYTES = 4;
 
@@ -69,8 +69,8 @@ class GlHelper {
     }
 
     static int linkProgram(String vertexShaderGlsl, String fragmentShaderGlsl) {
-        int vertexShader = GlHelper.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderGlsl);
-        int fragmentShader = GlHelper.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderGlsl);
+        int vertexShader = GLHelper.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderGlsl);
+        int fragmentShader = GLHelper.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderGlsl);
 
         int program = GLES20.glCreateProgram();
         if (program == 0) {
@@ -130,6 +130,16 @@ class GlHelper {
 
     public static void drawBackground(){
         GLES20.glClearColor(0.5f, 0.69f, 1.0f, 1.0f);
+    }
+
+    public static void beforeDraw(){
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+        GLES20.glFrontFace(GLES20.GL_CCW);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glCullFace(GLES20.GL_BACK);
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
     }
 /*
     public static void drawLine(){

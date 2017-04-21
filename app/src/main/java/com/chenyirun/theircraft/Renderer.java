@@ -2,7 +2,6 @@ package com.chenyirun.theircraft;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.opengl.GLES20;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -23,25 +22,16 @@ public class Renderer implements GvrView.StereoRenderer {
     }
 
     @Override
-    public void onRendererShutdown() {}
-
-    @Override
-    public void onSurfaceChanged(int width, int height) {}
-
-    @Override
-    public void onSurfaceCreated(EGLConfig config) {
-        world.onSurfaceCreated();
-    }
-
-    @Override
     public void onNewFrame(HeadTransform headTransform) {
-        GLES20.glClearColor(0.5f, 0.69f, 1.0f, 1.0f);
+        GLHelper.drawBackground();
         world.calculateCamera();
         world.setSteveAngles(headTransform);
     }
 
     @Override
-    public void onFinishFrame(Viewport viewport) {}
+    public void onSurfaceCreated(EGLConfig config) {
+        world.onSurfaceCreated();
+    }
 
     @Override
     public void onDrawEye(Eye eye) {
@@ -51,6 +41,15 @@ public class Renderer implements GvrView.StereoRenderer {
     public void onDestroy(){
         world.onDestroy();
     }
+
+    @Override
+    public void onRendererShutdown() {}
+
+    @Override
+    public void onSurfaceChanged(int width, int height) {}
+
+    @Override
+    public void onFinishFrame(Viewport viewport) {}
 
     public boolean dispatchGenericMotionEvent(MotionEvent ev, InputDevice inputDevice) {
         int eventSource = ev.getSource();

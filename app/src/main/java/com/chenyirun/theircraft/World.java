@@ -2,7 +2,6 @@ package com.chenyirun.theircraft;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.util.Log;
@@ -29,26 +28,28 @@ public class World {
     private final Grass mGrass = new Grass();
     private final Steve steve;
     private Generator generator;
-    private final Performance performance = new Performance();
+    private final Performance performance = Performance.getInstance();
     private final Physics physics = new Physics();
 
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
-    // pitch, yaw, roll(in radian)
     private final float[] eulerAngles = new float[3];
     private final Object blocksLock = new Object();
     private final Set<Block> blocks = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
     private final BlockingDeque<ChunkChange> chunkChanges = new LinkedBlockingDeque<>();
     private final Thread chunkLoader;
-    private final DBService mDBService;
-    private Resources resources;
+    private final DBService dbService;
+    private final Resources resources;
+
+    private final MapManager mapManager;
 
     World(Context context, Resources resources){
         this.resources = resources;
-        mDBService = new DBService(context);
+        dbService = new DBService(context);
+        mapManager = new MapManager(dbService);
 
-        int seed = mDBService.getSeed();
+        int seed = dbService.getSeed();
         generator = new Generator(seed);
 
         // Start the thread for loading chunks in the background.
@@ -66,7 +67,7 @@ public class World {
             SystemClock.sleep(100L);
         }
 
-        Block steveBlock = mDBService.getSteve(blocks);
+        Block steveBlock = dbService.getSteve(blocks);
         steve = new Steve(steveBlock);
 
         Chunk currChunk = steve.currentChunk();
@@ -87,8 +88,8 @@ public class World {
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
             physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, blocks);
         }
-        if (steve.isOnTheGround() && !mDBService.compareStevePosition(steve.position())){
-            mDBService.updateSteve(steve.getBlock());
+        if (steve.isOnTheGround() && !dbService.compareStevePosition(steve.position())){
+            dbService.updateSteve(steve.getBlock());
         }
 
         Chunk beforeChunk = steve.currentChunk();
@@ -98,16 +99,10 @@ public class World {
             steve.setCurrentChunk(afterChunk);
         }
 
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-        GLES20.glFrontFace(GLES20.GL_CCW);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
-        GLES20.glCullFace(GLES20.GL_BACK);
+        GLHelper.beforeDraw();
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
+        calculateView(eye);
         float[] perspective = eye.getPerspective(0.1f, 100.0f);
-        Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
 
         performance.startRendering();
         mGrass.draw(view, perspective);
@@ -115,6 +110,10 @@ public class World {
 
         performance.endFrame();
 
+    }
+
+    private void calculateView(Eye eye){
+        Matrix.multiplyMM(view, 0, eye.getEyeView(), 0, camera, 0);
     }
 
     public void calculateCamera(){
@@ -148,9 +147,12 @@ public class World {
     }
 
     private static final int SHOWN_CHUNK_RADIUS = 3;
-
-    /** Returns chunks within some radius of center, but only those containing any blocks. */
     private Set<Chunk> neighboringChunks(Chunk center) {
+        return neighboringChunks(center, SHOWN_CHUNK_RADIUS);
+    }
+
+    /* Returns chunks within some radius of center, but only those containing any blocks. */
+    private Set<Chunk> neighboringChunks(Chunk center, int radius) {
         int minChunkY = Generator.minChunkY();
         int maxChunkY = Generator.maxChunkY();
 
@@ -235,7 +237,7 @@ public class World {
 
         List<Block> blocksInChunk = generator.generateChunk(chunk);
         if(DBService.DBEnabled){
-            List<Block> list = mDBService.getBlockChangesInChunk(chunk);
+            List<Block> list = dbService.getBlockChangesInChunk(chunk);
             for (Block block : list) {
                 switch (block.type){
                     case Block.BLOCK_AIR:
@@ -321,27 +323,26 @@ public class World {
         }
         blocks.add(block);
         chunkChanges.add(new ChunkLoad(new Chunk(block)));
-        mDBService.insertBlock(block);
+        dbService.insertBlock(block);
     }
 
     private void destroyBlock(Block block){
         chunkBlocks.get(steve.currentChunk()).remove(block);
         blocks.remove(block);
         chunkChanges.add(new ChunkLoad(new Chunk(block)));
-        mDBService.deleteBlock(block);
+        dbService.deleteBlock(block);
     }
 
     private void resetSteve(){
         Block block = new Block(0, 74, 0);
         steve.setPosition(block);
         steve.setCurrentChunk(new Chunk(block));
-        mDBService.updateSteve(block);
+        dbService.updateSteve(block);
     }
 
     public void pressX(){
-        Point3Int pos = physics.hitTest(false, chunkBlocks, steve);
-        Log.i(TAG, "pressX: "+pos);
-        //resetSteve();
+        //Point3Int pos = physics.hitTest(false, chunkBlocks, steve);
+        resetSteve();
         /*
         Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         if (!blocks.contains(floatingBlock)){
@@ -366,6 +367,6 @@ public class World {
     }
 
     public void onDestroy(){
-        mDBService.onDestroy();
+        dbService.onDestroy();
     }
 }
