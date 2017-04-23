@@ -8,10 +8,9 @@ import android.os.SystemClock;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.perlin.Generator;
 
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,7 +22,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class MapManager {
     private Generator generator;
-    private final Grass mGrass = new Grass();
     private final Performance performance = Performance.getInstance();
 
     private final Object blocksLock = new Object();
@@ -207,7 +205,7 @@ public class MapManager {
                             Chunk chunk = ((ChunkLoad) cc).chunk;
                             synchronized(blocksLock) {
                                 loadChunk(chunk);
-                                mGrass.load(chunk, shownBlocks(chunkBlocks.get(chunk)), blocks);
+                                load(chunk, shownBlocks(chunkBlocks.get(chunk)), blocks);
                             }
                             performance.endChunkLoad();
                         } else if (cc instanceof ChunkUnload) {
@@ -215,7 +213,7 @@ public class MapManager {
                             Chunk chunk = ((ChunkUnload) cc).chunk;
                             synchronized(blocksLock) {
                                 unloadChunk(chunk);
-                                mGrass.unload(chunk);
+                                unload(chunk);
                             }
                             performance.endChunkUnload();
                         } else {
@@ -294,7 +292,7 @@ public class MapManager {
                 !blocks.contains(new Block(block.x, block.y, block.z + 1));
     }
 
-    private void queueChunkLoads(Chunk beforeChunk, Chunk afterChunk) {
+    public void queueChunkLoads(Chunk beforeChunk, Chunk afterChunk) {
         Set<Chunk> beforeShownChunks = neighboringChunks(beforeChunk);
         Set<Chunk> afterShownChunks = neighboringChunks(afterChunk);
 
@@ -322,22 +320,173 @@ public class MapManager {
         dbService.insertBlock(block);
     }
 
-    private void destroyBlock(Chunk chunk, Block block){
+    public void destroyBlock(Block block){
+        Chunk chunk = new Chunk(block);
         chunkBlocks.get(chunk).remove(block);
         blocks.remove(block);
-        chunkChanges.add(new ChunkLoad(new Chunk(block)));
+        chunkChanges.add(new ChunkLoad(chunk));
         dbService.deleteBlock(block);
     }
 
-    void load(Chunk chunk, Buffers buffers) {
+    private void load(Chunk chunk, List<Block> blocks, Set<Block> allBlocks) {
+        Buffers buffers = createBuffers(blocks, allBlocks);
         synchronized(chunkToBuffers) {
             chunkToBuffers.put(chunk, buffers);
         }
     }
 
-    void unload(Chunk chunk) {
+    private void unload(Chunk chunk) {
         synchronized(chunkToBuffers) {
             chunkToBuffers.remove(chunk);
         }
+    }
+
+    /** Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block. */
+    public float highestSolidY(float x, float z) {
+        float maxY = Generator.minElevation();
+        for (Block block : blocks) {
+            if (block.x != x || block.z != z) {
+                continue;
+            }
+            if (block.y > maxY) {
+                maxY = block.y;
+            }
+        }
+        return maxY;
+    }
+
+    public Set<Block> getBlocks(){
+        return blocks;
+    }
+
+    private Buffers createBuffers(List<Block> blocks, Set<Block> allBlocks) {
+        VertexIndexTextureList vitList = new VertexIndexTextureList();
+        for (Block block : blocks) {
+            // Only add faces that are not between two blocks and thus invisible.
+            if (!allBlocks.contains(new Block(block.x, block.y + 1, block.z))) {
+                addTopFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x, block.y, block.z + 1))) {
+                addFrontFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x - 1, block.y, block.z))) {
+                addLeftFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x + 1, block.y, block.z))) {
+                addRightFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x, block.y, block.z - 1))) {
+                addBackFace(vitList, block);
+            }
+            if (!allBlocks.contains(new Block(block.x, block.y - 1, block.z))) {
+                addBottomFace(vitList, block);
+            }
+        }
+
+        return new Buffers(
+                GLHelper.createFloatBuffer(vitList.getVertexArray()),
+                GLHelper.createShortBuffer(vitList.getIndexArray()),
+                GLHelper.createFloatBuffer(vitList.getTextureCoordArray()));
+    }
+
+    // OpenGL coordinates:
+    //        ^ y
+    //        |     x
+    //        +--->
+    //   z   /
+    //      v
+    private static final Point3 TOP_FACE[] = {
+            new Point3(-0.5f, 0.5f, 0.5f),  // front left
+            new Point3(0.5f, 0.5f, 0.5f),  // front right
+            new Point3(0.5f, 0.5f, -0.5f),  // rear right
+            new Point3(-0.5f, 0.5f, -0.5f)  // rear left
+    };
+
+    private static final short[] FACE_DRAW_LIST_IDXS = {
+            0, 1, 3,
+            3, 1, 2,
+    };
+
+    // Flip top and bottom since bitmaps are loaded upside down.
+    private static final float[] TOP_FACE_TEXTURE_COORDS = {
+            0.0f, 1.0f,
+            0.5f, 1.0f,
+            0.5f, 0.5f,
+            0.0f, 0.5f,
+    };
+
+    private void addTopFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, TOP_FACE, FACE_DRAW_LIST_IDXS, TOP_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 FRONT_FACE[] = {
+            new Point3(-0.5f, -0.5f, 0.5f),  // bottom left
+            new Point3(0.5f, -0.5f, 0.5f),  // bottom right
+            new Point3(0.5f, 0.5f, 0.5f),  // top right
+            new Point3(-0.5f, 0.5f, 0.5f)  // top left
+    };
+
+    // Flip top and bottom since bitmaps are loaded upside down.
+    private static final float[] SIDE_FACE_TEXTURE_COORDS = {
+            0.5f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.5f,
+            0.5f, 0.5f,
+    };
+
+    private void addFrontFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, FRONT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 LEFT_FACE[] = {
+            new Point3(-0.5f, -0.5f, -0.5f),  // rear bottom
+            new Point3(-0.5f, -0.5f, 0.5f),  // front bottom
+            new Point3(-0.5f, 0.5f, 0.5f),  // front top
+            new Point3(-0.5f, 0.5f, -0.5f)  // rear top
+    };
+
+    private void addLeftFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, LEFT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 RIGHT_FACE[] = {
+            new Point3(0.5f, -0.5f, 0.5f),  // front bottom
+            new Point3(0.5f, -0.5f, -0.5f),  // rear bottom
+            new Point3(0.5f, 0.5f, -0.5f),  // rear top
+            new Point3(0.5f, 0.5f, 0.5f)  // front top
+    };
+
+    private void addRightFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, RIGHT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 BACK_FACE[] = {
+            new Point3(0.5f, -0.5f, -0.5f),  // bottom right
+            new Point3(-0.5f, -0.5f, -0.5f),  // bottom left
+            new Point3(-0.5f, 0.5f, -0.5f),  // top left
+            new Point3(0.5f, 0.5f, -0.5f)  // top right
+    };
+
+    private void addBackFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, BACK_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
+    }
+
+    private static final Point3 BOTTOM_FACE[] = {
+            new Point3(-0.5f, -0.5f, -0.5f),  // rear left
+            new Point3(0.5f, -0.5f, -0.5f),  // rear right
+            new Point3(0.5f, -0.5f, 0.5f),  // front right
+            new Point3(-0.5f, -0.5f, 0.5f)  // front left
+    };
+
+    // Flip top and bottom since bitmaps are loaded upside down.
+    private static final float[] BOTTOM_FACE_TEXTURE_COORDS = {
+            0.0f, 0.5f,
+            0.5f, 0.5f,
+            0.5f, 0.0f,
+            0.0f, 0.0f,
+    };
+
+    private void addBottomFace(VertexIndexTextureList vitList, Block block) {
+        vitList.addFace(block, BOTTOM_FACE, FACE_DRAW_LIST_IDXS, BOTTOM_FACE_TEXTURE_COORDS);
     }
 }

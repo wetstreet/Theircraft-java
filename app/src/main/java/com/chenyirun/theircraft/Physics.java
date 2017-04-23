@@ -27,7 +27,7 @@ public class Physics {
     public Point3Int hitTest(boolean previous, Map<Chunk, List<Block>> chunkBlocks, Steve steve){
         Point3 pos = new Point3(steve.position());
         Point3Int prevBlockPos = new Point3Int(pos);
-        List<Block> steveChunkBlocks = chunkBlocks.get(steve.getChunk());
+        List<Block> steveChunkBlocks = chunkBlocks.get(steve.currentChunk());
         if (steveChunkBlocks == null){
             return null;
         }

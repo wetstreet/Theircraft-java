@@ -76,8 +76,34 @@ public class DBService {
         return maxY;
     }
 
-    public Block getSteve(Set<Block> blocks){
-        Block block;
+    public Block getSteve(){
+        Block block = null;
+
+        if (!DBEnabled){
+            Log.i(TAG, "getSteve: database disabled");
+            return null;
+        }
+
+        Log.i(TAG, "getSteve: database enabled");
+        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+        String[] projection = {"x" ,"y", "z"};
+        Cursor cursor = db.query(DBHelper.TABLE_STEVE, projection, null, null, null, null, null);
+        if (cursor.moveToNext()){
+            int x = cursor.getInt(cursor.getColumnIndexOrThrow("x"));
+            int y = cursor.getInt(cursor.getColumnIndexOrThrow("y"));
+            int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
+            block = new Block(x,y,z);
+            stevePosition = block;
+            Log.i(TAG, "getSteve: found steve at " + block);
+        } else {
+            Log.i(TAG, "getSteve: no steve in database");
+        }
+        cursor.close();
+        return block;
+    }
+
+    /*
+    public Block getSteve(){
         if (DBEnabled){
             Log.i(TAG, "getSteve: database enabled");
             SQLiteDatabase db = mDBHelper.getReadableDatabase();
@@ -103,6 +129,7 @@ public class DBService {
         }
         return block;
     }
+    */
 
     boolean isSteveExisted(){
         boolean result;
@@ -118,8 +145,8 @@ public class DBService {
         return result;
     }
 
-    boolean compareStevePosition(Point3 point){
-        return stevePosition.equals(new Block(point));
+    boolean steveNeedsUpdate(Point3 point){
+        return !stevePosition.equals(new Block(point));
     }
 
     void updateSteve(Block block){

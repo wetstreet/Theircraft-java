@@ -136,18 +136,6 @@ public class Grass {
                 GLHelper.createShortBuffer(vitList.getIndexArray()),
                 GLHelper.createFloatBuffer(vitList.getTextureCoordArray()));
     }
-/*
-    private static class Buffers {
-        private final FloatBuffer vertexBuffer;
-        private final ShortBuffer drawListBuffer;
-        private final FloatBuffer textureCoordBuffer;
-
-        Buffers(FloatBuffer vertexBuffer, ShortBuffer drawListBuffer, FloatBuffer textureCoordBuffer) {
-            this.vertexBuffer = vertexBuffer;
-            this.drawListBuffer = drawListBuffer;
-            this.textureCoordBuffer = textureCoordBuffer;
-        }
-    }*/
 
     // OpenGL coordinates:
     //        ^ y

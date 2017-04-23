@@ -56,21 +56,11 @@ class Steve {
         return new Point3((float)x,(float)y,(float)z);
     }
 
-    public float distance(Block block){
-        return (float)Math.sqrt(Math.pow(block.x - eye.position().x, 2) +
-                Math.pow(block.y - eye.position().y, 2) +
-                Math.pow(block.z - eye.position().z, 2));
-    }
-
     public Block getBlock(){
         int x = (int)position().x;
         int y = (int)(position().y - 0.5f - STEVE_EYE_LEVEL);
         int z = (int)position().z;
         return new Block(x, y, z);
-    }
-
-    public Chunk getChunk(){
-        return new Chunk(getBlock());
     }
 
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
@@ -121,13 +111,13 @@ class Steve {
     }
 
     void setPosition(Block block){
-        eye.setPosition(new Point3(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z));
-        verticalSpeed = 0;
+        setPosition(new Point3(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z));
     }
 
     void setPosition(Point3 eyePosition) {
         eye.setPosition(eyePosition);
         verticalSpeed = 0;
+        currentChunk = new Chunk(new Block(eyePosition));
     }
 
     void walk(int status){
