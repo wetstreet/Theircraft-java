@@ -1,9 +1,11 @@
 ## Theircraft
 This is a VR Minecraft clone based on Google VR SDK.
 
-Most codes in this project are adjusted from:
+Some codes in this project are adjusted from:
 
-https://github.com/skligys/cardboard-creeper
+- https://github.com/skligys/cardboard-creeper
+
+- https://github.com/fogleman/Craft
 
 Added database and controller support.
 
