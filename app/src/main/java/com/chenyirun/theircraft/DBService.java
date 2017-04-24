@@ -6,9 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.perlin.Generator;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ import java.util.Set;
 public class DBService {
     private static final String TAG = "DBService";
     private DBHelper mDBHelper;
-    private Block stevePosition;
+    private Point3Int stevePosition;
     public static final boolean DBEnabled = true;
 
     public DBService(Context context){
@@ -76,8 +78,8 @@ public class DBService {
         return maxY;
     }
 
-    public Block getSteve(){
-        Block block = null;
+    public Point3Int getSteve(){
+        Point3Int pos = null;
 
         if (!DBEnabled){
             Log.i(TAG, "getSteve: database disabled");
@@ -92,14 +94,14 @@ public class DBService {
             int x = cursor.getInt(cursor.getColumnIndexOrThrow("x"));
             int y = cursor.getInt(cursor.getColumnIndexOrThrow("y"));
             int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
-            block = new Block(x,y,z);
-            stevePosition = block;
-            Log.i(TAG, "getSteve: found steve at " + block);
+            pos = new Point3Int(x,y,z);
+            stevePosition = pos;
+            Log.i(TAG, "getSteve: found steve at " + pos);
         } else {
             Log.i(TAG, "getSteve: no steve in database");
         }
         cursor.close();
-        return block;
+        return pos;
     }
 
     /*
@@ -146,23 +148,22 @@ public class DBService {
     }
 
     boolean steveNeedsUpdate(Point3 point){
-        return !stevePosition.equals(new Block(point));
+        return !stevePosition.equals(new Point3Int(point));
     }
 
-    void updateSteve(Block block){
-        if (block.equals(stevePosition)){
-            //Log.i(TAG, "updateSteve: block does not chnge");
+    void updateSteve(Point3Int pos){
+        if (pos.equals(stevePosition)){
             return;
         }
         if (isSteveExisted()){
             SQLiteDatabase db = mDBHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put("x", block.x);
-            values.put("y", block.y);
-            values.put("z", block.z);
+            values.put("x", pos.x);
+            values.put("y", pos.y);
+            values.put("z", pos.z);
             db.update(DBHelper.TABLE_STEVE, values, null, null);
-            stevePosition = block;
-            Log.i(TAG, "update steve position at "+block);
+            stevePosition = pos;
+            Log.i(TAG, "update steve position at "+pos);
         } else {
             Log.i(TAG, "updateSteve: steve does not exist!");
         }
@@ -240,11 +241,21 @@ public class DBService {
             int y = cursor.getInt(cursor.getColumnIndexOrThrow("blockY"));
             int z = cursor.getInt(cursor.getColumnIndexOrThrow("blockZ"));
             int type = cursor.getInt(cursor.getColumnIndexOrThrow("blockType"));
-            blocks.add(new Block(x, y, z, type));
+            addBlock(blocks, new Point3Int(x, y, z), type);
             Log.i(TAG, "getBlockChangesInChunk: block change found at Chunk"+chunk+" Block("+x+","+y+","+z+") type="+type);
         }
         cursor.close();
         return blocks;
+    }
+
+    private void addBlock(List<Block> blocks, Point3Int pos, int type){
+        switch (type){
+            case Block.BLOCK_AIR:
+                break;
+            case Block.BLOCK_GRASS:
+                blocks.add(new Grass(pos));
+                break;
+        }
     }
 
     void onDestroy(){

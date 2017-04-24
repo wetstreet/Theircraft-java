@@ -242,7 +242,7 @@ public class MapManager {
     private void addBlock(Block block){
         Chunk chunk = new Chunk(block);
         List<Block> blocksInChunk = blockMap.getChunkBlocks(chunk);
-        Set<Point3Int> blockLocations = blockMap.getBlockLocations(chunk);
+        Set<Point3Int> blockLocations = blockMap.getBlockLocations();
         if (!blocksInChunk.contains(block)){
             blocksInChunk.add(block);
         }
@@ -252,8 +252,9 @@ public class MapManager {
         dbService.insertBlock(block);
     }
 
-    public void destroyBlock(Block block){
-        Chunk chunk = new Chunk(block);
+    public void destroyBlock(Point3Int pos){
+        Chunk chunk = new Chunk(pos);
+        Block block = blockMap.getBlock(pos);
         blockMap.removeBlock(chunk, block);
         chunkChanges.add(new ChunkLoad(chunk));
         dbService.deleteBlock(block);

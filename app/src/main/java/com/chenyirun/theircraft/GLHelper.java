@@ -54,8 +54,8 @@ class GLHelper {
         blockProgram = GLHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
         GLES20.glUseProgram(blockProgram);
 
-        //textureData = GLHelper.loadTexture(resources, R.drawable.texture);
-        textureData = GLHelper.loadTexture(resources, R.drawable.atlas);
+        textureData = GLHelper.loadTexture(resources, R.drawable.texture);
+        //textureData = GLHelper.loadTexture(resources, R.drawable.atlas);
         textureHandle = GLES20.glGetUniformLocation(blockProgram, "u_texture");
 
         blockUVParam = GLES20.glGetAttribLocation(blockProgram, "a_textureCoord");

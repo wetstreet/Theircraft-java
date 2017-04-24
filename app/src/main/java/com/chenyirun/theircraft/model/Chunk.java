@@ -12,13 +12,17 @@ public class Chunk extends Point3Int {
         this(block.x / CHUNK_SIZE, block.y / CHUNK_SIZE, block.z / CHUNK_SIZE);
     }
 
+    public Chunk(Point3Int pos) {
+        this(pos.x / CHUNK_SIZE, pos.y / CHUNK_SIZE, pos.z / CHUNK_SIZE);
+    }
+
     // return the distance to another chunk
     public double distance(Chunk chunk){
         return Math.sqrt(Math.pow((chunk.x - x), 2) + Math.pow((chunk.y - y), 2));
     }
 
     public Chunk(Point3 position) {
-        this(new Block(position));
+        this(new Point3Int(position));
     }
 
     public Chunk plus(Chunk chunk) {

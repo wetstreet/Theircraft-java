@@ -6,6 +6,7 @@ import android.view.MotionEvent;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
+import com.chenyirun.theircraft.model.Point3Int;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,13 +35,13 @@ class Steve {
     private Chunk currentChunk;
 
     /** Create Steve based on block he is standing on. */
-    Steve(Block block) {
+    Steve(Point3Int pos) {
         /**
          * Initially, the eye is located at (block.x, block.z) in xz plane, at height block.y + 2.12
          * (feet to eye 1.62 + 0.5 displacement from block the feet are on).
          */
-        eye = new SteveEye(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z);
-        currentChunk = new Chunk(block);
+        eye = new SteveEye(pos.x, pos.y + 0.5f + STEVE_EYE_LEVEL, pos.z);
+        currentChunk = new Chunk(pos);
     }
 
     public boolean isOnTheGround(){
@@ -56,11 +57,11 @@ class Steve {
         return new Point3((float)x,(float)y,(float)z);
     }
 
-    public Block getBlock(){
+    public Point3Int getBlock(){
         int x = (int)position().x;
         int y = (int)(position().y - 0.5f - STEVE_EYE_LEVEL);
         int z = (int)position().z;
-        return new Block(x, y, z);
+        return new Point3Int(x, y, z);
     }
 
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
@@ -110,14 +111,13 @@ class Steve {
         return eye.position();
     }
 
-    void setPosition(Block block){
-        setPosition(new Point3(block.x, block.y + 0.5f + STEVE_EYE_LEVEL, block.z));
+    void setPosition(Point3Int pos){
+        setPosition(new Point3(pos.x, pos.y + 0.5f + STEVE_EYE_LEVEL, pos.z));
     }
 
     void setPosition(Point3 eyePosition) {
         eye.setPosition(eyePosition);
         verticalSpeed = 0;
-        currentChunk = new Chunk(new Block(eyePosition));
     }
 
     void walk(int status){
@@ -162,18 +162,18 @@ class Steve {
      * Given Steve's eye position, returns a set of blocks corresponding to all 8 corners of his
      * hitbox.
      */
-    Set<Block> hitboxCornerBlocks(Point3 eyePosition) {
+    Set<Point3Int> hitboxCornerBlocks(Point3 eyePosition) {
         Hitbox hit = hitbox(eyePosition);
 
-        Set<Block> result = new HashSet<>();
-        result.add(new Block(hit.minX, hit.minY, hit.minZ));
-        result.add(new Block(hit.maxX, hit.minY, hit.minZ));
-        result.add(new Block(hit.minX, hit.maxY, hit.minZ));
-        result.add(new Block(hit.maxX, hit.maxY, hit.minZ));
-        result.add(new Block(hit.minX, hit.minY, hit.maxZ));
-        result.add(new Block(hit.maxX, hit.minY, hit.maxZ));
-        result.add(new Block(hit.minX, hit.maxY, hit.maxZ));
-        result.add(new Block(hit.maxX, hit.maxY, hit.maxZ));
+        Set<Point3Int> result = new HashSet<>();
+        result.add(new Point3Int(hit.minX, hit.minY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, hit.minY, hit.minZ));
+        result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.minZ));
+        result.add(new Point3Int(hit.minX, hit.minY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, hit.minY, hit.maxZ));
+        result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));
         return result;
     }
 
@@ -192,29 +192,29 @@ class Steve {
     /**
      * Given Steve's eye position, returns a set of blocks corresponding to 4 points around his knees.
      */
-    Set<Block> kneeBlocks(Point3 eyePosition) {
+    Set<Point3Int> kneeBlocks(Point3 eyePosition) {
         Hitbox hit = hitbox(eyePosition);
         float kneeY = 0.5f * (hit.minY + hit.maxY);
 
-        Set<Block> result = new HashSet<>();
-        result.add(new Block(hit.minX, kneeY, hit.minZ));
-        result.add(new Block(hit.maxX, kneeY, hit.minZ));
-        result.add(new Block(hit.minX, kneeY, hit.maxZ));
-        result.add(new Block(hit.maxX, kneeY, hit.maxZ));
+        Set<Point3Int> result = new HashSet<>();
+        result.add(new Point3Int(hit.minX, kneeY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, kneeY, hit.minZ));
+        result.add(new Point3Int(hit.minX, kneeY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, kneeY, hit.maxZ));
         return result;
     }
 
     /**
      * Given Steve's eye position, returns a set of blocks corresponding to 4 points around his head.
      */
-    Set<Block> headBlocks(Point3 eyePosition) {
+    Set<Point3Int> headBlocks(Point3 eyePosition) {
         Hitbox hit = hitbox(eyePosition);
 
-        Set<Block> result = new HashSet<Block>();
-        result.add(new Block(hit.minX, hit.maxY, hit.minZ));
-        result.add(new Block(hit.maxX, hit.maxY, hit.minZ));
-        result.add(new Block(hit.minX, hit.maxY, hit.maxZ));
-        result.add(new Block(hit.maxX, hit.maxY, hit.maxZ));
+        Set<Point3Int> result = new HashSet<>();
+        result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.minZ));
+        result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));
         return result;
     }
 }

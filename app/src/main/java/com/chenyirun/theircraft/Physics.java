@@ -3,13 +3,11 @@ package com.chenyirun.theircraft;
 import android.util.Log;
 
 import com.chenyirun.theircraft.model.Block;
-import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Physics {
@@ -24,20 +22,21 @@ public class Physics {
 
     private static final int SAMPLE_RATE = 32;
     private static final int REACH_DISTANCE = 8;
-    public Point3Int hitTest(boolean previous, Map<Chunk, List<Block>> chunkBlocks, Steve steve){
+
+    public Point3Int hitTest(boolean previous, BlockMap blockMap, Steve steve){
         Point3 pos = new Point3(steve.position());
         Point3Int prevBlockPos = new Point3Int(pos);
-        List<Block> steveChunkBlocks = chunkBlocks.get(steve.currentChunk());
+        List<Block> steveChunkBlocks = blockMap.getChunkBlocks(steve.currentChunk());
         if (steveChunkBlocks == null){
             return null;
         }
-        // get the position of the first block in the sight direction
+        // get the position of the first pos in the sight direction
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
             Point3Int newBlockPos = new Point3Int(pos);
             if (!prevBlockPos.equals(newBlockPos)){
                 Block b = getBlock(newBlockPos, steveChunkBlocks);
                 if (b != null){
-                    Log.i(TAG, "hitTest: block hit at" + b);
+                    Log.i(TAG, "hitTest: pos hit at" + b);
                     if (previous){
                         return prevBlockPos;
                     } else {
@@ -48,14 +47,14 @@ public class Physics {
             }
             pos.add(steve.getSightVector().divide(SAMPLE_RATE));
         }
-        Log.i(TAG, "hitTest: no block got hit");
+        Log.i(TAG, "hitTest: no pos got hit");
         return null;
     }
 
     public Block getBlock(Point3Int blockPos, List<Block> blocks){
-        for (Block block : blocks) {
-            if (block.x == blockPos.x && block.y == blockPos.y && block.z == blockPos.z){
-                return block;
+        for (Block pos : blocks) {
+            if (pos.x == blockPos.x && pos.y == blockPos.y && pos.z == blockPos.z){
+                return pos;
             }
         }
         return null;
@@ -107,10 +106,10 @@ public class Physics {
     }
 
     private PositionStopVertical collisionAdjust(Steve steve, Point3 eyePosition, BlockMap blockMap) {
-        Set<Block> collidingBlocks = new HashSet<>();
-        for (Block block : steve.hitboxCornerBlocks(eyePosition)) {
-            if (blockMap.contain(block)) {
-                collidingBlocks.add(block);
+        Set<Point3Int> collidingBlocks = new HashSet<>();
+        for (Point3Int pos : steve.hitboxCornerBlocks(eyePosition)) {
+            if (blockMap.contain(pos)) {
+                collidingBlocks.add(pos);
             }
         }
         if (collidingBlocks.isEmpty()) {
@@ -118,7 +117,7 @@ public class Physics {
         }
 
         boolean stopVertical = false;
-        for (Block collidingBlock : collidingBlocks) {
+        for (Point3Int collidingBlock : collidingBlocks) {
             PositionStopVertical adjusted = pushOut(steve, collidingBlock, eyePosition);
             eyePosition = adjusted.position;
             stopVertical |= adjusted.stopVertical;
@@ -128,20 +127,20 @@ public class Physics {
 
     private static final float OVERLAP_THRESHOLD = 0.25f;
 
-    private PositionStopVertical pushOut(Steve steve, Block block, Point3 eyePosition) {
+    private PositionStopVertical pushOut(Steve steve, Point3Int pos, Point3 eyePosition) {
         Hitbox hit = steve.hitbox(eyePosition);
 
-        float overlapX = Math.min(block.x + 0.5f, hit.maxX) - Math.max(block.x - 0.5f, hit.minX);
+        float overlapX = Math.min(pos.x + 0.5f, hit.maxX) - Math.max(pos.x - 0.5f, hit.minX);
         if (overlapX < 0.0f) {
             overlapX = 0.0f;
         }
 
-        float overlapY = Math.min(block.y + 0.5f, hit.maxY) - Math.max(block.y - 0.5f, hit.minY);
+        float overlapY = Math.min(pos.y + 0.5f, hit.maxY) - Math.max(pos.y - 0.5f, hit.minY);
         if (overlapY < 0.0f) {
             overlapY = 0.0f;
         }
 
-        float overlapZ = Math.min(block.z + 0.5f, hit.maxZ) - Math.max(block.z - 0.5f, hit.minZ);
+        float overlapZ = Math.min(pos.z + 0.5f, hit.maxZ) - Math.max(pos.z - 0.5f, hit.minZ);
         if (overlapZ < 0.0f) {
             overlapZ = 0.0f;
         }
@@ -150,52 +149,52 @@ public class Physics {
         boolean stopVertical = false;
         if (overlapX <= overlapY && overlapX <= overlapZ) {
             if (overlapX > 0.0f && overlapY >= OVERLAP_THRESHOLD && overlapZ >= OVERLAP_THRESHOLD) {
-                eyePosition = pushOutX(block, eyePosition, hit.minX, hit.maxX);
+                eyePosition = pushOutX(pos, eyePosition, hit.minX, hit.maxX);
             }
         } else if (overlapY <= overlapX && overlapY <= overlapZ) {
             if (overlapY > 0.0f && overlapX >= OVERLAP_THRESHOLD && overlapZ >= OVERLAP_THRESHOLD) {
-                eyePosition = pushOutY(block, eyePosition, hit.minY, hit.maxY);
+                eyePosition = pushOutY(pos, eyePosition, hit.minY, hit.maxY);
                 // If collided with ground or ceiling, immediately stop falling or rising.
                 stopVertical = true;
             }
         } else {  // overlapZ <= overlapX && overlapZ <= overlapY
             if (overlapZ > 0.0f && overlapX >= OVERLAP_THRESHOLD && overlapY >= OVERLAP_THRESHOLD) {
-                eyePosition = pushOutZ(block, eyePosition, hit.minZ, hit.maxZ);
+                eyePosition = pushOutZ(pos, eyePosition, hit.minZ, hit.maxZ);
             }
         }
 
         return new PositionStopVertical(eyePosition, stopVertical);
     }
 
-    private Point3 pushOutX(Block block, Point3 p, float min, float max) {
+    private Point3 pushOutX(Point3Int pos, Point3 p, float min, float max) {
         float mid = 0.5f * (min + max);
-        if (mid < block.x) {
-            float overlap = max - (block.x - 0.5f);
+        if (mid < pos.x) {
+            float overlap = max - (pos.x - 0.5f);
             return new Point3(p.x - overlap, p.y, p.z);
         } else {
-            float overlap = (block.x + 0.5f) - min;
+            float overlap = (pos.x + 0.5f) - min;
             return new Point3(p.x + overlap, p.y, p.z);
         }
     }
 
-    private Point3 pushOutY(Block block, Point3 p, float min, float max) {
+    private Point3 pushOutY(Point3Int pos, Point3 p, float min, float max) {
         float mid = 0.5f * (min + max);
-        if (mid < block.y) {
-            float overlap = max - (block.y - 0.5f);
+        if (mid < pos.y) {
+            float overlap = max - (pos.y - 0.5f);
             return new Point3(p.x, p.y - overlap, p.z);
         } else {
-            float overlap = (block.y + 0.5f) - min;
+            float overlap = (pos.y + 0.5f) - min;
             return new Point3(p.x, p.y + overlap, p.z);
         }
     }
 
-    private Point3 pushOutZ(Block block, Point3 p, float min, float max) {
+    private Point3 pushOutZ(Point3Int pos, Point3 p, float min, float max) {
         float mid = 0.5f * (min + max);
-        if (mid < block.z) {
-            float overlap = max - (block.z - 0.5f);
+        if (mid < pos.z) {
+            float overlap = max - (pos.z - 0.5f);
             return new Point3(p.x, p.y, p.z - overlap);
         } else {
-            float overlap = (block.z + 0.5f) - min;
+            float overlap = (pos.z + 0.5f) - min;
             return new Point3(p.x, p.y, p.z + overlap);
         }
     }
@@ -203,17 +202,5 @@ public class Physics {
     private boolean shouldJump(Steve steve, Point3 eyePosition, BlockMap blockMap) {
         return blockMap.intersects(steve.kneeBlocks(eyePosition)) &&
                 !blockMap.intersects(steve.headBlocks(eyePosition));
-        /*
-        return intersects(steve.kneeBlocks(eyePosition), blocks) &&
-                !intersects(steve.headBlocks(eyePosition), blocks);*/
-    }
-
-    private static <T> boolean intersects(Set<T> smallSet, Set<T> largeSet) {
-        for (T el : smallSet) {
-            if (largeSet.contains(el)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

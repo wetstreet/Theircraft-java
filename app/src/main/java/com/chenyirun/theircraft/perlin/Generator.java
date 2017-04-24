@@ -1,5 +1,6 @@
 package com.chenyirun.theircraft.perlin;
 
+import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Point3Int;
@@ -57,7 +58,7 @@ public class Generator {
                 for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
                     float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
                     if (noiseValue >= 0.0f) {
-                        result.add(new Block(x + xOffset, y + yOffset, z + zOffset));
+                        result.add(new Grass(x + xOffset, y + yOffset, z + zOffset));
                     }
                 }
             }

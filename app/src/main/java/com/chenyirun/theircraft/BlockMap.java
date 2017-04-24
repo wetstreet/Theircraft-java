@@ -18,6 +18,16 @@ public class BlockMap {
     private final Set<Point3Int> blockLocations = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
+    public Block getBlock(Point3Int pos){
+        Chunk chunk = new Chunk(pos);
+        for (Block block : chunkBlocks.get(chunk)) {
+            if (block.x == pos.x && block.y == pos.y && block.z == pos.z){
+                return block;
+            }
+        }
+        return null;
+    }
+
     public boolean contain(int x, int y, int z){
         return blockLocations.contains(new Point3Int(x, y, z));
     }
@@ -81,30 +91,30 @@ public class BlockMap {
         return chunkBlocks.get(chunk);
     }
 
-    public Set<Point3Int> getBlockLocations(Chunk chunk){
+    public Set<Point3Int> getBlockLocations(){
         return blockLocations;
     }
-    
+
     public Buffers createBuffers(List<Block> shownBlocks) {
         VertexIndexTextureList vitList = new VertexIndexTextureList();
         for (Block block : shownBlocks) {
             // Only add faces that are not between two blocks and thus invisible.
-            if (!blocks.contains(new Block(block.x, block.y + 1, block.z))) {
+            if (!contain(block.x, block.y + 1, block.z)) {
                 vitList.addTopFace(block);
             }
-            if (!blocks.contains(new Block(block.x, block.y, block.z + 1))) {
+            if (!contain(block.x, block.y, block.z + 1)) {
                 vitList.addFrontFace(block);
             }
-            if (!blocks.contains(new Block(block.x - 1, block.y, block.z))) {
+            if (!contain(block.x - 1, block.y, block.z)) {
                 vitList.addLeftFace(block);
             }
-            if (!blocks.contains(new Block(block.x + 1, block.y, block.z))) {
+            if (!contain(block.x + 1, block.y, block.z)) {
                 vitList.addRightFace(block);
             }
-            if (!blocks.contains(new Block(block.x, block.y, block.z - 1))) {
+            if (!contain(block.x, block.y, block.z - 1)) {
                 vitList.addBackFace(block);
             }
-            if (!blocks.contains(new Block(block.x, block.y - 1, block.z))) {
+            if (!contain(block.x, block.y - 1, block.z)) {
                 vitList.addBottomFace(block);
             }
         }
@@ -129,9 +139,9 @@ public class BlockMap {
         return maxY;
     }
 
-    public boolean intersects(Set<Block> hitBox) {
-        for (Block block : hitBox) {
-            if (blocks .contains(block)) {
+    public boolean intersects(Set<Point3Int> hitBox) {
+        for (Point3Int pos : hitBox) {
+            if (blocks .contains(pos)) {
                 return true;
             }
         }

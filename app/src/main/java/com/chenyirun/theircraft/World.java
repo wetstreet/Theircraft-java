@@ -3,11 +3,13 @@ package com.chenyirun.theircraft;
 import android.content.Context;
 import android.content.res.Resources;
 import android.opengl.Matrix;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3Int;
 import com.google.vr.sdk.base.*;
 
 public class World {
@@ -28,10 +30,10 @@ public class World {
         dbService = new DBService(context);
         mapManager = new MapManager(dbService);
 
-        Block steveBlock = dbService.getSteve();
+        Point3Int steveBlock = dbService.getSteve();
         if (steveBlock == null){
             float blockY = mapManager.highestSolidY(0, 0);
-            steveBlock = new Block(0, blockY, 0);
+            steveBlock = new Point3Int(0, blockY, 0);
         }
         steve = new Steve(steveBlock);
 
@@ -58,6 +60,7 @@ public class World {
         if (!afterChunk.equals(beforeChunk)) {
             mapManager.queueChunkLoads(beforeChunk, afterChunk);
             steve.setCurrentChunk(afterChunk);
+            Log.i(TAG, "onDrawEye: update steve chunk, now at " + afterChunk);
         }
 
         GLHelper.beforeDraw();
@@ -97,14 +100,13 @@ public class World {
     }
 
     private void resetSteve(){
-        Block block = new Block(0, 74, 0);
-        steve.setPosition(block);
-        steve.setCurrentChunk(new Chunk(block));
-        dbService.updateSteve(block);
+        Point3Int pos = new Point3Int(0, 74, 0);
+        steve.setPosition(pos);
+        dbService.updateSteve(pos);
     }
 
     public void pressX(){
-        //Point3Int pos = physics.hitTest(false, chunkBlocks, steve);
+        //physics.hitTest(false, chunkBlocks, steve);
         resetSteve();
         /*
         Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
@@ -117,7 +119,7 @@ public class World {
     }
 
     public void pressB(){
-        Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
+        Point3Int floatingBlock = new Point3Int(steve.position().plus(0, 2, 0));
         mapManager.destroyBlock(floatingBlock);
     }
 

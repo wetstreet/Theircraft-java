@@ -133,72 +133,28 @@ class VertexIndexTextureList {
             0, 1, 3,
             3, 1, 2,
     };
-    private static final float[] TOP_FACE_TEXTURE_COORDS = {
-            0.0f, 1.0f,
-            0.5f, 1.0f,
-            0.5f, 0.5f,
-            0.0f, 0.5f,
-    };
 
-    // Flip top and bottom since bitmaps are loaded upside down.
-    private static final float[] SIDE_FACE_TEXTURE_COORDS = {
-            0.5f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.5f,
-            0.5f, 0.5f,
-    };
-    private static final float[] BOTTOM_FACE_TEXTURE_COORDS = {
-            0.0f, 0.5f,
-            0.5f, 0.5f,
-            0.5f, 0.0f,
-            0.0f, 0.0f,
-    };
-/*
-    private void addTopFace(Block block) {
+    public void addTopFace(Block block) {
         addFace(block, TOP_FACE, FACE_DRAW_LIST_IDXS, block.getTopFaceTextureCoords());
     }
 
-    private void addFrontFace(Block block) {
+    public void addFrontFace(Block block) {
         addFace(block, FRONT_FACE, FACE_DRAW_LIST_IDXS, block.getSideFaceTextureCoords());
     }
 
-    private void addLeftFace(Block block) {
+    public void addLeftFace(Block block) {
         addFace(block, LEFT_FACE, FACE_DRAW_LIST_IDXS, block.getSideFaceTextureCoords());
     }
 
-    private void addRightFace(Block block) {
+    public void addRightFace(Block block) {
         addFace(block, RIGHT_FACE, FACE_DRAW_LIST_IDXS, block.getSideFaceTextureCoords());
     }
 
-    private void addBackFace(Block block) {
+    public void addBackFace(Block block) {
         addFace(block, BACK_FACE, FACE_DRAW_LIST_IDXS, block.getSideFaceTextureCoords());
     }
 
-    private void addBottomFace(Block block) {
-        addFace(block, BOTTOM_FACE, FACE_DRAW_LIST_IDXS, block.getBottomFaceTextureCoords());
-    }*/
-
-    public void addTopFace(Block block) {
-        addFace(block, TOP_FACE, FACE_DRAW_LIST_IDXS, TOP_FACE_TEXTURE_COORDS);
-    }
-
-    public void addFrontFace(Block block) {
-        addFace(block, FRONT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
-    }
-
-    public void addLeftFace(Block block) {
-        addFace(block, LEFT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
-    }
-
-    public void addRightFace(Block block) {
-        addFace(block, RIGHT_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
-    }
-
-    public void addBackFace(Block block) {
-        addFace(block, BACK_FACE, FACE_DRAW_LIST_IDXS, SIDE_FACE_TEXTURE_COORDS);
-    }
-
     public void addBottomFace(Block block) {
-        addFace(block, BOTTOM_FACE, FACE_DRAW_LIST_IDXS, BOTTOM_FACE_TEXTURE_COORDS);
+        addFace(block, BOTTOM_FACE, FACE_DRAW_LIST_IDXS, block.getBottomFaceTextureCoords());
     }
 }
