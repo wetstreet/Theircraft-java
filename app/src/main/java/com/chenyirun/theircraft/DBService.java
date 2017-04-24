@@ -216,9 +216,9 @@ public class DBService {
         values.put("blockX", block.x);
         values.put("blockY", block.y);
         values.put("blockZ", block.z);
-        values.put("blockType", block.type);
+        values.put("blockType", block.getType());
         long newRowId = db.insert(DBHelper.TABLE_BLOCK, null, values);
-        Log.i(TAG, "insert a new block at ("+block.x+","+block.y+","+block.z+")"+" type="+block.type+" row id:"+ newRowId);
+        Log.i(TAG, "insert a new block at ("+block.x+","+block.y+","+block.z+")"+" type="+block.getType()+" row id:"+ newRowId);
     }
 
     void deleteBlock(Block block){

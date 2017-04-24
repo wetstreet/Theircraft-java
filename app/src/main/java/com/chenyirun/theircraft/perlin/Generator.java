@@ -1,9 +1,6 @@
 package com.chenyirun.theircraft.perlin;
 
-import android.content.res.Resources;
-
 import com.chenyirun.theircraft.model.Chunk;
-import com.chenyirun.theircraft.Grass;
 import com.chenyirun.theircraft.model.Block;
 
 import net.royawesome.jlibnoise.module.Module;

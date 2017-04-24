@@ -165,7 +165,7 @@ class Steve {
     Set<Block> hitboxCornerBlocks(Point3 eyePosition) {
         Hitbox hit = hitbox(eyePosition);
 
-        Set<Block> result = new HashSet<Block>();
+        Set<Block> result = new HashSet<>();
         result.add(new Block(hit.minX, hit.minY, hit.minZ));
         result.add(new Block(hit.maxX, hit.minY, hit.minZ));
         result.add(new Block(hit.minX, hit.maxY, hit.minZ));

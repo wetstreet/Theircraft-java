@@ -3,25 +3,12 @@ package com.chenyirun.theircraft;
 import android.content.Context;
 import android.content.res.Resources;
 import android.opengl.Matrix;
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
-import com.chenyirun.theircraft.model.Point3Int;
-import com.chenyirun.theircraft.perlin.Generator;
 import com.google.vr.sdk.base.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class World {
     private static final String TAG = "World";
