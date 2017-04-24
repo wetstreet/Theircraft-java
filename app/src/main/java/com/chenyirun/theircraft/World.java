@@ -47,7 +47,7 @@ public class World {
     public void onDrawEye(Eye eye){
         float dt = Math.min(performance.startFrame(), 0.2f);
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
-            physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, mapManager.getBlocks());
+            physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, mapManager.getBlockMap());
         }
         if (steve.isOnTheGround() && dbService.steveNeedsUpdate(steve.position())){
             dbService.updateSteve(steve.getBlock());

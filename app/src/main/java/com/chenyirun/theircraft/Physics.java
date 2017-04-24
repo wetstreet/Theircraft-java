@@ -61,7 +61,7 @@ public class Physics {
         return null;
     }
 
-    public void move(Steve steve, float dt, Set<Block> blocks){
+    public void move(Steve steve, float dt, BlockMap blockMap){
         if (dt <= 0.0f) {
             return;
         }
@@ -86,12 +86,12 @@ public class Physics {
             double dy = dt * verticalSpeed;
             newPosition = steve.position().plus((float)dx,(float)dy,(float)dz);
         }
-        PositionStopVertical adjusted = collisionAdjust(steve, newPosition, blocks);
+        PositionStopVertical adjusted = collisionAdjust(steve, newPosition, blockMap);
         steve.setPosition(adjusted.position);
 
         verticalSpeed = adjusted.stopVertical ? 0.0f : verticalSpeed;
         steve.setVerticalSpeed(verticalSpeed);
-        if (shouldJump(steve, newPosition, blocks)) {
+        if (shouldJump(steve, newPosition, blockMap)) {
             steve.jump();
         }
     }
@@ -106,10 +106,10 @@ public class Physics {
         }
     }
 
-    private PositionStopVertical collisionAdjust(Steve steve, Point3 eyePosition, Set<Block> blocks) {
+    private PositionStopVertical collisionAdjust(Steve steve, Point3 eyePosition, BlockMap blockMap) {
         Set<Block> collidingBlocks = new HashSet<>();
         for (Block block : steve.hitboxCornerBlocks(eyePosition)) {
-            if (blocks.contains(block)) {
+            if (blockMap.contain(block)) {
                 collidingBlocks.add(block);
             }
         }
@@ -200,9 +200,12 @@ public class Physics {
         }
     }
 
-    private boolean shouldJump(Steve steve, Point3 eyePosition, Set<Block> blocks) {
+    private boolean shouldJump(Steve steve, Point3 eyePosition, BlockMap blockMap) {
+        return blockMap.intersects(steve.kneeBlocks(eyePosition)) &&
+                !blockMap.intersects(steve.headBlocks(eyePosition));
+        /*
         return intersects(steve.kneeBlocks(eyePosition), blocks) &&
-                !intersects(steve.headBlocks(eyePosition), blocks);
+                !intersects(steve.headBlocks(eyePosition), blocks);*/
     }
 
     private static <T> boolean intersects(Set<T> smallSet, Set<T> largeSet) {

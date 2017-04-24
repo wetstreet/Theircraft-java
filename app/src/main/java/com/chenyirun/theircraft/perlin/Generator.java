@@ -2,6 +2,7 @@ package com.chenyirun.theircraft.perlin;
 
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Point3Int;
 
 import net.royawesome.jlibnoise.module.Module;
 import net.royawesome.jlibnoise.module.combiner.Add;
@@ -10,7 +11,9 @@ import net.royawesome.jlibnoise.module.modifier.Clamp;
 import net.royawesome.jlibnoise.module.modifier.ScalePoint;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Generator {
 
@@ -55,6 +58,32 @@ public class Generator {
                     float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
                     if (noiseValue >= 0.0f) {
                         result.add(new Block(x + xOffset, y + yOffset, z + zOffset));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /** Generates Grasses for a single chunk. */
+    public Set<Point3Int> generateChunkLocation(Chunk chunk) {
+        int xOffset = chunk.x * Chunk.CHUNK_SIZE;
+        int yOffset = chunk.y * Chunk.CHUNK_SIZE;
+        int zOffset = chunk.z * Chunk.CHUNK_SIZE;
+        float[][][] noise = noise(Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE, 4,
+                xOffset, yOffset, zOffset);
+
+        float minElevation = MIN_FOREST_HILLS_Y;
+        float maxElevation = MAX_FOREST_HILLS_Y;
+        float height = 0.5f * (maxElevation - minElevation);
+
+        Set<Point3Int> result = new HashSet<>();
+        for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
+            for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
+                for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
+                    float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
+                    if (noiseValue >= 0.0f) {
+                        result.add(new Point3Int(x + xOffset, y + yOffset, z + zOffset));
                     }
                 }
             }

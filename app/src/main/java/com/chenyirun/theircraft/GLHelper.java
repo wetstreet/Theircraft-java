@@ -5,7 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.opengl.Matrix;
 import android.util.Log;
+
+import com.chenyirun.theircraft.model.Buffers;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -15,7 +18,74 @@ import java.nio.ShortBuffer;
 class GLHelper {
     private static final String TAG = "GLHelper";
 
-    private GLHelper() {}  // No instantiation.
+    private int blockProgram;
+
+    public final float[] modelBlock = new float[16];
+    private final float[] modelView = new float[16];
+    private final float[] modelViewProjection = new float[16];
+
+    private int textureHandle;
+    private int textureData;
+    private int blockPositionParam;
+    private int blockUVParam;
+    private int blockModelViewProjectionParam;
+
+    private static final String VertexShaderCode =
+            "uniform mat4 u_MVP;\n" +
+                    "attribute vec4 a_Position;\n" +
+                    "attribute vec2 a_textureCoord;\n" +
+                    "varying vec2 v_textureCoord;\n" +
+                    "\n" +
+                    "void main() {\n" +
+                    "   gl_Position = u_MVP * a_Position;\n" +
+                    "   v_textureCoord = a_textureCoord;\n" +
+                    "}";
+
+    private static final String FragmentShaderCode =
+            "precision mediump float;\n" +
+                    "uniform sampler2D u_texture;\n" +
+                    "varying vec2 v_textureCoord;\n" +
+                    "\n" +
+                    "void main() {\n" +
+                    "    gl_FragColor = texture2D(u_texture, v_textureCoord);\n" +
+                    "}";
+
+    public void attachVariables(Resources resources){
+        blockProgram = GLHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
+        GLES20.glUseProgram(blockProgram);
+
+        //textureData = GLHelper.loadTexture(resources, R.drawable.texture);
+        textureData = GLHelper.loadTexture(resources, R.drawable.atlas);
+        textureHandle = GLES20.glGetUniformLocation(blockProgram, "u_texture");
+
+        blockUVParam = GLES20.glGetAttribLocation(blockProgram, "a_textureCoord");
+        blockPositionParam = GLES20.glGetAttribLocation(blockProgram, "a_Position");
+        blockModelViewProjectionParam = GLES20.glGetUniformLocation(blockProgram, "u_MVP");
+    }
+
+    public void bindData(float[] view, float[] perspective){
+        GLES20.glUseProgram(blockProgram);
+        GLES20.glUniform1i(textureHandle, 0);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureData);
+
+        Matrix.setIdentityM(modelBlock, 0);
+        Matrix.multiplyMM(modelView, 0, view, 0, modelBlock, 0);
+        Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
+        GLES20.glUniformMatrix4fv(blockModelViewProjectionParam, 1, false, modelViewProjection, 0);
+
+        GLES20.glEnableVertexAttribArray(blockPositionParam);
+        GLES20.glEnableVertexAttribArray(blockUVParam);
+    }
+
+    public void drawChunk(Buffers buffers){
+        GLES20.glVertexAttribPointer(blockPositionParam, 3, GLES20.GL_FLOAT, false, 0, buffers.vertexBuffer);
+        GLES20.glVertexAttribPointer(blockUVParam, 2, GLES20.GL_FLOAT, false, 0, buffers.textureCoordBuffer);
+
+        GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES, buffers.drawListBuffer.limit(),
+                GLES20.GL_UNSIGNED_SHORT, buffers.drawListBuffer);
+    }
 
     private static final int FLOAT_SIZE_IN_BYTES = 4;
 
@@ -146,9 +216,9 @@ class GLHelper {
 
         GLES20.glUseProgram(grassProgram);
         GLES20.glDrawElements(
-                GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, b.vertexBuffer);
-        GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, b.textureCoordBuffer);
-                GLES20.GL_LINE_STRIP, b.drawListBuffer.limit(),
-                GLES20.GL_UNSIGNED_SHORT, b.drawListBuffer);
+                GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, buffers.vertexBuffer);
+        GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, buffers.textureCoordBuffer);
+                GLES20.GL_LINE_STRIP, buffers.drawListBuffer.limit(),
+                GLES20.GL_UNSIGNED_SHORT, buffers.drawListBuffer);
     }*/
 }
