@@ -22,12 +22,6 @@ public class Point3 {
         return new Point3(x/denominator, y/denominator, z/denominator);
     }
 
-    public void add(Point3 point){
-        this.x += point.x;
-        this.y += point.y;
-        this.z += point.z;
-    }
-
     public Point3 plus(float x, float y, float z) {
         return new Point3(this.x + x, this.y + y, this.z + z);
     }

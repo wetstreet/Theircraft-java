@@ -13,7 +13,9 @@ import java.util.Set;
 public class Physics {
     private static final String TAG = "Physics";
 
-    private static final float PI = 3.14159265358979323846f;
+    private static final boolean autoJump = false;
+
+    public static final float PI = 3.14159265358979323846f;
     private static final float STEVE_WALKING_SPEED = 4.317f;  // m/s
     private static final float GRAVITY = 32.0f;  // m/s^2
     private static final float TERMINAL_VELOCITY = 78.4f; // m/s
@@ -34,9 +36,9 @@ public class Physics {
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
             Point3Int newBlockPos = new Point3Int(pos);
             if (!prevBlockPos.equals(newBlockPos)){
-                Block b = getBlock(newBlockPos, steveChunkBlocks);
+                Block b = blockMap.getBlock(newBlockPos);
                 if (b != null){
-                    Log.i(TAG, "hitTest: pos hit at" + b);
+                    Log.i(TAG, "hitTest: block hit at" + b);
                     if (previous){
                         return prevBlockPos;
                     } else {
@@ -45,18 +47,9 @@ public class Physics {
                 }
                 prevBlockPos = newBlockPos;
             }
-            pos.add(steve.getSightVector().divide(SAMPLE_RATE));
+            pos = pos.plus(steve.getSightVector().divide(SAMPLE_RATE));
         }
-        Log.i(TAG, "hitTest: no pos got hit");
-        return null;
-    }
-
-    public Block getBlock(Point3Int blockPos, List<Block> blocks){
-        for (Block pos : blocks) {
-            if (pos.x == blockPos.x && pos.y == blockPos.y && pos.z == blockPos.z){
-                return pos;
-            }
-        }
+        Log.i(TAG, "hitTest: no block got hit");
         return null;
     }
 
@@ -90,7 +83,7 @@ public class Physics {
 
         verticalSpeed = adjusted.stopVertical ? 0.0f : verticalSpeed;
         steve.setVerticalSpeed(verticalSpeed);
-        if (shouldJump(steve, newPosition, blockMap)) {
+        if (autoJump && shouldJump(steve, newPosition, blockMap)) {
             steve.jump();
         }
     }
@@ -200,7 +193,6 @@ public class Physics {
     }
 
     private boolean shouldJump(Steve steve, Point3 eyePosition, BlockMap blockMap) {
-        return blockMap.intersects(steve.kneeBlocks(eyePosition)) &&
-                !blockMap.intersects(steve.headBlocks(eyePosition));
+        return blockMap.intersects(steve.kneeBlocks(eyePosition)) && !blockMap.intersects(steve.headBlocks(eyePosition));
     }
 }

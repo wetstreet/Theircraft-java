@@ -21,7 +21,7 @@ public class BlockMap {
     public Block getBlock(Point3Int pos){
         Chunk chunk = new Chunk(pos);
         for (Block block : chunkBlocks.get(chunk)) {
-            if (block.x == pos.x && block.y == pos.y && block.z == pos.z){
+            if (block.getLocation().equals(pos)){
                 return block;
             }
         }
@@ -141,7 +141,7 @@ public class BlockMap {
 
     public boolean intersects(Set<Point3Int> hitBox) {
         for (Point3Int pos : hitBox) {
-            if (blocks .contains(pos)) {
+            if (blockLocations.contains(pos)) {
                 return true;
             }
         }

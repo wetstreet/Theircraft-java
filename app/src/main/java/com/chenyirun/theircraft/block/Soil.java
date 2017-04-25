@@ -23,7 +23,7 @@ public class Soil extends Block{
     }
 
     // Flip top and bottom since bitmaps are loaded upside down.
-    public static float[] TOP_FACE_TEXTURE_COORDS = {
+    public static final float[] TOP_FACE_TEXTURE_COORDS = {
             0, 1,
             1/16.0f, 1,
             1/16.0f, 15/16.0f,

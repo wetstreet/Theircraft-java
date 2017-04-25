@@ -1,5 +1,6 @@
 package com.chenyirun.theircraft;
 
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
@@ -12,6 +13,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 class Steve {
+    private static final String TAG = "Steve";
+    // due to the precision limit, we need to give it some value for it to work properly
+    private static final float PRECISION_COMPENSATION = 0.0001f;
+    // give steve a initial elevation so it won't fall through the block right after spawn
+    private static final float INIT_ELEVATION = 0.15f;
+
     public static final float STEVE_EYE_LEVEL = 1.62f;  // meters from feet.
     public static final float STEVE_HITBOX_HEIGHT = 1.8f;  // meters from feet.
     public static final float STEVE_HITBOX_WIDTH = 0.6f;  // meters
@@ -40,7 +47,7 @@ class Steve {
          * Initially, the eye is located at (block.x, block.z) in xz plane, at height block.y + 2.12
          * (feet to eye 1.62 + 0.5 displacement from block the feet are on).
          */
-        eye = new SteveEye(pos.x, pos.y + 0.5f + STEVE_EYE_LEVEL, pos.z);
+        eye = new SteveEye(pos.x, pos.y + 0.5f + STEVE_EYE_LEVEL + INIT_ELEVATION, pos.z);
         currentChunk = new Chunk(pos);
     }
 
@@ -50,18 +57,16 @@ class Steve {
 
     public Point3 getSightVector(){
         double m = Math.cos(mPitch);
-        float xAngle = mYaw - 3.1415926f/2;
+        float xAngle = mYaw - Physics.PI/2;
         double x = Math.cos(xAngle) * m;
         double y = Math.sin(mPitch);
         double z = Math.sin(xAngle) * m;
         return new Point3((float)x,(float)y,(float)z);
     }
 
-    public Point3Int getBlock(){
-        int x = (int)position().x;
-        int y = (int)(position().y - 0.5f - STEVE_EYE_LEVEL);
-        int z = (int)position().z;
-        return new Point3Int(x, y, z);
+    // return the location of the block steve is standing on
+    public Point3Int location(){
+        return new Point3Int(position().x, position().y - 0.5f - STEVE_EYE_LEVEL + PRECISION_COMPENSATION, position().z);
     }
 
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
@@ -112,7 +117,7 @@ class Steve {
     }
 
     void setPosition(Point3Int pos){
-        setPosition(new Point3(pos.x, pos.y + 0.5f + STEVE_EYE_LEVEL, pos.z));
+        setPosition(new Point3(pos.x, pos.y + 0.5f + STEVE_EYE_LEVEL + INIT_ELEVATION, pos.z));
     }
 
     void setPosition(Point3 eyePosition) {
@@ -133,7 +138,7 @@ class Steve {
             return ZERO_VECTOR;
         }
 
-        float xAngle = mYaw - 3.1415926f/2;
+        float xAngle = mYaw - Physics.PI/2;
         float z = 0;
         float x = 0;
         if (walking == WALKING_BACKWARD){
@@ -164,8 +169,18 @@ class Steve {
      */
     Set<Point3Int> hitboxCornerBlocks(Point3 eyePosition) {
         Hitbox hit = hitbox(eyePosition);
-
+        float minY = hit.minY + PRECISION_COMPENSATION;
+        
         Set<Point3Int> result = new HashSet<>();
+        result.add(new Point3Int(hit.minX, minY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, minY, hit.minZ));
+        result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.minZ));
+        result.add(new Point3Int(hit.minX, minY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, minY, hit.maxZ));
+        result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));
+        /*
         result.add(new Point3Int(hit.minX, hit.minY, hit.minZ));
         result.add(new Point3Int(hit.maxX, hit.minY, hit.minZ));
         result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
@@ -173,7 +188,7 @@ class Steve {
         result.add(new Point3Int(hit.minX, hit.minY, hit.maxZ));
         result.add(new Point3Int(hit.maxX, hit.minY, hit.maxZ));
         result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
-        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));*/
         return result;
     }
 
@@ -181,7 +196,7 @@ class Steve {
     Hitbox hitbox(Point3 eyePosition) {
         float minX = eyePosition.x - STEVE_HITBOX_WIDTH / 2.0f;
         float maxX = minX + STEVE_HITBOX_WIDTH;
-        float minY = eyePosition.y - STEVE_EYE_LEVEL;
+        float minY = eyePosition.y - STEVE_EYE_LEVEL + PRECISION_COMPENSATION;
         float maxY = minY + STEVE_HITBOX_HEIGHT;
         float minZ = eyePosition.z - STEVE_HITBOX_WIDTH / 2.0f;
         float maxZ = minZ + STEVE_HITBOX_WIDTH;

@@ -54,15 +54,17 @@ public class MapManager {
     }
 
     public void draw(float[] view, float[] perspective){
-        glHelper.bindData(view ,perspective);
+        glHelper.beforeDrawBlocks(view ,perspective);
 
         synchronized(chunkToBuffers) {
             if (!chunkToBuffers.isEmpty()){
                 for (Buffers b : chunkToBuffers.values()) {
-                    glHelper.drawChunk(b);
+                    glHelper.drawBlocks(b);
                 }
             }
         }
+
+
     }
 
     public void loadNeighboringChunks(Chunk currChunk){

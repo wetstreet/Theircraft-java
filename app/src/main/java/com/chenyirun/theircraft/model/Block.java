@@ -6,27 +6,17 @@ public abstract class Block extends Point3Int {
     public static final int BLOCK_SOIL = 2;
     private int type;
 
-    public Block(int x, int y, int z) {
-        super(x, y, z);
-        type = BLOCK_GRASS;
-    }
-
     public Block(int x, int y, int z, int type) {
         super(x, y, z);
         this.type = type;
-    }
-
-    public Block(float x, float y, float z) {
-        super(x, y, z);
-        type = BLOCK_GRASS;
     }
 
     public int getType(){
         return type;
     }
 
-    public Block(Point3 p) {
-        this(p.x, p.y, p.z);
+    public Point3Int getLocation(){
+        return new Point3Int(x, y, z);
     }
 
     @Override

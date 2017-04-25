@@ -24,7 +24,7 @@ import java.util.Set;
 public class DBService {
     private static final String TAG = "DBService";
     private DBHelper mDBHelper;
-    private Point3Int stevePosition;
+    private Point3Int steveLocation;
     public static final boolean DBEnabled = true;
 
     public DBService(Context context){
@@ -95,7 +95,7 @@ public class DBService {
             int y = cursor.getInt(cursor.getColumnIndexOrThrow("y"));
             int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
             pos = new Point3Int(x,y,z);
-            stevePosition = pos;
+            steveLocation = pos;
             Log.i(TAG, "getSteve: found steve at " + pos);
         } else {
             Log.i(TAG, "getSteve: no steve in database");
@@ -147,14 +147,11 @@ public class DBService {
         return result;
     }
 
-    boolean steveNeedsUpdate(Point3 point){
-        return !stevePosition.equals(new Point3Int(point));
+    Point3Int steveLocation(){
+        return steveLocation;
     }
 
     void updateSteve(Point3Int pos){
-        if (pos.equals(stevePosition)){
-            return;
-        }
         if (isSteveExisted()){
             SQLiteDatabase db = mDBHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -162,7 +159,7 @@ public class DBService {
             values.put("y", pos.y);
             values.put("z", pos.z);
             db.update(DBHelper.TABLE_STEVE, values, null, null);
-            stevePosition = pos;
+            steveLocation = pos;
             Log.i(TAG, "update steve position at "+pos);
         } else {
             Log.i(TAG, "updateSteve: steve does not exist!");
@@ -180,7 +177,7 @@ public class DBService {
         values.put("y", block.y);
         values.put("z", block.z);
         long newRowId = db.insert(DBHelper.TABLE_STEVE, null, values);
-        stevePosition = block;
+        steveLocation = block;
         Log.i(TAG, "insert new steve! position"+block+" row id:"+ newRowId);
     }
 

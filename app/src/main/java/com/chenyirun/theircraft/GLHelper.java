@@ -9,6 +9,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.chenyirun.theircraft.model.Buffers;
+import com.chenyirun.theircraft.model.Point3Int;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -19,6 +20,7 @@ class GLHelper {
     private static final String TAG = "GLHelper";
 
     private int blockProgram;
+    private int lineProgram;
 
     public final float[] modelBlock = new float[16];
     private final float[] modelView = new float[16];
@@ -29,8 +31,10 @@ class GLHelper {
     private int blockPositionParam;
     private int blockUVParam;
     private int blockModelViewProjectionParam;
+    private int linePositionParam;
+    private int lineModelViewProjectionParam;
 
-    private static final String VertexShaderCode =
+    private static final String BlockVertexShader =
             "uniform mat4 u_MVP;\n" +
                     "attribute vec4 a_Position;\n" +
                     "attribute vec2 a_textureCoord;\n" +
@@ -41,7 +45,7 @@ class GLHelper {
                     "   v_textureCoord = a_textureCoord;\n" +
                     "}";
 
-    private static final String FragmentShaderCode =
+    private static final String BlockFragmentShader =
             "precision mediump float;\n" +
                     "uniform sampler2D u_texture;\n" +
                     "varying vec2 v_textureCoord;\n" +
@@ -50,20 +54,34 @@ class GLHelper {
                     "    gl_FragColor = texture2D(u_texture, v_textureCoord);\n" +
                     "}";
 
+    private static final String LineVertexShader =
+            "uniform mat4 u_MVP;\n" +
+            "attribute vec4 a_Position;\n" +
+            "\n" +
+            "void main() {\n" +
+            "    gl_Position = u_MVP * a_Position;\n" +
+            "}\n";
+
+    private static final String LineFragmentShader =
+            "void main() {\n" +
+            "    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n" +
+            "}\n";
+
     public void attachVariables(Resources resources){
-        blockProgram = GLHelper.linkProgram(VertexShaderCode, FragmentShaderCode);
-        GLES20.glUseProgram(blockProgram);
+        blockProgram = GLHelper.linkProgram(BlockVertexShader, BlockFragmentShader);
+        lineProgram = GLHelper.linkProgram(LineVertexShader, LineFragmentShader);
 
         textureData = GLHelper.loadTexture(resources, R.drawable.texture);
-        //textureData = GLHelper.loadTexture(resources, R.drawable.atlas);
         textureHandle = GLES20.glGetUniformLocation(blockProgram, "u_texture");
 
         blockUVParam = GLES20.glGetAttribLocation(blockProgram, "a_textureCoord");
         blockPositionParam = GLES20.glGetAttribLocation(blockProgram, "a_Position");
         blockModelViewProjectionParam = GLES20.glGetUniformLocation(blockProgram, "u_MVP");
+        linePositionParam = GLES20.glGetAttribLocation(lineProgram, "a_Position");
+        lineModelViewProjectionParam = GLES20.glGetUniformLocation(lineProgram, "u_MVP");
     }
 
-    public void bindData(float[] view, float[] perspective){
+    public void beforeDrawBlocks(float[] view, float[] perspective){
         GLES20.glUseProgram(blockProgram);
         GLES20.glUniform1i(textureHandle, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -72,19 +90,67 @@ class GLHelper {
         Matrix.setIdentityM(modelBlock, 0);
         Matrix.multiplyMM(modelView, 0, view, 0, modelBlock, 0);
         Matrix.multiplyMM(modelViewProjection, 0, perspective, 0, modelView, 0);
+
         GLES20.glUniformMatrix4fv(blockModelViewProjectionParam, 1, false, modelViewProjection, 0);
 
         GLES20.glEnableVertexAttribArray(blockPositionParam);
         GLES20.glEnableVertexAttribArray(blockUVParam);
     }
 
-    public void drawChunk(Buffers buffers){
+    public void drawBlocks(Buffers buffers){
         GLES20.glVertexAttribPointer(blockPositionParam, 3, GLES20.GL_FLOAT, false, 0, buffers.vertexBuffer);
         GLES20.glVertexAttribPointer(blockUVParam, 2, GLES20.GL_FLOAT, false, 0, buffers.textureCoordBuffer);
 
         GLES20.glDrawElements(
                 GLES20.GL_TRIANGLES, buffers.drawListBuffer.limit(),
                 GLES20.GL_UNSIGNED_SHORT, buffers.drawListBuffer);
+    }
+
+    public void beforeDrawWireFrame(float[] view, float[] perspective){
+        GLES20.glUseProgram(lineProgram);
+        GLES20.glLineWidth(1);
+
+        GLES20.glUniformMatrix4fv(lineModelViewProjectionParam, 1, false, modelViewProjection, 0);
+    }
+
+    static final float positions[][] = {
+            {-1, -1, -1},
+            {-1, -1, +1},
+            {-1, +1, -1},
+            {-1, +1, +1},
+            {+1, -1, -1},
+            {+1, -1, +1},
+            {+1, +1, -1},
+            {+1, +1, +1}
+    };
+    static final int indices[] = {
+            0, 1, 0, 2, 0, 4, 1, 3,
+            1, 5, 2, 3, 2, 6, 3, 7,
+            4, 5, 4, 6, 5, 7, 6, 7
+    };
+
+    public int genWireFrameBuffer(Point3Int pos, float width){
+        float[] data = {0};
+        for (int i = 0; i < 24; i++){
+            int j = indices[i];
+            data[i] = pos.x + width * positions[j][0];
+            data[i] = pos.y + width * positions[j][1];
+            data[i] = pos.z + width * positions[j][2];
+        }
+        int buffer = 0;
+        //GLES20.glGenBuffers(1, buffer);
+        //GLES20.glGenBuffers(1, buffer, 0);
+        return buffer;
+    }
+
+    public void drawLine(int lineBuffer, int components, int count){
+
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, lineBuffer);
+        GLES20.glEnableVertexAttribArray(linePositionParam);
+        GLES20.glVertexAttribPointer(linePositionParam, components, GLES20.GL_FLOAT, false, 0, 0);
+        GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, count);
+        GLES20.glDisableVertexAttribArray(linePositionParam);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
     }
 
     private static final int FLOAT_SIZE_IN_BYTES = 4;
@@ -211,14 +277,4 @@ class GLHelper {
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
     }
-/*
-    public static void drawLine(){
-
-        GLES20.glUseProgram(grassProgram);
-        GLES20.glDrawElements(
-                GLES20.glVertexAttribPointer(grassPositionParam, 3, GLES20.GL_FLOAT, false, 0, buffers.vertexBuffer);
-        GLES20.glVertexAttribPointer(grassUVParam, 2, GLES20.GL_FLOAT, false, 0, buffers.textureCoordBuffer);
-                GLES20.GL_LINE_STRIP, buffers.drawListBuffer.limit(),
-                GLES20.GL_UNSIGNED_SHORT, buffers.drawListBuffer);
-    }*/
 }

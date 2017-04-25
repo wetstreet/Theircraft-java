@@ -24,12 +24,6 @@ public class Point3Int {
         this.z = Math.round(point.z);
     }
 
-    public void add(Point3 point){
-        this.x += Math.round(point.x);
-        this.y += Math.round(point.y);
-        this.z += Math.round(point.z);
-    }
-
     public Point3 toPoint3() {
         return new Point3(x, y, z);
     }

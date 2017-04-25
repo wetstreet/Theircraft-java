@@ -51,8 +51,8 @@ public class World {
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
             physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, mapManager.getBlockMap());
         }
-        if (steve.isOnTheGround() && dbService.steveNeedsUpdate(steve.position())){
-            dbService.updateSteve(steve.getBlock());
+        if (steve.isOnTheGround() && !dbService.steveLocation().equals(steve.location())){
+            dbService.updateSteve(steve.location());
         }
 
         Chunk beforeChunk = steve.currentChunk();
@@ -108,6 +108,7 @@ public class World {
     public void pressX(){
         //physics.hitTest(false, chunkBlocks, steve);
         resetSteve();
+        //steve.jump();
         /*
         Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         if (!blocks.contains(floatingBlock)){
