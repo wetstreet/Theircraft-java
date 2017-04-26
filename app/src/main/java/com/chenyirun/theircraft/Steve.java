@@ -15,7 +15,7 @@ import java.util.Set;
 class Steve {
     private static final String TAG = "Steve";
     // due to the precision limit, we need to give it some value for it to work properly
-    private static final float PRECISION_COMPENSATION = 0.0001f;
+    private static final float PRECISION_COMPENSATION = 0.01f;
     // give steve a initial elevation so it won't fall through the block right after spawn
     private static final float INIT_ELEVATION = 0.15f;
 
@@ -172,23 +172,18 @@ class Steve {
         float minY = hit.minY + PRECISION_COMPENSATION;
         
         Set<Point3Int> result = new HashSet<>();
-        result.add(new Point3Int(hit.minX, minY, hit.minZ));
-        result.add(new Point3Int(hit.maxX, minY, hit.minZ));
         result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
         result.add(new Point3Int(hit.maxX, hit.maxY, hit.minZ));
-        result.add(new Point3Int(hit.minX, minY, hit.maxZ));
-        result.add(new Point3Int(hit.maxX, minY, hit.maxZ));
         result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
         result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));
-        /*
         result.add(new Point3Int(hit.minX, hit.minY, hit.minZ));
         result.add(new Point3Int(hit.maxX, hit.minY, hit.minZ));
-        result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
-        result.add(new Point3Int(hit.maxX, hit.maxY, hit.minZ));
         result.add(new Point3Int(hit.minX, hit.minY, hit.maxZ));
         result.add(new Point3Int(hit.maxX, hit.minY, hit.maxZ));
-        result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
-        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));*/
+        result.add(new Point3Int(hit.minX, minY, hit.minZ));
+        result.add(new Point3Int(hit.maxX, minY, hit.minZ));
+        result.add(new Point3Int(hit.minX, minY, hit.maxZ));
+        result.add(new Point3Int(hit.maxX, minY, hit.maxZ));
         return result;
     }
 

@@ -100,7 +100,8 @@ public class Physics {
 
     private PositionStopVertical collisionAdjust(Steve steve, Point3 eyePosition, BlockMap blockMap) {
         Set<Point3Int> collidingBlocks = new HashSet<>();
-        for (Point3Int pos : steve.hitboxCornerBlocks(eyePosition)) {
+        Set<Point3Int> cornerBlocks = steve.hitboxCornerBlocks(eyePosition);
+        for (Point3Int pos : cornerBlocks) {
             if (blockMap.contain(pos)) {
                 collidingBlocks.add(pos);
             }

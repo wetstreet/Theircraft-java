@@ -44,6 +44,10 @@ public class MapManager {
             chunkChanges.add(new ChunkLoad(chunk));
         }
 
+        waitForChunkLoad();
+    }
+
+    public void waitForChunkLoad(){
         while (chunkChanges.size() > 0) {
             SystemClock.sleep(100L);
         }
@@ -54,8 +58,9 @@ public class MapManager {
     }
 
     public void draw(float[] view, float[] perspective){
-        glHelper.beforeDrawBlocks(view ,perspective);
+        glHelper.computeMVP(view ,perspective);
 
+        glHelper.beforeDrawBlocks();
         synchronized(chunkToBuffers) {
             if (!chunkToBuffers.isEmpty()){
                 for (Buffers b : chunkToBuffers.values()) {
@@ -63,8 +68,9 @@ public class MapManager {
                 }
             }
         }
+        glHelper.afterDrawBlocks();
 
-
+        glHelper.drawWireFrame(new Point3Int(141, 57, -83));
     }
 
     public void loadNeighboringChunks(Chunk currChunk){

@@ -39,6 +39,8 @@ public class World {
 
         Chunk currChunk = steve.currentChunk();
         mapManager.loadNeighboringChunks(currChunk);
+
+        mapManager.waitForChunkLoad();
     }
 
     public void onSurfaceCreated(){
@@ -107,8 +109,8 @@ public class World {
 
     public void pressX(){
         //physics.hitTest(false, chunkBlocks, steve);
-        resetSteve();
-        //steve.jump();
+        //resetSteve();
+        steve.jump();
         /*
         Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         if (!blocks.contains(floatingBlock)){
