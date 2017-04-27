@@ -9,7 +9,6 @@ import android.util.Log;
 import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
-import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.perlin.Generator;
 
@@ -17,25 +16,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by chenyirun on 2017/3/22.
- */
-
 public class DBService {
     private static final String TAG = "DBService";
-    private DBHelper mDBHelper;
+    private Context context;
     private Point3Int steveLocation;
     public static final boolean DBEnabled = true;
 
     public DBService(Context context){
-        mDBHelper = new DBHelper(context);
+        this.context = context;
     }
 
     public int getSeed(){
         int seed;
         if (DBEnabled){
             Log.i(TAG, "getSeed: database enabled");
-            SQLiteDatabase db = mDBHelper.getReadableDatabase();
+            SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
             String[] projection = {"seed"};
             Cursor cursor = db.query(DBHelper.TABLE_SEED, projection, null, null, null, null, null);
             if (cursor.moveToNext()){
@@ -57,7 +52,7 @@ public class DBService {
     }
 
     void insertSeed(int seed){
-        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("seed", seed);
         long newRowId = db.insert(DBHelper.TABLE_SEED, null, values);
@@ -87,7 +82,7 @@ public class DBService {
         }
 
         Log.i(TAG, "getSteve: database enabled");
-        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
         String[] projection = {"x" ,"y", "z"};
         Cursor cursor = db.query(DBHelper.TABLE_STEVE, projection, null, null, null, null, null);
         if (cursor.moveToNext()){
@@ -108,7 +103,7 @@ public class DBService {
     public Block getSteve(){
         if (DBEnabled){
             Log.i(TAG, "getSteve: database enabled");
-            SQLiteDatabase db = mDBHelper.getReadableDatabase();
+            SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
             String[] projection = {"x" ,"y", "z"};
             Cursor cursor = db.query(DBHelper.TABLE_STEVE, projection, null, null, null, null, null);
             if (cursor.moveToNext()){
@@ -135,7 +130,7 @@ public class DBService {
 
     boolean isSteveExisted(){
         boolean result;
-        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
         String[] projection = {"x" ,"y", "z"};
         Cursor cursor = db.query(DBHelper.TABLE_STEVE, projection, null, null, null, null, null);
         if (cursor.moveToNext()){
@@ -153,7 +148,7 @@ public class DBService {
 
     void updateSteve(Point3Int pos){
         if (isSteveExisted()){
-            SQLiteDatabase db = mDBHelper.getWritableDatabase();
+            SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put("x", pos.x);
             values.put("y", pos.y);
@@ -171,7 +166,7 @@ public class DBService {
             Log.i(TAG, "insertSteve: steve exists");
             return;
         }
-        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("x", block.x);
         values.put("y", block.y);
@@ -187,7 +182,7 @@ public class DBService {
 
     private boolean isBlockExisted(Block block){
         boolean result;
-        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
         String[] projection = { "chunkX", "chunkY", "chunkZ", "blockX", "blockY", "blockZ", "blockType" };
         String selection = "blockX = ? and blockY = ? and blockZ = ?";
         String[] selectionArgs = { Integer.toString(block.x), Integer.toString(block.y), Integer.toString(block.z) };
@@ -206,7 +201,7 @@ public class DBService {
             Log.i(TAG, "insertBlock: block exists!");
             return;
         }
-        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("chunkX", chunked(block.x));
         values.put("chunkY", chunked(block.y));
@@ -220,14 +215,14 @@ public class DBService {
     }
 
     void deleteBlock(Block block){
-        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         String selection = "blockX = ? and blockY = ? and blockZ = ?";
         String[] selectionArgs = { Integer.toString(block.x), Integer.toString(block.y), Integer.toString(block.z) };
         db.delete(DBHelper.TABLE_BLOCK, selection, selectionArgs);
     }
 
     List<Block> getBlockChangesInChunk(Chunk chunk){
-        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
         List<Block> blocks = new ArrayList<>();
         String[] projection = { "chunkX", "chunkY", "chunkZ", "blockX", "blockY", "blockZ", "blockType" };
         String selection = "chunkX = ? and chunkY = ? and chunkZ = ?";
@@ -256,6 +251,6 @@ public class DBService {
     }
 
     void onDestroy(){
-        mDBHelper.close();
+        DBHelper.getInstance(context).close();
     }
 }

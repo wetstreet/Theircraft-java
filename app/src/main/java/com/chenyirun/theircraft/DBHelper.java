@@ -36,7 +36,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String SQL_DROP_TABLE =
             "DROP TABLE IF EXISTS ";
 
-    public DBHelper(Context context){
+    private static DBHelper instance = null;
+
+    public synchronized static DBHelper getInstance(Context context){
+        if (instance == null) {
+            instance = new DBHelper(context);
+        }
+        return instance;
+    }
+
+    private DBHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

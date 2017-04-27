@@ -126,6 +126,7 @@ public class Renderer implements GvrView.StereoRenderer {
                 break;
         }
     }
+
     public void onCardboardTrigger() {
         world.pressX();
     }

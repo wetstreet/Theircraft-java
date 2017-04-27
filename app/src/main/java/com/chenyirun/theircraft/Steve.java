@@ -55,18 +55,21 @@ class Steve {
         return verticalSpeed == 0;
     }
 
-    public Point3 getSightVector(){
+    public Point3 sightVector(){
         double m = Math.cos(mPitch);
-        float xAngle = mYaw - Physics.PI/2;
-        double x = Math.cos(xAngle) * m;
+        double x = -Math.sin(mYaw) * m;
         double y = Math.sin(mPitch);
-        double z = Math.sin(xAngle) * m;
-        return new Point3((float)x,(float)y,(float)z);
+        double z = -Math.cos(mYaw) * m;
+        return new Point3((float)x, (float)y, (float)z);
     }
 
     // return the location of the block steve is standing on
     public Point3Int location(){
         return new Point3Int(position().x, position().y - 0.5f - STEVE_EYE_LEVEL + PRECISION_COMPENSATION, position().z);
+    }
+
+    public Point3Int headLocation(){
+        return new Point3Int(position().x, position().y, position().z);
     }
 
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
@@ -84,7 +87,7 @@ class Steve {
         }
     }
 
-    public static float mFlat = 0.02f;
+    private static final float mFlat = 0.02f;
     private static float getCenteredAxis(MotionEvent event, InputDevice device, int axis, int historyPos) {
         final InputDevice.MotionRange range = device.getMotionRange(axis, event.getSource());
         if (range != null) {

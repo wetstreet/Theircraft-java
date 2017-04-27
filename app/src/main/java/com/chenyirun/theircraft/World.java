@@ -16,7 +16,7 @@ public class World {
     private static final String TAG = "World";
     private final Steve steve;
     private final Performance performance = Performance.getInstance();
-    private final Physics physics = new Physics();
+    private final Physics physics = Physics.getInstance();
 
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
@@ -47,6 +47,8 @@ public class World {
         mapManager.onSurfaceCreated(resources);
     }
 
+    private Point3Int wireFramePos = null;
+
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
     public void onDrawEye(Eye eye){
         float dt = Math.min(performance.startFrame(), 0.2f);
@@ -71,7 +73,8 @@ public class World {
         float[] perspective = eye.getPerspective(0.1f, 100.0f);
 
         performance.startRendering();
-        mapManager.draw(view, perspective);
+        //wireFramePos = physics.hitTest(false, mapManager.getBlockMap(), steve);
+        mapManager.draw(view, perspective, wireFramePos, steve.sightVector(), steve.position());
         performance.endRendering();
 
         performance.endFrame();
@@ -94,6 +97,7 @@ public class World {
         steve.mPitch = eulerAngles[0];
         steve.mYaw = eulerAngles[1];
         steve.mRoll = eulerAngles[2];
+        //Log.i(TAG, "setSteveAngles: pitch="+steve.mPitch+", yaw="+steve.mYaw+", roll="+steve.mRoll);
     }
 
     public boolean onGenericMotionEvent(MotionEvent event, InputDevice device) {
@@ -101,16 +105,9 @@ public class World {
         return true;
     }
 
-    private void resetSteve(){
-        Point3Int pos = new Point3Int(0, 74, 0);
-        steve.setPosition(pos);
-        dbService.updateSteve(pos);
-    }
-
     public void pressX(){
-        //physics.hitTest(false, chunkBlocks, steve);
-        //resetSteve();
-        steve.jump();
+        wireFramePos = physics.hitTest(false, mapManager.getBlockMap(), steve);
+        //steve.jump();
         /*
         Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         if (!blocks.contains(floatingBlock)){

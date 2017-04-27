@@ -24,6 +24,10 @@ public class Point3Int {
         this.z = Math.round(point.z);
     }
 
+    public float distance(Point3Int pos){
+        return (float)Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2) + Math.pow(pos.z - z, 2));
+    }
+
     public Point3 toPoint3() {
         return new Point3(x, y, z);
     }

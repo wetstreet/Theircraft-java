@@ -3,6 +3,7 @@ package com.chenyirun.theircraft;
 import android.util.Log;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 
@@ -23,12 +24,46 @@ public class Physics {
     public static final float JUMP_SPEED = (float)Math.sqrt(2.0f * GRAVITY * MAX_JUMP_HEIGHT);
 
     private static final int SAMPLE_RATE = 32;
-    private static final int REACH_DISTANCE = 8;
+    private static final int REACH_DISTANCE = 4;
+
+    private Physics(){}
+
+    private static Physics instance = null;
+
+    public synchronized static Physics getInstance(){
+        if (instance == null) {
+            instance = new Physics();
+        }
+        return instance;
+    }
 
     public Point3Int hitTest(boolean previous, BlockMap blockMap, Steve steve){
+        Point3Int result = null;
+        float nearest = 0;
+        Set<Chunk> chunks = MapManager.neighboringChunks(steve.currentChunk(), 1);
+        for (Chunk chunk : chunks) {
+            Point3Int hitLoc = hitTestFunc(previous, blockMap, chunk, steve);
+            if (hitLoc != null){
+                float distance = hitLoc.distance(steve.headLocation());
+                if (distance < nearest || nearest == 0){
+                    nearest = distance;
+                    result = hitLoc;
+                }
+            }
+        }
+        /*
+        if (result == null){
+            Log.i(TAG, "hitTest: no block got hit");
+        } else {
+            Log.i(TAG, "hitTest: block hit at" + result);
+        }*/
+        return result;
+    }
+
+    public Point3Int hitTestFunc(boolean previous, BlockMap blockMap, Chunk chunk, Steve steve){
         Point3 pos = new Point3(steve.position());
         Point3Int prevBlockPos = new Point3Int(pos);
-        List<Block> steveChunkBlocks = blockMap.getChunkBlocks(steve.currentChunk());
+        List<Block> steveChunkBlocks = blockMap.getChunkBlocks(chunk);
         if (steveChunkBlocks == null){
             return null;
         }
@@ -36,9 +71,8 @@ public class Physics {
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
             Point3Int newBlockPos = new Point3Int(pos);
             if (!prevBlockPos.equals(newBlockPos)){
-                Block b = blockMap.getBlock(newBlockPos);
+                Block b = blockMap.getBlock(chunk, newBlockPos);
                 if (b != null){
-                    Log.i(TAG, "hitTest: block hit at" + b);
                     if (previous){
                         return prevBlockPos;
                     } else {
@@ -47,9 +81,8 @@ public class Physics {
                 }
                 prevBlockPos = newBlockPos;
             }
-            pos = pos.plus(steve.getSightVector().divide(SAMPLE_RATE));
+            pos = pos.plus(steve.sightVector().divide(SAMPLE_RATE));
         }
-        Log.i(TAG, "hitTest: no block got hit");
         return null;
     }
 

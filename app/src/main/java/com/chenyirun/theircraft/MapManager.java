@@ -6,6 +6,7 @@ import android.os.SystemClock;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.perlin.Generator;
 
@@ -57,7 +58,7 @@ public class MapManager {
         glHelper.attachVariables(resources);
     }
 
-    public void draw(float[] view, float[] perspective){
+    public void draw(float[] view, float[] perspective, Point3Int loc, Point3 sightVector, Point3 pos){
         glHelper.computeMVP(view ,perspective);
 
         glHelper.beforeDrawBlocks();
@@ -70,7 +71,10 @@ public class MapManager {
         }
         glHelper.afterDrawBlocks();
 
-        glHelper.drawWireFrame(new Point3Int(141, 57, -83));
+        if (loc != null){
+            glHelper.drawWireFrame(loc);
+        }
+        glHelper.drawSightVector(sightVector, pos, 3);
     }
 
     public void loadNeighboringChunks(Chunk currChunk){
@@ -82,19 +86,19 @@ public class MapManager {
     }
 
     private static final int SHOWN_CHUNK_RADIUS = 3;
-    private Set<Chunk> neighboringChunks(Chunk center) {
+    private static Set<Chunk> neighboringChunks(Chunk center) {
         return neighboringChunks(center, SHOWN_CHUNK_RADIUS);
     }
 
     // Returns chunks within some radius of center, but only those containing any blocks.
-    public Set<Chunk> neighboringChunks(Chunk center, int radius) {
+    public static Set<Chunk> neighboringChunks(Chunk center, int radius) {
         int minChunkY = Generator.minChunkY();
         int maxChunkY = Generator.maxChunkY();
 
         Set<Chunk> result = new HashSet<>();
-        for (int dx = -SHOWN_CHUNK_RADIUS; dx <= SHOWN_CHUNK_RADIUS; ++dx) {
-            for (int dy = -SHOWN_CHUNK_RADIUS; dy <= SHOWN_CHUNK_RADIUS; ++dy) {
-                for (int dz = -SHOWN_CHUNK_RADIUS; dz <= SHOWN_CHUNK_RADIUS; ++dz) {
+        for (int dx = -radius; dx <= radius; ++dx) {
+            for (int dy = -radius; dy <= radius; ++dy) {
+                for (int dz = -radius; dz <= radius; ++dz) {
                     if (!chunkShown(dx, dy, dz)) {
                         continue;
                     }
@@ -262,7 +266,7 @@ public class MapManager {
 
     public void destroyBlock(Point3Int pos){
         Chunk chunk = new Chunk(pos);
-        Block block = blockMap.getBlock(pos);
+        Block block = blockMap.getBlock(chunk, pos);
         blockMap.removeBlock(chunk, block);
         chunkChanges.add(new ChunkLoad(chunk));
         dbService.deleteBlock(block);

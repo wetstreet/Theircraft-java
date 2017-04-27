@@ -9,6 +9,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.chenyirun.theircraft.model.Buffers;
+import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 
 import java.nio.ByteBuffer;
@@ -33,6 +34,9 @@ class GLHelper {
     private int blockModelViewProjectionParam;
     private int linePositionParam;
     private int lineModelViewProjectionParam;
+
+    private static final int COORDS_PER_VERTEX = 3;
+    private static final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
     private static final String BlockVertexShader =
             "uniform mat4 u_MVP;\n" +
@@ -129,14 +133,6 @@ class GLHelper {
             4, 5, 4, 6, 5, 7, 6, 7
     };
 
-    static final int COORDS_PER_VERTEX = 3;
-    private final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
-
-    public void drawWireFrame(Point3Int pos){
-        float[] wireFrameCoords = genWireFrame(pos);
-        drawLine(wireFrameCoords);
-    }
-
     private float[] genWireFrame(Point3Int pos){
         float[] result = new float[72];
         for (int i = 0; i < 24; i++) {
@@ -146,6 +142,20 @@ class GLHelper {
             result[i*3+2] = pos.z +  positions[j][2];
         }
         return result;
+    }
+
+    public void drawWireFrame(Point3Int pos){
+        float[] wireFrameCoords = genWireFrame(pos);
+        drawLine(wireFrameCoords);
+    }
+
+    public void drawSightVector(Point3 sightVector, Point3 pos, int length){
+        Point3 sv = sightVector.times(length);
+        float[] coords = {
+                pos.x, pos.y, pos.z,
+                pos.x + sv.x, pos.y + sv.y, pos.z + sv.z
+        };
+        drawLine(coords);
     }
 
     public void drawLine(float[] lineCoords) {

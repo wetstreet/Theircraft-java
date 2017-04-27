@@ -3,6 +3,7 @@ package com.chenyirun.theircraft;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.perlin.Generator;
 
@@ -18,10 +19,11 @@ public class BlockMap {
     private final Set<Point3Int> blockLocations = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
-    public Block getBlock(Point3Int pos){
-        Chunk chunk = new Chunk(pos);
-        for (Block block : chunkBlocks.get(chunk)) {
-            if (block.getLocation().equals(pos)){
+    public Block getBlock(Chunk chunk, Point3Int pos){
+        List<Block> list = getChunkBlocks(chunk);
+        for (Block block : list) {
+            Point3Int loc = block.getLocation();
+            if (loc.equals(pos)){
                 return block;
             }
         }
@@ -45,10 +47,6 @@ public class BlockMap {
         this.blockLocations.addAll(blockLocations);
         // if chunk exists, this will replace the value to the key
         chunkBlocks.put(chunk, blocksInChunk);
-    }
-
-    public void updateChunk(Chunk chunk, List<Block> blocksInChunk, Set<Point3Int> blockLocations){
-        addChunk(chunk, blocksInChunk, blockLocations);
     }
 
     public void removeChunk(Chunk chunk, List<Block> blocksInChunk){
