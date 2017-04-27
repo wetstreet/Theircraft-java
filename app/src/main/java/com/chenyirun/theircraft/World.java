@@ -6,8 +6,8 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
+import android.os.SystemClock;
 
-import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.google.vr.sdk.base.*;
@@ -18,12 +18,18 @@ public class World {
     private final Performance performance = Performance.getInstance();
     private final Physics physics = Physics.getInstance();
 
+    private final Thread wireFrameThread;
+
     private final float[] camera = new float[16];
     private final float[] view = new float[16];
     private final float[] eulerAngles = new float[3];
     private final DBService dbService;
     private final Resources resources;
     private final MapManager mapManager;
+
+    private Point3Int wireFramePos = null;
+
+    private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
 
     World(Context context, Resources resources){
         this.resources = resources;
@@ -41,15 +47,29 @@ public class World {
         mapManager.loadNeighboringChunks(currChunk);
 
         mapManager.waitForChunkLoad();
+
+        wireFrameThread = createWireFrameThread();
+        wireFrameThread.start();
+    }
+
+    // Asynchronous chunk loader.
+    private Thread createWireFrameThread() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    wireFramePos = physics.hitTest(false, mapManager.getBlockMap(), steve);
+                    SystemClock.sleep(10);
+                }
+            }
+        };
+        return new Thread(runnable);
     }
 
     public void onSurfaceCreated(){
         mapManager.onSurfaceCreated(resources);
     }
 
-    private Point3Int wireFramePos = null;
-
-    private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
     public void onDrawEye(Eye eye){
         float dt = Math.min(performance.startFrame(), 0.2f);
         for (int i = 0; i < PHYSICS_ITERATIONS_PER_FRAME; ++i) {
@@ -60,7 +80,7 @@ public class World {
         }
 
         Chunk beforeChunk = steve.currentChunk();
-        Chunk afterChunk = new Chunk(steve.position());
+        Chunk afterChunk = new Chunk(steve.location());
         if (!afterChunk.equals(beforeChunk)) {
             mapManager.queueChunkLoads(beforeChunk, afterChunk);
             steve.setCurrentChunk(afterChunk);
@@ -73,7 +93,6 @@ public class World {
         float[] perspective = eye.getPerspective(0.1f, 100.0f);
 
         performance.startRendering();
-        //wireFramePos = physics.hitTest(false, mapManager.getBlockMap(), steve);
         mapManager.draw(view, perspective, wireFramePos, steve.sightVector(), steve.position());
         performance.endRendering();
 
@@ -97,7 +116,6 @@ public class World {
         steve.mPitch = eulerAngles[0];
         steve.mYaw = eulerAngles[1];
         steve.mRoll = eulerAngles[2];
-        //Log.i(TAG, "setSteveAngles: pitch="+steve.mPitch+", yaw="+steve.mYaw+", roll="+steve.mRoll);
     }
 
     public boolean onGenericMotionEvent(MotionEvent event, InputDevice device) {
@@ -106,8 +124,7 @@ public class World {
     }
 
     public void pressX(){
-        wireFramePos = physics.hitTest(false, mapManager.getBlockMap(), steve);
-        //steve.jump();
+        steve.jump();
         /*
         Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
         if (!blocks.contains(floatingBlock)){

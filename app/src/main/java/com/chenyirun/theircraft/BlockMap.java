@@ -19,7 +19,8 @@ public class BlockMap {
     private final Set<Point3Int> blockLocations = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
-    public Block getBlock(Chunk chunk, Point3Int pos){
+    public Block getBlock(Point3Int pos){
+        Chunk chunk = new Chunk(pos);
         List<Block> list = getChunkBlocks(chunk);
         for (Block block : list) {
             Point3Int loc = block.getLocation();

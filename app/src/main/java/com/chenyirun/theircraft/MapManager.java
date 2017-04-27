@@ -74,7 +74,7 @@ public class MapManager {
         if (loc != null){
             glHelper.drawWireFrame(loc);
         }
-        glHelper.drawSightVector(sightVector, pos, 3);
+        glHelper.drawSightVector(sightVector, pos, 1);
     }
 
     public void loadNeighboringChunks(Chunk currChunk){
@@ -266,7 +266,7 @@ public class MapManager {
 
     public void destroyBlock(Point3Int pos){
         Chunk chunk = new Chunk(pos);
-        Block block = blockMap.getBlock(chunk, pos);
+        Block block = blockMap.getBlock(pos);
         blockMap.removeBlock(chunk, block);
         chunkChanges.add(new ChunkLoad(chunk));
         dbService.deleteBlock(block);

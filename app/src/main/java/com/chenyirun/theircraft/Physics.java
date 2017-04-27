@@ -51,32 +51,28 @@ public class Physics {
                 }
             }
         }
-        /*
-        if (result == null){
-            Log.i(TAG, "hitTest: no block got hit");
-        } else {
-            Log.i(TAG, "hitTest: block hit at" + result);
-        }*/
         return result;
     }
 
     public Point3Int hitTestFunc(boolean previous, BlockMap blockMap, Chunk chunk, Steve steve){
         Point3 pos = new Point3(steve.position());
         Point3Int prevBlockPos = new Point3Int(pos);
-        List<Block> steveChunkBlocks = blockMap.getChunkBlocks(chunk);
-        if (steveChunkBlocks == null){
+        List<Block> chunkBlocks = blockMap.getChunkBlocks(chunk);
+        if (chunkBlocks == null){
             return null;
         }
         // get the position of the first pos in the sight direction
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
             Point3Int newBlockPos = new Point3Int(pos);
             if (!prevBlockPos.equals(newBlockPos)){
-                Block b = blockMap.getBlock(chunk, newBlockPos);
-                if (b != null){
-                    if (previous){
-                        return prevBlockPos;
-                    } else {
-                        return b;
+                if (blockMap.contain(newBlockPos)){
+                    Block b = blockMap.getBlock(newBlockPos);
+                    if (b != null){
+                        if (previous){
+                            return prevBlockPos;
+                        } else {
+                            return b;
+                        }
                     }
                 }
                 prevBlockPos = newBlockPos;
