@@ -8,6 +8,7 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.os.SystemClock;
 
+import com.chenyirun.theircraft.block.Soil;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.google.vr.sdk.base.*;
@@ -40,6 +41,7 @@ public class World {
         if (steveBlock == null){
             float blockY = mapManager.highestSolidY(0, 0);
             steveBlock = new Point3Int(0, blockY, 0);
+            dbService.insertSteve(steveBlock);
         }
         steve = new Steve(steveBlock);
 
@@ -123,21 +125,25 @@ public class World {
         return true;
     }
 
+    public void onCardboardTrigger() {
+        //steve.jump();
+        pressB();
+    }
+
     public void pressX(){
-        steve.jump();
-        /*
-        Block floatingBlock = new Block(steve.position().plus(0, 2, 0));
-        if (!blocks.contains(floatingBlock)){
-            addBlock(floatingBlock);
-            Log.i(TAG, "pressX: add floating block");
-        } else {
-            Log.i(TAG, "pressX: block already exists!");
-        }*/
+        if (wireFramePos != null){
+            mapManager.destroyBlock(wireFramePos);
+        }
     }
 
     public void pressB(){
-        Point3Int floatingBlock = new Point3Int(steve.position().plus(0, 2, 0));
-        mapManager.destroyBlock(floatingBlock);
+        Point3Int blockLocation = physics.hitTest(true, mapManager.getBlockMap(), steve);
+        if (blockLocation == null){
+            return;
+        }
+        if (!blockLocation.equals(steve.headLocation()) && !blockLocation.equals(steve.kneeLocation())){
+            mapManager.addBlock(new Soil(blockLocation));
+        }
     }
 
     public void jump(){

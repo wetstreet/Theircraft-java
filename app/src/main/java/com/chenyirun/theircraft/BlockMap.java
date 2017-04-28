@@ -1,5 +1,7 @@
 package com.chenyirun.theircraft;
 
+import android.util.Log;
+
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
@@ -15,17 +17,26 @@ import java.util.Map;
 import java.util.Set;
 
 public class BlockMap {
+    private static final String TAG = "BlockMap";
     private final Set<Block> blocks = new HashSet<>();
     private final Set<Point3Int> blockLocations = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
+    private final Object listLock = new Object();
+
     public Block getBlock(Point3Int pos){
         Chunk chunk = new Chunk(pos);
-        List<Block> list = getChunkBlocks(chunk);
-        for (Block block : list) {
-            Point3Int loc = block.getLocation();
-            if (loc.equals(pos)){
-                return block;
+        List<Block> blocksInChunk = getChunkBlocks(chunk);
+        if (blocksInChunk == null){
+            Log.i(TAG, "getBlock: chunk doesn't have a block");
+            return null;
+        }
+        synchronized (listLock){
+            for (Block block : blocksInChunk) {
+                Point3Int blockLocation = block.getLocation();
+                if (pos.equals(blockLocation)){
+                    return block;
+                }
             }
         }
         return null;
@@ -46,21 +57,59 @@ public class BlockMap {
     public void addChunk(Chunk chunk, List<Block> blocksInChunk, Set<Point3Int> blockLocations){
         blocks.addAll(blocksInChunk);
         this.blockLocations.addAll(blockLocations);
-        // if chunk exists, this will replace the value to the key
         chunkBlocks.put(chunk, blocksInChunk);
     }
 
-    public void removeChunk(Chunk chunk, List<Block> blocksInChunk){
-        chunkBlocks.remove(chunk);
+    public void removeChunk(Chunk chunk){
+        List<Block> blocksInChunk = getChunkBlocks(chunk);
+        if (blocksInChunk == null){
+            return;
+        }
         blocks.removeAll(blocksInChunk);
         blockLocations.removeAll(blocksInChunk);
+        chunkBlocks.remove(chunk);
     }
 
-    public void removeBlock(Chunk chunk, Block block){
-        chunkBlocks.get(chunk).remove(block);
-        blocks.remove(block);
-        blockLocations.remove(block);
+    public void addBlock(Block block){
+        Chunk chunk = new Chunk(block);
+        List<Block> blocksInChunk = chunkBlocks.get(chunk);
+        // if the chunk is not loaded, do nothing
+        if (blocksInChunk == null){
+            return;
+        }
+        synchronized (listLock){
+            blocksInChunk.add(block);
+        }
+        blocks.add(block);
+        blockLocations.add(block.getLocation());
     }
+
+    public void removeBlock(Block block){
+        Chunk chunk = new Chunk(block);
+        List<Block> blocksInChunk = chunkBlocks.get(chunk);
+        // if the chunk is not loaded, do nothing
+        if (blocksInChunk == null){
+            return;
+        }
+        synchronized (listLock){
+            blocksInChunk.remove(block);
+        }
+        blocks.remove(block);
+        blockLocations.remove(block.getLocation());
+    }
+/*
+    public void removeBlock(Point3Int blockLocation){
+        Block block = getBlock(blockLocation);
+        if (block == null){
+            return;
+        }
+        Chunk chunk = new Chunk(block);
+        synchronized (listLock){
+            chunkBlocks.get(chunk).remove(block);
+        }
+        blocks.remove(block);
+        blockLocations.remove(block.getLocation());
+    }*/
 
     public List<Block> shownBlocks(Chunk chunk) {
         List<Block> chunkBlocks = getChunkBlocks(chunk);
@@ -88,10 +137,6 @@ public class BlockMap {
 
     public List<Block> getChunkBlocks(Chunk chunk){
         return chunkBlocks.get(chunk);
-    }
-
-    public Set<Point3Int> getBlockLocations(){
-        return blockLocations;
     }
 
     public Buffers createBuffers(List<Block> shownBlocks) {

@@ -72,6 +72,10 @@ class Steve {
         return new Point3Int(position().x, position().y, position().z);
     }
 
+    public Point3Int kneeLocation(){
+        return new Point3Int(position().x, position().y - STEVE_EYE_LEVEL / 2, position().z);
+    }
+
     public void processJoystickInput(MotionEvent event, int historyPos, InputDevice device) {
         if (null == device) {
             device = event.getDevice();

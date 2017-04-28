@@ -3,6 +3,7 @@ package com.chenyirun.theircraft;
 import android.content.res.Resources;
 import android.os.SystemClock;
 
+import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
@@ -74,7 +75,7 @@ public class MapManager {
         if (loc != null){
             glHelper.drawWireFrame(loc);
         }
-        glHelper.drawSightVector(sightVector, pos, 1);
+        glHelper.drawSightVector(sightVector, pos, 3);
     }
 
     public void loadNeighboringChunks(Chunk currChunk){
@@ -159,7 +160,7 @@ public class MapManager {
                             Chunk chunk = ((ChunkLoad) cc).chunk;
                             synchronized(blocksLock) {
                                 loadChunk(chunk);
-                                load(chunk, blockMap.shownBlocks(chunk));
+                                addChunkBuffer(chunk, blockMap.shownBlocks(chunk));
                             }
                             performance.endChunkLoad();
                         } else if (cc instanceof ChunkUnload) {
@@ -167,7 +168,7 @@ public class MapManager {
                             Chunk chunk = ((ChunkUnload) cc).chunk;
                             synchronized(blocksLock) {
                                 unloadChunk(chunk);
-                                unload(chunk);
+                                removeChunkBuffer(chunk);
                             }
                             performance.endChunkUnload();
                         } else {
@@ -176,7 +177,6 @@ public class MapManager {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
                     SystemClock.sleep(1);
                 }
             }
@@ -190,36 +190,35 @@ public class MapManager {
             return;
         }
 
+        // generate chunk blocks
         List<Block> blocksInChunk = generator.generateChunk(chunk);
         Set<Point3Int> blockLocations = generator.generateChunkLocation(chunk);
+        // if db is enabled, load block from db
         if(DBService.DBEnabled){
             List<Block> list = dbService.getBlockChangesInChunk(chunk);
             for (Block block : list) {
-                Point3Int loc = new Point3Int(block.x, block.y, block.z);
+                Point3Int blockLocation = block.getLocation();
                 switch (block.getType()){
                     case Block.BLOCK_AIR:
                         blocksInChunk.remove(block);
-                        blockLocations.remove(loc);
+                        blockLocations.remove(blockLocation);
                         break;
-                    case Block.BLOCK_GRASS:
+                    default:
                         blocksInChunk.add(block);
-                        blockLocations.add(loc);
+                        blockLocations.add(blockLocation);
                         break;
                 }
             }
         }
+        // add the chunk to block map
         blockMap.addChunk(chunk, blocksInChunk, blockLocations);
     }
 
     private void unloadChunk(Chunk chunk) {
-        List<Block> blocksInChunk = blockMap.getChunkBlocks(chunk);
-        if (blocksInChunk == null) {
-            return;
-        }
-        blockMap.removeChunk(chunk, blocksInChunk);
+        blockMap.removeChunk(chunk);
     }
 
-    private void load(Chunk chunk, List<Block> shownBlocks) {
+    private void addChunkBuffer(Chunk chunk, List<Block> shownBlocks) {
         Buffers buffers = blockMap.createBuffers(shownBlocks);
         synchronized(chunkToBuffers) {
             // if there is a buffer already, replace the old buffer with the new one
@@ -227,7 +226,7 @@ public class MapManager {
         }
     }
 
-    private void unload(Chunk chunk) {
+    private void removeChunkBuffer(Chunk chunk) {
         synchronized(chunkToBuffers) {
             chunkToBuffers.remove(chunk);
         }
@@ -251,25 +250,23 @@ public class MapManager {
         return result;
     }
 
-    private void addBlock(Block block){
-        Chunk chunk = new Chunk(block);
-        List<Block> blocksInChunk = blockMap.getChunkBlocks(chunk);
-        Set<Point3Int> blockLocations = blockMap.getBlockLocations();
-        if (!blocksInChunk.contains(block)){
-            blocksInChunk.add(block);
+    public void addBlock(Block block){
+        if (blockMap.contain(block)){
+            return;
         }
-        blockLocations.add(new Point3Int(block.x, block.y ,block.z));
-        blockMap.addChunk(chunk, blocksInChunk, blockLocations);
-        chunkChanges.add(new ChunkLoad(new Chunk(block)));
+        Chunk chunk = new Chunk(block);
+        blockMap.addBlock(block);
         dbService.insertBlock(block);
+        // reload chunk
+        chunkChanges.add(new ChunkLoad(chunk));
     }
 
-    public void destroyBlock(Point3Int pos){
-        Chunk chunk = new Chunk(pos);
-        Block block = blockMap.getBlock(pos);
-        blockMap.removeBlock(chunk, block);
-        chunkChanges.add(new ChunkLoad(chunk));
+    public void destroyBlock(Point3Int blockLocation){
+        Chunk chunk = new Chunk(blockLocation);
+        Block block = blockMap.getBlock(blockLocation);
+        blockMap.removeBlock(block);
         dbService.deleteBlock(block);
+        chunkChanges.add(new ChunkLoad(chunk));
     }
 
     // Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block.

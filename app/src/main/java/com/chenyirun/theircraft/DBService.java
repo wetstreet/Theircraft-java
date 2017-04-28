@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.chenyirun.theircraft.block.Air;
 import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
@@ -161,23 +162,19 @@ public class DBService {
         }
     }
 
-    void insertSteve(Block block){
+    void insertSteve(Point3Int blockLocation){
         if (isSteveExisted()){
             Log.i(TAG, "insertSteve: steve exists");
             return;
         }
         SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("x", block.x);
-        values.put("y", block.y);
-        values.put("z", block.z);
+        values.put("x", blockLocation.x);
+        values.put("y", blockLocation.y);
+        values.put("z", blockLocation.z);
         long newRowId = db.insert(DBHelper.TABLE_STEVE, null, values);
-        steveLocation = block;
-        Log.i(TAG, "insert new steve! position"+block+" row id:"+ newRowId);
-    }
-
-    int chunked(int coordinate){
-        return (int)Math.floor(coordinate / Chunk.CHUNK_SIZE);
+        steveLocation = blockLocation;
+        Log.i(TAG, "insert new steve! position"+blockLocation+" row id:"+ newRowId);
     }
 
     private boolean isBlockExisted(Block block){
@@ -203,9 +200,10 @@ public class DBService {
         }
         SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("chunkX", chunked(block.x));
-        values.put("chunkY", chunked(block.y));
-        values.put("chunkZ", chunked(block.z));
+        Chunk chunk = new Chunk(block);
+        values.put("chunkX", chunk.x);
+        values.put("chunkY", chunk.y);
+        values.put("chunkZ", chunk.z);
         values.put("blockX", block.x);
         values.put("blockY", block.y);
         values.put("blockZ", block.z);
@@ -233,6 +231,9 @@ public class DBService {
             int y = cursor.getInt(cursor.getColumnIndexOrThrow("blockY"));
             int z = cursor.getInt(cursor.getColumnIndexOrThrow("blockZ"));
             int type = cursor.getInt(cursor.getColumnIndexOrThrow("blockType"));
+            if (chunk.equals(new Chunk(x, y, z))){
+                addBlock(blocks, new Point3Int(x, y, z), type);
+            }
             addBlock(blocks, new Point3Int(x, y, z), type);
             Log.i(TAG, "getBlockChangesInChunk: block change found at Chunk"+chunk+" Block("+x+","+y+","+z+") type="+type);
         }
@@ -243,6 +244,7 @@ public class DBService {
     private void addBlock(List<Block> blocks, Point3Int pos, int type){
         switch (type){
             case Block.BLOCK_AIR:
+                blocks.add(new Air(pos));
                 break;
             case Block.BLOCK_GRASS:
                 blocks.add(new Grass(pos));

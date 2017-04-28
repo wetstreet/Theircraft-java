@@ -1,10 +1,15 @@
 package com.chenyirun.theircraft.block;
 
 import com.chenyirun.theircraft.model.Block;
+import com.chenyirun.theircraft.model.Point3Int;
 
 public class Soil extends Block{
     public Soil(int x, int y, int z){
         super(x, y, z, BLOCK_SOIL);
+    }
+
+    public Soil(Point3Int pos){
+        super(pos.x, pos.y, pos.z, BLOCK_SOIL);
     }
 
     @Override
