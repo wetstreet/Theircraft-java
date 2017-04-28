@@ -221,7 +221,7 @@ public class DBService {
 
     List<Block> getBlockChangesInChunk(Chunk chunk){
         SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
-        List<Block> blocks = new ArrayList<>();
+        List<Block> result = new ArrayList<>();
         String[] projection = { "chunkX", "chunkY", "chunkZ", "blockX", "blockY", "blockZ", "blockType" };
         String selection = "chunkX = ? and chunkY = ? and chunkZ = ?";
         String[] selectionArgs = { Integer.toString(chunk.x), Integer.toString(chunk.y), Integer.toString(chunk.z) };
@@ -231,25 +231,12 @@ public class DBService {
             int y = cursor.getInt(cursor.getColumnIndexOrThrow("blockY"));
             int z = cursor.getInt(cursor.getColumnIndexOrThrow("blockZ"));
             int type = cursor.getInt(cursor.getColumnIndexOrThrow("blockType"));
-            if (chunk.equals(new Chunk(x, y, z))){
-                addBlock(blocks, new Point3Int(x, y, z), type);
-            }
-            addBlock(blocks, new Point3Int(x, y, z), type);
+            Block block = MapManager.createBlock(new Point3Int(x, y, z), type);
+            result.add(block);
             Log.i(TAG, "getBlockChangesInChunk: block change found at Chunk"+chunk+" Block("+x+","+y+","+z+") type="+type);
         }
         cursor.close();
-        return blocks;
-    }
-
-    private void addBlock(List<Block> blocks, Point3Int pos, int type){
-        switch (type){
-            case Block.BLOCK_AIR:
-                blocks.add(new Air(pos));
-                break;
-            case Block.BLOCK_GRASS:
-                blocks.add(new Grass(pos));
-                break;
-        }
+        return result;
     }
 
     void onDestroy(){

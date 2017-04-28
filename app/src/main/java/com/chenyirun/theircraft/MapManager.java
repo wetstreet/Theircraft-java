@@ -3,7 +3,14 @@ package com.chenyirun.theircraft;
 import android.content.res.Resources;
 import android.os.SystemClock;
 
+import com.chenyirun.theircraft.block.Brick;
 import com.chenyirun.theircraft.block.Grass;
+import com.chenyirun.theircraft.block.Iron;
+import com.chenyirun.theircraft.block.Log;
+import com.chenyirun.theircraft.block.Sand;
+import com.chenyirun.theircraft.block.Soil;
+import com.chenyirun.theircraft.block.Stone;
+import com.chenyirun.theircraft.block.Wood;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
@@ -261,9 +268,34 @@ public class MapManager {
         chunkChanges.add(new ChunkLoad(chunk));
     }
 
+    public static Block createBlock(Point3Int blockLocation, int type){
+        switch (type){
+            case Block.BLOCK_GRASS:
+                return new Grass(blockLocation);
+            case Block.BLOCK_SAND:
+                return new Sand(blockLocation);
+            case Block.BLOCK_IRON:
+                return new Iron(blockLocation);
+            case Block.BLOCK_BRICK:
+                return new Brick(blockLocation);
+            case Block.BLOCK_LOG:
+                return new Log(blockLocation);
+            case Block.BLOCK_STONE:
+                return new Stone(blockLocation);
+            case Block.BLOCK_SOIL:
+                return new Soil(blockLocation);
+            case Block.BLOCK_WOOD:
+                return new Wood(blockLocation);
+        }
+        return null;
+    }
+
     public void destroyBlock(Point3Int blockLocation){
         Chunk chunk = new Chunk(blockLocation);
         Block block = blockMap.getBlock(blockLocation);
+        if (block == null){
+            return;
+        }
         blockMap.removeBlock(block);
         dbService.deleteBlock(block);
         chunkChanges.add(new ChunkLoad(chunk));

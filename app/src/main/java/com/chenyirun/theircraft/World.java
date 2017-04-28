@@ -7,14 +7,17 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import com.chenyirun.theircraft.block.Soil;
+import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.google.vr.sdk.base.*;
 
 public class World {
     private static final String TAG = "World";
+    private final Context context;
     private final Steve steve;
     private final Performance performance = Performance.getInstance();
     private final Physics physics = Physics.getInstance();
@@ -28,11 +31,14 @@ public class World {
     private final Resources resources;
     private final MapManager mapManager;
 
+    private int itemIndex = 2;
+
     private Point3Int wireFramePos = null;
 
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
 
     World(Context context, Resources resources){
+        this.context = context;
         this.resources = resources;
         dbService = new DBService(context);
         mapManager = new MapManager(dbService);
@@ -127,7 +133,8 @@ public class World {
 
     public void onCardboardTrigger() {
         //steve.jump();
-        pressB();
+        //pressB();
+        pressX();
     }
 
     public void pressX(){
@@ -142,7 +149,20 @@ public class World {
             return;
         }
         if (!blockLocation.equals(steve.headLocation()) && !blockLocation.equals(steve.kneeLocation())){
-            mapManager.addBlock(new Soil(blockLocation));
+            Block block = MapManager.createBlock(blockLocation, itemIndex);
+            mapManager.addBlock(block);
+        }
+    }
+
+    public void pressLB(){
+        if (++itemIndex >= 9){
+            itemIndex = 1;
+        }
+    }
+
+    public void pressRB(){
+        if (--itemIndex <= 0){
+            itemIndex = 8;
         }
     }
 

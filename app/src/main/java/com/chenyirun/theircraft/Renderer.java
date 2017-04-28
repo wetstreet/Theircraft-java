@@ -89,6 +89,12 @@ public class Renderer implements GvrView.StereoRenderer {
                     case KeyEvent.KEYCODE_BUTTON_B:
                         world.pressB();
                         return true;
+                    case KeyEvent.KEYCODE_BUTTON_L1:
+                        world.pressLB();
+                        return true;
+                    case KeyEvent.KEYCODE_BUTTON_R1:
+                        world.pressRB();
+                        return true;
                 }
             }
         }
