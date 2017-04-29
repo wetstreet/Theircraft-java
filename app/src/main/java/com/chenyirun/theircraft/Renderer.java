@@ -81,19 +81,29 @@ public class Renderer implements GvrView.StereoRenderer {
                 switch (keyCode){
                     case KeyEvent.KEYCODE_BUTTON_A:
                     case KeyEvent.KEYCODE_BUTTON_THUMBL:
-                        world.jump();
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            world.pressA();
+                        }
                         return true;
                     case KeyEvent.KEYCODE_BUTTON_X:
-                        world.pressX();
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            world.pressX();
+                        }
                         return true;
                     case KeyEvent.KEYCODE_BUTTON_B:
-                        world.pressB();
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            world.pressB();
+                        }
                         return true;
                     case KeyEvent.KEYCODE_BUTTON_L1:
-                        world.pressLB();
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            world.pressLB();
+                        }
                         return true;
                     case KeyEvent.KEYCODE_BUTTON_R1:
-                        world.pressRB();
+                        if(event.getAction() == KeyEvent.ACTION_DOWN){
+                            world.pressRB();
+                        }
                         return true;
                 }
             }

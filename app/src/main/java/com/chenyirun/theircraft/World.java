@@ -9,7 +9,6 @@ import android.view.MotionEvent;
 import android.os.SystemClock;
 import android.widget.Toast;
 
-import com.chenyirun.theircraft.block.Soil;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3Int;
@@ -132,9 +131,13 @@ public class World {
     }
 
     public void onCardboardTrigger() {
-        //steve.jump();
+        steve.jump();
         //pressB();
-        pressX();
+        //pressX();
+    }
+
+    public void pressA(){
+        jump();
     }
 
     public void pressX(){
@@ -161,6 +164,7 @@ public class World {
     }
 
     public void pressRB(){
+        //Toast.makeText(context, "RB is pressed", Toast.LENGTH_SHORT).show();
         if (--itemIndex <= 0){
             itemIndex = 8;
         }

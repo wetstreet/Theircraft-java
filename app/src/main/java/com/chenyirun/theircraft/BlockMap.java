@@ -5,7 +5,6 @@ import android.util.Log;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
-import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.perlin.Generator;
 
@@ -97,19 +96,6 @@ public class BlockMap {
         blocks.remove(block);
         blockLocations.remove(block.getLocation());
     }
-/*
-    public void removeBlock(Point3Int blockLocation){
-        Block block = getBlock(blockLocation);
-        if (block == null){
-            return;
-        }
-        Chunk chunk = new Chunk(block);
-        synchronized (listLock){
-            chunkBlocks.get(chunk).remove(block);
-        }
-        blocks.remove(block);
-        blockLocations.remove(block.getLocation());
-    }*/
 
     public List<Block> shownBlocks(Chunk chunk) {
         List<Block> chunkBlocks = getChunkBlocks(chunk);

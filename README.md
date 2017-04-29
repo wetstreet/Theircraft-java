@@ -15,5 +15,6 @@ Added database and controller support.
 ### Controls
 - Use left analog stick to move horizontally.
 - Press left analog stick button or button A to jump.
-- Press button X to put a grass block above steve.
-- Press button B to destroy the block above steve.
+- Press button X to destroy a block.
+- Press button B to add a block.
+- Press LB & RB to change the block you want to add.

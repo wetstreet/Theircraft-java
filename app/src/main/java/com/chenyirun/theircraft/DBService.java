@@ -7,15 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.chenyirun.theircraft.block.Air;
-import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3Int;
-import com.chenyirun.theircraft.perlin.Generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class DBService {
     private static final String TAG = "DBService";
@@ -60,20 +57,6 @@ public class DBService {
         Log.i(TAG, "insert new seed! seed:"+seed+" row id:"+ newRowId);
     }
 
-    /** Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block. */
-    private float highestSolidY(float x, float z, Set<Block> blocks) {
-        float maxY = Generator.minElevation();
-        for (Block block : blocks) {
-            if (block.x != x || block.z != z) {
-                continue;
-            }
-            if (block.y > maxY) {
-                maxY = block.y;
-            }
-        }
-        return maxY;
-    }
-
     public Point3Int getSteve(){
         Point3Int pos = null;
 
@@ -100,36 +83,7 @@ public class DBService {
         return pos;
     }
 
-    /*
-    public Block getSteve(){
-        if (DBEnabled){
-            Log.i(TAG, "getSteve: database enabled");
-            SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
-            String[] projection = {"x" ,"y", "z"};
-            Cursor cursor = db.query(DBHelper.TABLE_STEVE, projection, null, null, null, null, null);
-            if (cursor.moveToNext()){
-                int x = cursor.getInt(cursor.getColumnIndexOrThrow("x"));
-                int y = cursor.getInt(cursor.getColumnIndexOrThrow("y"));
-                int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
-                block = new Block(x,y,z);
-                stevePosition = block;
-                Log.i(TAG, "getSteve: found steve at "+block);
-            } else {
-                Log.i(TAG, "getSteve: no steve in database");
-                block = new Block(0, highestSolidY(0, 0, blocks), 0);
-                stevePosition = block;
-                insertSteve(block);
-            }
-            cursor.close();
-        } else {
-            Log.i(TAG, "getSteve: database disabled");
-            block = new Block(0, highestSolidY(0, 0, blocks), 0);
-        }
-        return block;
-    }
-    */
-
-    boolean isSteveExisted(){
+    boolean steveExists(){
         boolean result;
         SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
         String[] projection = {"x" ,"y", "z"};
@@ -148,7 +102,7 @@ public class DBService {
     }
 
     void updateSteve(Point3Int pos){
-        if (isSteveExisted()){
+        if (steveExists()){
             SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put("x", pos.x);
@@ -163,7 +117,7 @@ public class DBService {
     }
 
     void insertSteve(Point3Int blockLocation){
-        if (isSteveExisted()){
+        if (steveExists()){
             Log.i(TAG, "insertSteve: steve exists");
             return;
         }
@@ -177,7 +131,7 @@ public class DBService {
         Log.i(TAG, "insert new steve! position"+blockLocation+" row id:"+ newRowId);
     }
 
-    private boolean isBlockExisted(Block block){
+    private boolean blockExists(Block block){
         boolean result;
         SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
         String[] projection = { "chunkX", "chunkY", "chunkZ", "blockX", "blockY", "blockZ", "blockType" };
@@ -194,7 +148,7 @@ public class DBService {
     }
 
     void insertBlock(Block block){
-        if (isBlockExisted(block)){
+        if (blockExists(block)){
             Log.i(TAG, "insertBlock: block exists!");
             return;
         }
@@ -213,10 +167,15 @@ public class DBService {
     }
 
     void deleteBlock(Block block){
-        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
-        String selection = "blockX = ? and blockY = ? and blockZ = ?";
-        String[] selectionArgs = { Integer.toString(block.x), Integer.toString(block.y), Integer.toString(block.z) };
-        db.delete(DBHelper.TABLE_BLOCK, selection, selectionArgs);
+        if (blockExists(block)){
+            SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+            String selection = "blockX = ? and blockY = ? and blockZ = ?";
+            String[] selectionArgs = { Integer.toString(block.x), Integer.toString(block.y), Integer.toString(block.z) };
+            db.delete(DBHelper.TABLE_BLOCK, selection, selectionArgs);
+        } else {
+            Air air = new Air(block.getLocation());
+            insertBlock(air);
+        }
     }
 
     List<Block> getBlockChangesInChunk(Chunk chunk){

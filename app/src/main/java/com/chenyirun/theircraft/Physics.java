@@ -56,7 +56,7 @@ public class Physics {
 
     public Point3Int hitTestFunc(boolean previous, BlockMap blockMap, Chunk chunk, Steve steve){
         Point3 pos = new Point3(steve.position());
-        Point3Int prevBlockPos = new Point3Int(pos);
+        Point3Int prevBlockLoc = new Point3Int(pos);
         List<Block> chunkBlocks = blockMap.getChunkBlocks(chunk);
         if (chunkBlocks == null){
             return null;
@@ -64,18 +64,18 @@ public class Physics {
         // get the position of the first pos in the sight direction
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
             Point3Int newBlockPos = new Point3Int(pos);
-            if (!prevBlockPos.equals(newBlockPos)){
+            if (!prevBlockLoc.equals(newBlockPos)){
                 if (blockMap.contain(newBlockPos)){
                     Block b = blockMap.getBlock(newBlockPos);
                     if (b != null){
                         if (previous){
-                            return prevBlockPos;
+                            return prevBlockLoc;
                         } else {
-                            return b;
+                            return b.getLocation();
                         }
                     }
                 }
-                prevBlockPos = newBlockPos;
+                prevBlockLoc = newBlockPos;
             }
             pos = pos.plus(steve.sightVector().divide(SAMPLE_RATE));
         }

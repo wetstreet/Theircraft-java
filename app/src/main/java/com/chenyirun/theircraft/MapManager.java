@@ -3,6 +3,7 @@ package com.chenyirun.theircraft;
 import android.content.res.Resources;
 import android.os.SystemClock;
 
+import com.chenyirun.theircraft.block.Air;
 import com.chenyirun.theircraft.block.Brick;
 import com.chenyirun.theircraft.block.Grass;
 import com.chenyirun.theircraft.block.Iron;
@@ -270,6 +271,8 @@ public class MapManager {
 
     public static Block createBlock(Point3Int blockLocation, int type){
         switch (type){
+            case Block.BLOCK_AIR:
+                return new Air(blockLocation);
             case Block.BLOCK_GRASS:
                 return new Grass(blockLocation);
             case Block.BLOCK_SAND:
