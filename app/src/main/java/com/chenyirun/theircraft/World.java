@@ -153,21 +153,21 @@ public class World {
             return;
         }
         if (!blockLocation.equals(steve.headLocation()) && !blockLocation.equals(steve.kneeLocation())){
-            Block block = MapManager.createBlock(blockLocation, itemIndex);
+            Block block = MapManager.createBlock(blockLocation, Block.items[itemIndex]);
             mapManager.addBlock(block);
         }
     }
 
     public void pressLB(){
-        if (++itemIndex >= Block.items.length){
-            itemIndex = 0;
+        if (--itemIndex < 0){
+            itemIndex = Block.items.length - 1;
         }
     }
 
     public void pressRB(){
         //Toast.makeText(context, "RB is pressed", Toast.LENGTH_SHORT).show();
-        if (--itemIndex < 0){
-            itemIndex = Block.items.length;
+        if (++itemIndex >= Block.items.length){
+            itemIndex = 0;
         }
     }
 
