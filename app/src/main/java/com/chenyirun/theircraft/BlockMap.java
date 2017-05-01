@@ -26,17 +26,12 @@ public class BlockMap {
 
     public Block getBlock(Point3Int pos){
         Chunk chunk = new Chunk(pos);
-        List<Block> blocksInChunk = getChunkBlocks(chunk);
-        if (blocksInChunk == null){
-            Log.i(TAG, "getBlock: chunk doesn't have a block");
-            return null;
-        }
-        synchronized (chunkBlocksLock){
-            for (Block block : blocksInChunk) {
-                Point3Int blockLocation = block.getLocation();
-                if (pos.equals(blockLocation)){
-                    return block;
-                }
+        List<Block> blocksInChunk = new ArrayList<>();
+        blocksInChunk.addAll(getChunkBlocks(chunk));
+        for (Block block : blocksInChunk) {
+            Point3Int blockLocation = block.getLocation();
+            if (pos.equals(blockLocation)){
+                return block;
             }
         }
         return null;
@@ -72,7 +67,7 @@ public class BlockMap {
 
     public void addBlock(Block block){
         Chunk chunk = new Chunk(block);
-        List<Block> blocksInChunk = chunkBlocks.get(chunk);
+        List<Block> blocksInChunk = getChunkBlocks(chunk);
         // if the chunk is not loaded, do nothing
         if (blocksInChunk == null){
             return;
@@ -86,7 +81,7 @@ public class BlockMap {
 
     public void removeBlock(Block block){
         Chunk chunk = new Chunk(block);
-        List<Block> blocksInChunk = chunkBlocks.get(chunk);
+        List<Block> blocksInChunk = getChunkBlocks(chunk);
         // if the chunk is not loaded, do nothing
         if (blocksInChunk == null){
             return;
@@ -99,16 +94,12 @@ public class BlockMap {
     }
 
     public List<Block> shownBlocks(Chunk chunk) {
-        List<Block> blocksInChunk = getChunkBlocks(chunk);
+        List<Block> blocksInChunk = new ArrayList<>();
+        blocksInChunk.addAll(getChunkBlocks(chunk));
         List<Block> result = new ArrayList<>();
-        if (blocksInChunk == null) {
-            return result;
-        }
-        synchronized (chunkBlocksLock){
-            for (Block block : blocksInChunk) {
-                if (exposed(block)) {
-                    result.add(block);
-                }
+        for (Block block : blocksInChunk) {
+            if (exposed(block)) {
+                result.add(block);
             }
         }
         return result;

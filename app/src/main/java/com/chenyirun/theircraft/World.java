@@ -104,6 +104,10 @@ public class World {
 
         performance.endFrame();
 
+        float fps = performance.fps();
+        if (fps <= 70.0f){
+            Log.i(TAG, "onDrawEye: fps=" + fps);
+        }
     }
 
     private void calculateView(Eye eye){
@@ -134,7 +138,7 @@ public class World {
     }
 
     public void pressA(){
-        jump();
+        steve.jump();
     }
 
     public void pressX(){
@@ -155,20 +159,16 @@ public class World {
     }
 
     public void pressLB(){
-        if (++itemIndex >= 9){
-            itemIndex = 1;
+        if (++itemIndex >= Block.items.length){
+            itemIndex = 0;
         }
     }
 
     public void pressRB(){
         //Toast.makeText(context, "RB is pressed", Toast.LENGTH_SHORT).show();
-        if (--itemIndex <= 0){
-            itemIndex = 8;
+        if (--itemIndex < 0){
+            itemIndex = Block.items.length;
         }
-    }
-
-    public void jump(){
-        steve.jump();
     }
 
     public void walk(int walking){

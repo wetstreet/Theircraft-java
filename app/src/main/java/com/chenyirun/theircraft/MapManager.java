@@ -209,8 +209,9 @@ public class MapManager {
         }
 
         // generate chunk blocks
-        List<Block> blocksInChunk = generator.generateChunk(chunk);
-        Set<Point3Int> blockLocations = generator.generateChunkLocation(chunk);
+        generator.generateChunk(chunk);
+        List<Block> blocksInChunk = generator.getBlocksInChunk() ;
+        Set<Point3Int> blockLocations = generator.getChunkBlockLocs();
         // if db is enabled, load block from db
         if(DBService.DBEnabled){
             List<Block> list = dbService.getBlockChangesInChunk(chunk);

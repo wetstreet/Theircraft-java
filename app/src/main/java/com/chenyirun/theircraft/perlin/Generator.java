@@ -40,8 +40,11 @@ public class Generator {
         return (MAX_FOREST_HILLS_Y + Chunk.CHUNK_SIZE - 1) / Chunk.CHUNK_SIZE;
     }
 
+    private List<Block> blocksInChunk;
+    private Set<Point3Int> chunkBlockLocs;
+
     /** Generates Grasses for a single chunk. */
-    public List<Block> generateChunk(Chunk chunk) {
+    public void generateChunk(Chunk chunk) {
         int xOffset = chunk.x * Chunk.CHUNK_SIZE;
         int yOffset = chunk.y * Chunk.CHUNK_SIZE;
         int zOffset = chunk.z * Chunk.CHUNK_SIZE;
@@ -52,46 +55,30 @@ public class Generator {
         float maxElevation = MAX_FOREST_HILLS_Y;
         float height = 0.5f * (maxElevation - minElevation);
 
+        blocksInChunk = new ArrayList<>();
+        chunkBlockLocs = new HashSet<>();
+
         Point3Int location;
-        List<Block> result = new ArrayList<>();
         for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
             for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
                 for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
                     float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
                     if (noiseValue >= 0.0f) {
                         location = new Point3Int(x + xOffset, y + yOffset, z + zOffset);
-                        result.add(new Grass(location));
+                        blocksInChunk.add(new Grass(location));
+                        chunkBlockLocs.add(location);
                     }
                 }
             }
         }
-        return result;
     }
 
-    /** Generates Grasses for a single chunk. */
-    public Set<Point3Int> generateChunkLocation(Chunk chunk) {
-        int xOffset = chunk.x * Chunk.CHUNK_SIZE;
-        int yOffset = chunk.y * Chunk.CHUNK_SIZE;
-        int zOffset = chunk.z * Chunk.CHUNK_SIZE;
-        float[][][] noise = noise(Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE, 4,
-                xOffset, yOffset, zOffset);
+    public List<Block> getBlocksInChunk() {
+        return blocksInChunk;
+    }
 
-        float minElevation = MIN_FOREST_HILLS_Y;
-        float maxElevation = MAX_FOREST_HILLS_Y;
-        float height = 0.5f * (maxElevation - minElevation);
-
-        Set<Point3Int> result = new HashSet<>();
-        for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
-            for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
-                for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
-                    float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
-                    if (noiseValue >= 0.0f) {
-                        result.add(new Point3Int(x + xOffset, y + yOffset, z + zOffset));
-                    }
-                }
-            }
-        }
-        return result;
+    public Set<Point3Int> getChunkBlockLocs() {
+        return chunkBlockLocs;
     }
 
     /** Generates 3d noise for a single chunk with given size and offset. */

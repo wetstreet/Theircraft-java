@@ -26,6 +26,25 @@ public abstract class Block extends Point3Int {
     public static final int BLOCK_WHITE_FLOWER = 22;
     public static final int BLOCK_BLUE_FLOWER = 23;
 
+    public static final int items[] = {
+        BLOCK_GLASS,
+            BLOCK_SAND,
+            BLOCK_STONE,
+            BLOCK_BRICK,
+            BLOCK_WOOD,
+            BLOCK_CEMENT,
+            BLOCK_DIRT,
+            BLOCK_PLANK,
+            BLOCK_SNOW,
+            BLOCK_GLASS,
+            BLOCK_COBBLE,
+            BLOCK_LIGHT_STONE,
+            BLOCK_DARK_STONE,
+            BLOCK_CHEST,
+            BLOCK_LEAVES,
+            BLOCK_TALL_GRASS
+    };
+
     private int type;
     private boolean collidable;
 
