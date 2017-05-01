@@ -22,6 +22,7 @@ class GLHelper {
 
     private int blockProgram;
     private int lineProgram;
+    private int pointProgram;
 
     public final float[] modelBlock = new float[16];
     private final float[] modelView = new float[16];
@@ -34,6 +35,8 @@ class GLHelper {
     private int blockModelViewProjectionParam;
     private int linePositionParam;
     private int lineModelViewProjectionParam;
+    private int pointPositionParam;
+    private int pointModelViewProjectionParam;
 
     private static final int COORDS_PER_VERTEX = 3;
     private static final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
@@ -71,9 +74,23 @@ class GLHelper {
             "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n" +
             "}\n";
 
+    private static final String PointVertexShader =
+            "uniform mat4 u_MVP;\n" +
+                    "attribute vec4 a_Position;\n" +
+                    "\n" +
+                    "void main() {\n" +
+                    "    gl_Position = u_MVP * a_Position;\n" +
+                    "}\n";
+
+    private static final String PointFragmentShader =
+            "void main() {\n" +
+                    "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n" +
+                    "}\n";
+
     public void attachVariables(Resources resources){
         blockProgram = GLHelper.linkProgram(BlockVertexShader, BlockFragmentShader);
         lineProgram = GLHelper.linkProgram(LineVertexShader, LineFragmentShader);
+        pointProgram = GLHelper.linkProgram(PointVertexShader, PointFragmentShader);
 
         textureData = GLHelper.loadTexture(resources, R.drawable.texture);
         textureHandle = GLES20.glGetUniformLocation(blockProgram, "u_texture");
@@ -83,6 +100,8 @@ class GLHelper {
         blockModelViewProjectionParam = GLES20.glGetUniformLocation(blockProgram, "u_MVP");
         linePositionParam = GLES20.glGetAttribLocation(lineProgram, "a_Position");
         lineModelViewProjectionParam = GLES20.glGetUniformLocation(lineProgram, "u_MVP");
+        pointPositionParam = GLES20.glGetAttribLocation(lineProgram, "a_Position");
+        pointModelViewProjectionParam = GLES20.glGetUniformLocation(lineProgram, "u_MVP");
     }
 
     public void computeMVP(float[] view, float[] perspective){
@@ -146,19 +165,48 @@ class GLHelper {
 
     public void drawWireFrame(Point3Int pos){
         float[] wireFrameCoords = genWireFrame(pos);
-        drawLine(wireFrameCoords);
+        drawLines(wireFrameCoords);
     }
 
-    public void drawSightVector(Point3 sightVector, Point3 pos, int length){
-        Point3 sv = sightVector.times(length);
+    public void drawSightVector(Point3 sightVector, Point3 pos){
+        Point3 sv = sightVector.times(3);
         float[] coords = {
-                pos.x, pos.y, pos.z,
+                pos.x , pos.y, pos.z,
+                //pos.x + sv.x * ratio, pos.y + sv.y * ratio, pos.z + sv.z * ratio,
                 pos.x + sv.x, pos.y + sv.y, pos.z + sv.z
         };
-        drawLine(coords);
+        drawLines(coords);
+    }
+/*
+    public void drawCrossHair(){
+        float[] coords = {
+                1920 / 2.0f, 1080.0f / 2.0f,
+        };
+        drawPoints(coords, 2);
+    }
+*/
+    private static final float[] pointMatrix = {
+            2 / 1920.0f, 0, 0, 0,
+            0, 2 / 1080.0f, 0, 0,
+            0, 0, -1, 0,
+            -1, -1, 0, 1
+    };
+    public void drawPoints(float[] pointCoords, int coordsPerVertex) {
+        ByteBuffer bb = ByteBuffer.allocateDirect(pointCoords.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        FloatBuffer VertexBuffer = bb.asFloatBuffer();
+        VertexBuffer.put(pointCoords);
+        VertexBuffer.position(0);
+
+        GLES20.glUseProgram(pointProgram);
+        GLES20.glEnableVertexAttribArray(pointPositionParam);
+        GLES20.glVertexAttribPointer(pointPositionParam, coordsPerVertex, GLES20.GL_FLOAT, false, coordsPerVertex * 4, VertexBuffer);
+        GLES20.glUniformMatrix4fv(pointModelViewProjectionParam, 1, false, pointMatrix, 0);
+        GLES20.glDrawArrays(GLES20.GL_POINTS, 0, pointCoords.length / coordsPerVertex);
+        GLES20.glDisableVertexAttribArray(pointPositionParam);
     }
 
-    public void drawLine(float[] lineCoords) {
+    public void drawLines(float[] lineCoords) {
         ByteBuffer bb = ByteBuffer.allocateDirect(lineCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         FloatBuffer VertexBuffer = bb.asFloatBuffer();
@@ -170,7 +218,7 @@ class GLHelper {
         GLES20.glEnableVertexAttribArray(linePositionParam);
         GLES20.glVertexAttribPointer(linePositionParam, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, VERTEX_STRIDE, VertexBuffer);
         GLES20.glUniformMatrix4fv(lineModelViewProjectionParam, 1, false, modelViewProjection, 0);
-        GLES20.glDrawArrays(GLES20.GL_LINES, 0, lineCoords.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_LINES, 0, lineCoords.length / COORDS_PER_VERTEX);
         GLES20.glDisableVertexAttribArray(linePositionParam);
     }
 

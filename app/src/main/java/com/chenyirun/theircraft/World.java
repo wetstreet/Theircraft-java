@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.os.SystemClock;
-import android.widget.Toast;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
@@ -39,7 +38,7 @@ public class World {
     World(Context context, Resources resources){
         this.context = context;
         this.resources = resources;
-        dbService = new DBService(context);
+        dbService = new DBService(this.context);
         mapManager = new MapManager(dbService);
 
         Point3Int steveBlock = dbService.getSteve();
@@ -132,8 +131,6 @@ public class World {
 
     public void onCardboardTrigger() {
         steve.jump();
-        //pressB();
-        //pressX();
     }
 
     public void pressA(){

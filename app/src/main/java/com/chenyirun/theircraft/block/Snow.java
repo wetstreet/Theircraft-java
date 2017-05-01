@@ -3,9 +3,9 @@ package com.chenyirun.theircraft.block;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Point3Int;
 
-public class Brick extends Block {
-    public Brick(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_BRICK);
+public class Snow extends Block {
+    public Snow(Point3Int pos){
+        super(pos.x, pos.y, pos.z, BLOCK_SNOW);
     }
 
     @Override
@@ -28,25 +28,25 @@ public class Brick extends Block {
 
     // Flip top and bottom since bitmaps are loaded upside down.
     public static final float[] TOP_FACE_TEXTURE_COORDS = {
-            3/16.0f, 1,
-            4/16.0f, 1,
-            4/16.0f, 15/16.0f,
-            3/16.0f, 15/16.0f,
+            8/16.0f, 14/16.0f,
+            9/16.0f, 14/16.0f,
+            9/16.0f, 13/16.0f,
+            8/16.0f, 13/16.0f,
     };
 
     // Flip top and bottom since bitmaps are loaded upside down.
     public static final float[] SIDE_FACE_TEXTURE_COORDS = {
-            3/16.0f, 1,
-            4/16.0f, 1,
-            4/16.0f, 15/16.0f,
-            3/16.0f, 15/16.0f,
+            8/16.0f, 15/16.0f,
+            9/16.0f, 15/16.0f,
+            9/16.0f, 14/16.0f,
+            8/16.0f, 14/16.0f,
     };
 
     // Flip top and bottom since bitmaps are loaded upside down.
     public static final float[] BOTTOM_FACE_TEXTURE_COORDS = {
-            3/16.0f, 1,
-            4/16.0f, 1,
-            4/16.0f, 15/16.0f,
-            3/16.0f, 15/16.0f,
+            8/16.0f, 1,
+            9/16.0f, 1,
+            9/16.0f, 15/16.0f,
+            8/16.0f, 15/16.0f,
     };
 }

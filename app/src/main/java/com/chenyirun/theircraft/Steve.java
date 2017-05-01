@@ -1,10 +1,8 @@
 package com.chenyirun.theircraft;
 
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
-import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;

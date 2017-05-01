@@ -5,13 +5,22 @@ import android.os.SystemClock;
 
 import com.chenyirun.theircraft.block.Air;
 import com.chenyirun.theircraft.block.Brick;
+import com.chenyirun.theircraft.block.Chest;
+import com.chenyirun.theircraft.block.Cloud;
+import com.chenyirun.theircraft.block.Cobble;
+import com.chenyirun.theircraft.block.DarkStone;
+import com.chenyirun.theircraft.block.Glass;
 import com.chenyirun.theircraft.block.Grass;
-import com.chenyirun.theircraft.block.Iron;
-import com.chenyirun.theircraft.block.Log;
-import com.chenyirun.theircraft.block.Sand;
-import com.chenyirun.theircraft.block.Soil;
+import com.chenyirun.theircraft.block.Leaves;
+import com.chenyirun.theircraft.block.LightStone;
+import com.chenyirun.theircraft.block.Snow;
 import com.chenyirun.theircraft.block.Stone;
+import com.chenyirun.theircraft.block.TallGrass;
 import com.chenyirun.theircraft.block.Wood;
+import com.chenyirun.theircraft.block.Sand;
+import com.chenyirun.theircraft.block.Dirt;
+import com.chenyirun.theircraft.block.Cement;
+import com.chenyirun.theircraft.block.Plank;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
@@ -83,7 +92,8 @@ public class MapManager {
         if (loc != null){
             glHelper.drawWireFrame(loc);
         }
-        glHelper.drawSightVector(sightVector, pos, 3);
+        //glHelper.drawCrossHair();
+        //glHelper.drawSightVector(sightVector, pos);
     }
 
     public void loadNeighboringChunks(Chunk currChunk){
@@ -277,18 +287,36 @@ public class MapManager {
                 return new Grass(blockLocation);
             case Block.BLOCK_SAND:
                 return new Sand(blockLocation);
-            case Block.BLOCK_IRON:
-                return new Iron(blockLocation);
-            case Block.BLOCK_BRICK:
-                return new Brick(blockLocation);
-            case Block.BLOCK_LOG:
-                return new Log(blockLocation);
             case Block.BLOCK_STONE:
                 return new Stone(blockLocation);
-            case Block.BLOCK_SOIL:
-                return new Soil(blockLocation);
+            case Block.BLOCK_BRICK:
+                return new Brick(blockLocation);
             case Block.BLOCK_WOOD:
                 return new Wood(blockLocation);
+            case Block.BLOCK_CEMENT:
+                return new Cement(blockLocation);
+            case Block.BLOCK_DIRT:
+                return new Dirt(blockLocation);
+            case Block.BLOCK_PLANK:
+                return new Plank(blockLocation);
+            case Block.BLOCK_SNOW:
+                return new Snow(blockLocation);
+            case Block.BLOCK_GLASS:
+                return new Glass(blockLocation);
+            case Block.BLOCK_COBBLE:
+                return new Cobble(blockLocation);
+            case Block.BLOCK_LIGHT_STONE:
+                return new LightStone(blockLocation);
+            case Block.BLOCK_DARK_STONE:
+                return new DarkStone(blockLocation);
+            case Block.BLOCK_CHEST:
+                return new Chest(blockLocation);
+            case Block.BLOCK_LEAVES:
+                return new Leaves(blockLocation);
+            case Block.BLOCK_CLOUD:
+                return new Cloud(blockLocation);
+            case Block.BLOCK_TALL_GRASS:
+                return new TallGrass(blockLocation);
         }
         return null;
     }

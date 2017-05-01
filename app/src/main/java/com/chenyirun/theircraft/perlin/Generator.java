@@ -52,13 +52,15 @@ public class Generator {
         float maxElevation = MAX_FOREST_HILLS_Y;
         float height = 0.5f * (maxElevation - minElevation);
 
+        Point3Int location;
         List<Block> result = new ArrayList<>();
         for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
             for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
                 for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
                     float noiseValue = noise[x][y][z] - (y + yOffset - minElevation - height) / height;
                     if (noiseValue >= 0.0f) {
-                        result.add(new Grass(x + xOffset, y + yOffset, z + zOffset));
+                        location = new Point3Int(x + xOffset, y + yOffset, z + zOffset);
+                        result.add(new Grass(location));
                     }
                 }
             }

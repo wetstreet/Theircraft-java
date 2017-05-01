@@ -19,9 +19,10 @@ public class BlockMap {
     private static final String TAG = "BlockMap";
     private final Set<Block> blocks = new HashSet<>();
     private final Set<Point3Int> blockLocations = new HashSet<>();
+    private final Set<Point3Int> collidingBlockLoc = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
-    private final Object listLock = new Object();
+    private final Object chunkBlocksLock = new Object();
 
     public Block getBlock(Point3Int pos){
         Chunk chunk = new Chunk(pos);
@@ -30,7 +31,7 @@ public class BlockMap {
             Log.i(TAG, "getBlock: chunk doesn't have a block");
             return null;
         }
-        synchronized (listLock){
+        synchronized (chunkBlocksLock){
             for (Block block : blocksInChunk) {
                 Point3Int blockLocation = block.getLocation();
                 if (pos.equals(blockLocation)){
@@ -76,7 +77,7 @@ public class BlockMap {
         if (blocksInChunk == null){
             return;
         }
-        synchronized (listLock){
+        synchronized (chunkBlocksLock){
             blocksInChunk.add(block);
         }
         blocks.add(block);
@@ -90,7 +91,7 @@ public class BlockMap {
         if (blocksInChunk == null){
             return;
         }
-        synchronized (listLock){
+        synchronized (chunkBlocksLock){
             blocksInChunk.remove(block);
         }
         blocks.remove(block);
@@ -98,15 +99,16 @@ public class BlockMap {
     }
 
     public List<Block> shownBlocks(Chunk chunk) {
-        List<Block> chunkBlocks = getChunkBlocks(chunk);
+        List<Block> blocksInChunk = getChunkBlocks(chunk);
         List<Block> result = new ArrayList<>();
-        if (chunkBlocks == null) {
+        if (blocksInChunk == null) {
             return result;
         }
-
-        for (Block block : chunkBlocks) {
-            if (exposed(block)) {
-                result.add(block);
+        synchronized (chunkBlocksLock){
+            for (Block block : blocksInChunk) {
+                if (exposed(block)) {
+                    result.add(block);
+                }
             }
         }
         return result;
