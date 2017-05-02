@@ -83,4 +83,15 @@ public abstract class Block extends Point3Int {
     public abstract float[] getBottomFaceTextureCoords();
 
     public abstract float[] getCrossFaceTextureCoords();
+
+    // Flip top and bottom since bitmaps are loaded upside down.(top-left is 0,0)
+    public static float[] getFaceCoords(int x, int y){
+        float[] coords = {
+                x / 16.0f , (y + 1) / 16.0f,
+                (x + 1) / 16.0f , (y + 1) / 16.0f,
+                (x + 1) / 16.0f , y / 16.0f,
+                x / 16.0f , y / 16.0f
+        };
+        return coords;
+    }
 }

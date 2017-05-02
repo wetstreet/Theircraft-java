@@ -10,27 +10,19 @@ public class Leaves extends Block {
 
     @Override
     public float[] getTopFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(14, 15);
     }
 
     @Override
     public float[] getSideFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(14, 15);
     }
 
     @Override
     public float[] getBottomFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(14, 15);
     }
 
     @Override
     public float[] getCrossFaceTextureCoords(){ return null; }
-
-    // Flip top and bottom since bitmaps are loaded upside down.
-    public static final float[] FACE_TEXTURE_COORDS = {
-            14/16.0f, 1,
-            15/16.0f, 1,
-            15/16.0f, 15/16.0f,
-            14/16.0f, 15/16.0f,
-    };
 }

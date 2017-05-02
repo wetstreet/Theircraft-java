@@ -24,13 +24,5 @@ public class TallGrass extends Block {
     }
 
     @Override
-    public float[] getCrossFaceTextureCoords(){ return FACE_TEXTURE_COORDS; }
-
-    // Flip top and bottom since bitmaps are loaded upside down.
-    public static final float[] FACE_TEXTURE_COORDS = {
-            0/16.0f, 13/16.0f,
-            1/16.0f, 13/16.0f,
-            1/16.0f, 12/16.0f,
-            0/16.0f, 12/16.0f,
-    };
+    public float[] getCrossFaceTextureCoords(){ return getFaceCoords(0, 12); }
 }

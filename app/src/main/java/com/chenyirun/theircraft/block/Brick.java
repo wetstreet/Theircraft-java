@@ -10,27 +10,19 @@ public class Brick extends Block {
 
     @Override
     public float[] getTopFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(3, 15);
     }
 
     @Override
     public float[] getSideFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(3, 15);
     }
 
     @Override
     public float[] getBottomFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(3, 15);
     }
 
     @Override
     public float[] getCrossFaceTextureCoords(){ return null; }
-
-    // Flip top and bottom since bitmaps are loaded upside down.
-    public static final float[] FACE_TEXTURE_COORDS = {
-            3/16.0f, 1,
-            4/16.0f, 1,
-            4/16.0f, 15/16.0f,
-            3/16.0f, 15/16.0f,
-    };
 }

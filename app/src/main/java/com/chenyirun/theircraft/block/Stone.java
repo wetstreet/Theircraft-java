@@ -10,27 +10,19 @@ public class Stone extends Block {
 
     @Override
     public float[] getTopFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(2, 15);
     }
 
     @Override
     public float[] getSideFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(2, 15);
     }
 
     @Override
     public float[] getBottomFaceTextureCoords(){
-        return FACE_TEXTURE_COORDS;
+        return getFaceCoords(2, 15);
     }
 
     @Override
     public float[] getCrossFaceTextureCoords(){ return null; }
-
-    // Flip top and bottom since bitmaps are loaded upside down.
-    public static final float[] FACE_TEXTURE_COORDS = {
-            2/16.0f, 1,
-            3/16.0f, 1,
-            3/16.0f, 15/16.0f,
-            2/16.0f, 15/16.0f,
-    };
 }
