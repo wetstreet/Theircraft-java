@@ -191,7 +191,9 @@ public class DBService {
             int z = cursor.getInt(cursor.getColumnIndexOrThrow("blockZ"));
             int type = cursor.getInt(cursor.getColumnIndexOrThrow("blockType"));
             Block block = MapManager.createBlock(new Point3Int(x, y, z), type);
-            result.add(block);
+            if (block != null){
+                result.add(block);
+            }
             //Wood.i(TAG, "getBlockChangesInChunk: block change found at Chunk"+chunk+" Block("+x+","+y+","+z+") type="+type);
         }
         cursor.close();

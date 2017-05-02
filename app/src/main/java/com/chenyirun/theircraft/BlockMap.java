@@ -29,6 +29,9 @@ public class BlockMap {
         List<Block> blocksInChunk = new ArrayList<>();
         blocksInChunk.addAll(getChunkBlocks(chunk));
         for (Block block : blocksInChunk) {
+            if (block == null){
+                continue;
+            }
             Point3Int blockLocation = block.getLocation();
             if (pos.equals(blockLocation)){
                 return block;
@@ -121,24 +124,29 @@ public class BlockMap {
     public Buffers createBuffers(List<Block> shownBlocks) {
         VertexIndexTextureList vitList = new VertexIndexTextureList();
         for (Block block : shownBlocks) {
-            // Only add faces that are not between two blocks and thus invisible.
-            if (!contain(block.x, block.y + 1, block.z)) {
-                vitList.addTopFace(block);
-            }
-            if (!contain(block.x, block.y, block.z + 1)) {
-                vitList.addFrontFace(block);
-            }
-            if (!contain(block.x - 1, block.y, block.z)) {
-                vitList.addLeftFace(block);
-            }
-            if (!contain(block.x + 1, block.y, block.z)) {
-                vitList.addRightFace(block);
-            }
-            if (!contain(block.x, block.y, block.z - 1)) {
-                vitList.addBackFace(block);
-            }
-            if (!contain(block.x, block.y - 1, block.z)) {
-                vitList.addBottomFace(block);
+            if (block.isCollidable()){
+                // Only add faces that are not between two blocks and thus invisible.
+                if (!contain(block.x, block.y + 1, block.z)) {
+                    vitList.addTopFace(block);
+                }
+                if (!contain(block.x, block.y, block.z + 1)) {
+                    vitList.addFrontFace(block);
+                }
+                if (!contain(block.x - 1, block.y, block.z)) {
+                    vitList.addLeftFace(block);
+                }
+                if (!contain(block.x + 1, block.y, block.z)) {
+                    vitList.addRightFace(block);
+                }
+                if (!contain(block.x, block.y, block.z - 1)) {
+                    vitList.addBackFace(block);
+                }
+                if (!contain(block.x, block.y - 1, block.z)) {
+                    vitList.addBottomFace(block);
+                }
+            } else {
+                vitList.addPrimaryCrossFace(block);
+                vitList.addSecondaryCrossFace(block);
             }
         }
 

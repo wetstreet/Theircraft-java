@@ -120,15 +120,31 @@ class VertexIndexTextureList {
             new Point3(-0.5f, -0.5f, 0.5f)  // front left
     };
 
-    // Face texture vertex
+    // top-left to bottom-right
+    private static final Point3 PRIMARY_CROSS_FACE[] = {
+            new Point3(-0.5f, -0.5f, -0.5f),  // rear bottom left
+            new Point3(0.5f, -0.5f, 0.5f),  // near bottom right
+            new Point3(0.5f, 0.5f, 0.5f),  // near top right
+            new Point3(-0.5f, 0.5f, -0.5f)  // rear top left
+    };
+
+    // bottom-left to top-right
+    private static final Point3 SECONDARY_CROSS_FACE[] = {
+            new Point3(-0.5f, -0.5f, 0.5f),  // near bottom left
+            new Point3(0.5f, -0.5f, -0.5f),  // rear bottom right
+            new Point3(0.5f, 0.5f, -0.5f),  // rear top right
+            new Point3(-0.5f, 0.5f, 0.5f)  // near top left
+    };
+
+    // Face texture vertex index
     // 3 2
     // 0 1
-    // First triangle
+    // First triangle order
     // 3
-    // 0 1
-    // Second triangle
-    // 3 2
-    //   1
+    // 1 2
+    // Second triangle order
+    // 1 3
+    //   2
     private static final short[] FACE_DRAW_LIST_IDXS = {
             0, 1, 3,
             3, 1, 2,
@@ -156,5 +172,13 @@ class VertexIndexTextureList {
 
     public void addBottomFace(Block block) {
         addFace(block, BOTTOM_FACE, FACE_DRAW_LIST_IDXS, block.getBottomFaceTextureCoords());
+    }
+
+    public void addPrimaryCrossFace(Block block) {
+        addFace(block, PRIMARY_CROSS_FACE, FACE_DRAW_LIST_IDXS, block.getCrossFaceTextureCoords());
+    }
+
+    public void addSecondaryCrossFace(Block block) {
+        addFace(block, SECONDARY_CROSS_FACE, FACE_DRAW_LIST_IDXS, block.getCrossFaceTextureCoords());
     }
 }

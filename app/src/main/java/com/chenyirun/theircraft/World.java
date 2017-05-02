@@ -154,7 +154,9 @@ public class World {
         }
         if (!blockLocation.equals(steve.headLocation()) && !blockLocation.equals(steve.kneeLocation())){
             Block block = MapManager.createBlock(blockLocation, Block.items[itemIndex]);
-            mapManager.addBlock(block);
+            if (block != null){
+                mapManager.addBlock(block);
+            }
         }
     }
 

@@ -212,25 +212,25 @@ public class MapManager {
         generator.generateChunk(chunk);
         List<Block> blocksInChunk = generator.getBlocksInChunk() ;
         Set<Point3Int> blockLocations = generator.getChunkBlockLocs();
+        // add the chunk to block map
+        blockMap.addChunk(chunk, blocksInChunk, blockLocations);
         // if db is enabled, load block from db
         if(DBService.DBEnabled){
             List<Block> list = dbService.getBlockChangesInChunk(chunk);
             for (Block block : list) {
-                Point3Int blockLocation = block.getLocation();
                 switch (block.getType()){
                     case Block.BLOCK_AIR:
-                        blocksInChunk.remove(block);
-                        blockLocations.remove(blockLocation);
+                        Block realBlock = blockMap.getBlock(block.getLocation());
+                        if (realBlock != null){
+                            blockMap.removeBlock(realBlock);
+                        }
                         break;
                     default:
-                        blocksInChunk.add(block);
-                        blockLocations.add(blockLocation);
+                        blockMap.addBlock(block);
                         break;
                 }
             }
         }
-        // add the chunk to block map
-        blockMap.addChunk(chunk, blocksInChunk, blockLocations);
     }
 
     private void unloadChunk(Chunk chunk) {
