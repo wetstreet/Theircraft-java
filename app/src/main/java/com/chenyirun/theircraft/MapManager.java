@@ -3,24 +3,7 @@ package com.chenyirun.theircraft;
 import android.content.res.Resources;
 import android.os.SystemClock;
 
-import com.chenyirun.theircraft.block.Air;
-import com.chenyirun.theircraft.block.Brick;
-import com.chenyirun.theircraft.block.Chest;
-import com.chenyirun.theircraft.block.Cloud;
-import com.chenyirun.theircraft.block.Cobble;
-import com.chenyirun.theircraft.block.DarkStone;
-import com.chenyirun.theircraft.block.Glass;
-import com.chenyirun.theircraft.block.Grass;
-import com.chenyirun.theircraft.block.Leaves;
-import com.chenyirun.theircraft.block.LightStone;
-import com.chenyirun.theircraft.block.Snow;
-import com.chenyirun.theircraft.block.Stone;
-import com.chenyirun.theircraft.block.TallGrass;
-import com.chenyirun.theircraft.block.Wood;
-import com.chenyirun.theircraft.block.Sand;
-import com.chenyirun.theircraft.block.Dirt;
-import com.chenyirun.theircraft.block.Cement;
-import com.chenyirun.theircraft.block.Plank;
+import com.chenyirun.theircraft.block.*;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
@@ -280,6 +263,26 @@ public class MapManager {
         chunkChanges.add(new ChunkLoad(chunk));
     }
 
+    public void destroyBlock(Point3Int blockLocation){
+        Chunk chunk = new Chunk(blockLocation);
+        Block block = blockMap.getBlock(blockLocation);
+        if (block == null){
+            return;
+        }
+        blockMap.removeBlock(block);
+        dbService.deleteBlock(block);
+        chunkChanges.add(new ChunkLoad(chunk));
+    }
+
+    // Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block.
+    public float highestSolidY(float x, float z) {
+        return blockMap.highestSolidY(x, z);
+    }
+
+    public BlockMap getBlockMap(){
+        return blockMap;
+    }
+
     public static Block createBlock(Point3Int blockLocation, int type){
         switch (type){
             case Block.BLOCK_AIR:
@@ -318,27 +321,19 @@ public class MapManager {
                 return new Cloud(blockLocation);
             case Block.BLOCK_TALL_GRASS:
                 return new TallGrass(blockLocation);
+            case Block.BLOCK_YELLOW_FLOWER:
+                return new YellowFlower(blockLocation);
+            case Block.BLOCK_RED_FLOWER:
+                return new RedFlower(blockLocation);
+            case Block.BLOCK_PURPLE_FLOWER:
+                return new PurpleFlower(blockLocation);
+            case Block.BLOCK_SUN_FLOWER:
+                return new SunFlower(blockLocation);
+            case Block.BLOCK_WHITE_FLOWER:
+                return new WhiteFlower(blockLocation);
+            case Block.BLOCK_BLUE_FLOWER:
+                return new BlueFlower(blockLocation);
         }
         return null;
-    }
-
-    public void destroyBlock(Point3Int blockLocation){
-        Chunk chunk = new Chunk(blockLocation);
-        Block block = blockMap.getBlock(blockLocation);
-        if (block == null){
-            return;
-        }
-        blockMap.removeBlock(block);
-        dbService.deleteBlock(block);
-        chunkChanges.add(new ChunkLoad(chunk));
-    }
-
-    // Given (x,z) coordinates, finds and returns the highest y so that (x,y,z) is a solid block.
-    public float highestSolidY(float x, float z) {
-        return blockMap.highestSolidY(x, z);
-    }
-
-    public BlockMap getBlockMap(){
-        return blockMap;
     }
  }

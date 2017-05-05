@@ -29,7 +29,7 @@ public class World {
     private final Resources resources;
     private final MapManager mapManager;
 
-    private int itemIndex = 2;
+    private int itemIndex = 0;
 
     private Point3Int wireFramePos = null;
 
@@ -106,7 +106,7 @@ public class World {
 
         float fps = performance.fps();
         if (fps <= 70.0f){
-            Log.i(TAG, "onDrawEye: fps=" + fps);
+            //Log.i(TAG, "onDrawEye: fps=" + fps);
         }
     }
 
@@ -135,6 +135,7 @@ public class World {
 
     public void onCardboardTrigger() {
         steve.jump();
+        //pressB();
     }
 
     public void pressA(){

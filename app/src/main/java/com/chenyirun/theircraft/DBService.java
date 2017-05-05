@@ -194,7 +194,6 @@ public class DBService {
             if (block != null){
                 result.add(block);
             }
-            //Wood.i(TAG, "getBlockChangesInChunk: block change found at Chunk"+chunk+" Block("+x+","+y+","+z+") type="+type);
         }
         cursor.close();
         return result;

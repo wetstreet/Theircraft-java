@@ -19,7 +19,7 @@ public class BlockMap {
     private static final String TAG = "BlockMap";
     private final Set<Block> blocks = new HashSet<>();
     private final Set<Point3Int> blockLocations = new HashSet<>();
-    private final Set<Point3Int> collidingBlockLoc = new HashSet<>();
+    private final Set<Point3Int> noncolliding = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
     private final Object chunkBlocksLock = new Object();
@@ -48,6 +48,10 @@ public class BlockMap {
         return contain(point.x, point.y, point.z);
     }
 
+    public boolean noncolliding(Point3Int loc){
+        return noncolliding.contains(loc);
+    }
+
     public boolean containChunk(Chunk chunk){
         return chunkBlocks.keySet().contains(chunk);
     }
@@ -64,7 +68,7 @@ public class BlockMap {
             return;
         }
         blocks.removeAll(blocksInChunk);
-        blockLocations.removeAll(blocksInChunk);
+        //blockLocations.removeAll(blocksInChunk);
         chunkBlocks.remove(chunk);
     }
 
@@ -80,6 +84,9 @@ public class BlockMap {
         }
         blocks.add(block);
         blockLocations.add(block.getLocation());
+        if (!block.isCollidable()){
+            noncolliding.add(block.getLocation());
+        }
     }
 
     public void removeBlock(Block block){
@@ -94,6 +101,9 @@ public class BlockMap {
         }
         blocks.remove(block);
         blockLocations.remove(block.getLocation());
+        if (!block.isCollidable()){
+            noncolliding.remove(block.getLocation());
+        }
     }
 
     public List<Block> shownBlocks(Chunk chunk) {
@@ -109,16 +119,20 @@ public class BlockMap {
     }
 
     public boolean exposed(Block block) {
-        return !contain(block.x - 1, block.y, block.z) ||
-                !contain(block.x + 1, block.y, block.z) ||
-                !contain(block.x, block.y - 1, block.z) ||
-                !contain(block.x, block.y + 1, block.z) ||
-                !contain(block.x, block.y, block.z - 1) ||
-                !contain(block.x, block.y, block.z + 1);
+        return !contain(block.getLeftLoc()) || noncolliding(block.getLeftLoc()) ||
+                !contain(block.getRightLoc()) || noncolliding(block.getLeftLoc()) ||
+                !contain(block.getBottomLoc()) || noncolliding(block.getBottomLoc()) ||
+                !contain(block.getTopLoc()) || noncolliding(block.getTopLoc()) ||
+                !contain(block.getBackLoc()) || noncolliding(block.getBackLoc()) ||
+                !contain(block.getFrontLoc()) || noncolliding(block.getFrontLoc());
     }
 
     public List<Block> getChunkBlocks(Chunk chunk){
         return chunkBlocks.get(chunk);
+    }
+
+    public Set<Point3Int> getNonCollidingBlocks(){
+        return noncolliding;
     }
 
     public Buffers createBuffers(List<Block> shownBlocks) {
@@ -126,22 +140,22 @@ public class BlockMap {
         for (Block block : shownBlocks) {
             if (block.isCollidable()){
                 // Only add faces that are not between two blocks and thus invisible.
-                if (!contain(block.x, block.y + 1, block.z)) {
+                if (!contain(block.getTopLoc()) || noncolliding(block.getTopLoc())) {
                     vitList.addTopFace(block);
                 }
-                if (!contain(block.x, block.y, block.z + 1)) {
+                if (!contain(block.getFrontLoc()) || noncolliding(block.getFrontLoc())) {
                     vitList.addFrontFace(block);
                 }
-                if (!contain(block.x - 1, block.y, block.z)) {
+                if (!contain(block.getLeftLoc()) || noncolliding(block.getLeftLoc())) {
                     vitList.addLeftFace(block);
                 }
-                if (!contain(block.x + 1, block.y, block.z)) {
+                if (!contain(block.getRightLoc()) || noncolliding(block.getRightLoc())) {
                     vitList.addRightFace(block);
                 }
-                if (!contain(block.x, block.y, block.z - 1)) {
+                if (!contain(block.getBackLoc()) || noncolliding(block.getBackLoc())) {
                     vitList.addBackFace(block);
                 }
-                if (!contain(block.x, block.y - 1, block.z)) {
+                if (!contain(block.getBottomLoc()) || noncolliding(block.getBottomLoc())) {
                     vitList.addBottomFace(block);
                 }
             } else {

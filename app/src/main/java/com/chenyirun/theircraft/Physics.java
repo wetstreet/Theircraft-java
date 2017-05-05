@@ -28,12 +28,9 @@ public class Physics {
 
     private Physics(){}
 
-    private static Physics instance = null;
+    private static Physics instance = new Physics();
 
     public synchronized static Physics getInstance(){
-        if (instance == null) {
-            instance = new Physics();
-        }
         return instance;
     }
 
@@ -138,6 +135,16 @@ public class Physics {
         if (collidingBlocks.isEmpty()) {
             return new PositionStopVertical(eyePosition, false);
         }
+        /*
+        Set<Point3Int> collidings = new HashSet<>();
+        Set<Point3Int> noncollidings = new HashSet<>();
+        collidings.addAll(collidingBlocks);
+        noncollidings.addAll(blockMap.getNonCollidingBlocks());
+
+        for (Point3Int pos : collidings) {
+            noncollidings.contains(pos);
+            collidings.remove(pos);
+        }*/
 
         boolean stopVertical = false;
         for (Point3Int collidingBlock : collidingBlocks) {

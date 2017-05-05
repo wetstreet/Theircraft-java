@@ -50,4 +50,28 @@ public class Point3Int {
     public String toString() {
         return "Point3Int{x=" + x + ", y=" + y + ", z=" + z + '}';
     }
+
+    public Point3Int getTopLoc(){
+        return new Point3Int(x, y + 1, z);
+    }
+
+    public Point3Int getBottomLoc(){
+        return new Point3Int(x, y - 1, z);
+    }
+
+    public Point3Int getFrontLoc(){
+        return new Point3Int(x, y, z + 1);
+    }
+
+    public Point3Int getBackLoc(){
+        return new Point3Int(x, y, z - 1);
+    }
+
+    public Point3Int getRightLoc(){
+        return new Point3Int(x + 1, y, z);
+    }
+
+    public Point3Int getLeftLoc(){
+        return new Point3Int(x - 1, y, z);
+    }
 }
