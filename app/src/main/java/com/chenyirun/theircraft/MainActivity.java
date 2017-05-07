@@ -35,7 +35,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     }
 
     public void initializeGvrView() {
-        setContentView(R.layout.common_ui);
+        setContentView(R.layout.game_ui);
 
         GvrView gvrView = (GvrView) findViewById(R.id.gvr_view);
         //Install a config chooser which will choose a config with at least the specified depthSize
