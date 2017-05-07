@@ -5,7 +5,7 @@ import com.chenyirun.theircraft.model.Point3Int;
 
 public class Cloud extends Block {
     public Cloud(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_CLOUD, false);
+        super(pos.x, pos.y, pos.z, BLOCK_CLOUD, false, false);
     }
 
     @Override

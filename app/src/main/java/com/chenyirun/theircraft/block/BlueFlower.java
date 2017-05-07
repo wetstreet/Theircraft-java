@@ -5,7 +5,7 @@ import com.chenyirun.theircraft.model.Point3Int;
 
 public class BlueFlower extends Block {
     public BlueFlower(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_BLUE_FLOWER, false);
+        super(pos.x, pos.y, pos.z, BLOCK_BLUE_FLOWER, false, true);
     }
 
     @Override

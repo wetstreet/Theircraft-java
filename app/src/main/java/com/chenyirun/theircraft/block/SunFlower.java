@@ -5,7 +5,7 @@ import com.chenyirun.theircraft.model.Point3Int;
 
 public class SunFlower extends Block {
     public SunFlower(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_SUN_FLOWER, false);
+        super(pos.x, pos.y, pos.z, BLOCK_SUN_FLOWER, false, true);
     }
 
     @Override

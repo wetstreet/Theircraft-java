@@ -20,6 +20,7 @@ public class BlockMap {
     private final Set<Block> blocks = new HashSet<>();
     private final Set<Point3Int> blockLocations = new HashSet<>();
     private final Set<Point3Int> noncolliding = new HashSet<>();
+    private final Set<Point3Int> transparent = new HashSet<>();
     private final Map<Chunk, List<Block>> chunkBlocks = new HashMap<>();
 
     private final Object chunkBlocksLock = new Object();
@@ -52,8 +53,16 @@ public class BlockMap {
         return noncolliding.contains(loc);
     }
 
+    public boolean isTransparent(Point3Int loc){
+        return transparent.contains(loc);
+    }
+
     public boolean containChunk(Chunk chunk){
         return chunkBlocks.keySet().contains(chunk);
+    }
+
+    public List<Block> getChunkBlocks(Chunk chunk){
+        return chunkBlocks.get(chunk);
     }
 
     public void addChunk(Chunk chunk, List<Block> blocksInChunk, Set<Point3Int> blockLocations){
@@ -87,6 +96,9 @@ public class BlockMap {
         if (!block.isCollidable()){
             noncolliding.add(block.getLocation());
         }
+        if (block.isTransparent()){
+            transparent.add(block.getLocation());
+        }
     }
 
     public void removeBlock(Block block){
@@ -119,20 +131,12 @@ public class BlockMap {
     }
 
     public boolean exposed(Block block) {
-        return !contain(block.getLeftLoc()) || noncolliding(block.getLeftLoc()) ||
-                !contain(block.getRightLoc()) || noncolliding(block.getLeftLoc()) ||
-                !contain(block.getBottomLoc()) || noncolliding(block.getBottomLoc()) ||
-                !contain(block.getTopLoc()) || noncolliding(block.getTopLoc()) ||
-                !contain(block.getBackLoc()) || noncolliding(block.getBackLoc()) ||
-                !contain(block.getFrontLoc()) || noncolliding(block.getFrontLoc());
-    }
-
-    public List<Block> getChunkBlocks(Chunk chunk){
-        return chunkBlocks.get(chunk);
-    }
-
-    public Set<Point3Int> getNonCollidingBlocks(){
-        return noncolliding;
+        return !contain(block.getLeftLoc()) || isTransparent(block.getLeftLoc()) ||
+                !contain(block.getRightLoc()) || isTransparent(block.getLeftLoc()) ||
+                !contain(block.getBottomLoc()) || isTransparent(block.getBottomLoc()) ||
+                !contain(block.getTopLoc()) || isTransparent(block.getTopLoc()) ||
+                !contain(block.getBackLoc()) || isTransparent(block.getBackLoc()) ||
+                !contain(block.getFrontLoc()) || isTransparent(block.getFrontLoc());
     }
 
     public Buffers createBuffers(List<Block> shownBlocks) {
@@ -140,22 +144,22 @@ public class BlockMap {
         for (Block block : shownBlocks) {
             if (block.isCollidable()){
                 // Only add faces that are not between two blocks and thus invisible.
-                if (!contain(block.getTopLoc()) || noncolliding(block.getTopLoc())) {
+                if (!contain(block.getTopLoc()) || isTransparent(block.getTopLoc())) {
                     vitList.addTopFace(block);
                 }
-                if (!contain(block.getFrontLoc()) || noncolliding(block.getFrontLoc())) {
+                if (!contain(block.getFrontLoc()) || isTransparent(block.getFrontLoc())) {
                     vitList.addFrontFace(block);
                 }
-                if (!contain(block.getLeftLoc()) || noncolliding(block.getLeftLoc())) {
+                if (!contain(block.getLeftLoc()) || isTransparent(block.getLeftLoc())) {
                     vitList.addLeftFace(block);
                 }
-                if (!contain(block.getRightLoc()) || noncolliding(block.getRightLoc())) {
+                if (!contain(block.getRightLoc()) || isTransparent(block.getRightLoc())) {
                     vitList.addRightFace(block);
                 }
-                if (!contain(block.getBackLoc()) || noncolliding(block.getBackLoc())) {
+                if (!contain(block.getBackLoc()) || isTransparent(block.getBackLoc())) {
                     vitList.addBackFace(block);
                 }
-                if (!contain(block.getBottomLoc()) || noncolliding(block.getBottomLoc())) {
+                if (!contain(block.getBottomLoc()) || isTransparent(block.getBottomLoc())) {
                     vitList.addBottomFace(block);
                 }
             } else {

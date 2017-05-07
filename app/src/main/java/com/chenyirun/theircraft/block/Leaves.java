@@ -5,7 +5,7 @@ import com.chenyirun.theircraft.model.Point3Int;
 
 public class Leaves extends Block {
     public Leaves(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_LEAVES);
+        super(pos.x, pos.y, pos.z, BLOCK_LEAVES, true, true);
     }
 
     @Override

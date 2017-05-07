@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
@@ -165,13 +166,14 @@ public class World {
         if (--itemIndex < 0){
             itemIndex = Block.items.length - 1;
         }
+        Toast.makeText(context, "item=" + Block.items[itemIndex], Toast.LENGTH_SHORT).show();
     }
 
     public void pressRB(){
-        //Toast.makeText(context, "RB is pressed", Toast.LENGTH_SHORT).show();
         if (++itemIndex >= Block.items.length){
             itemIndex = 0;
         }
+        Toast.makeText(context, "item=" + Block.items[itemIndex], Toast.LENGTH_SHORT).show();
     }
 
     public void walk(int walking){

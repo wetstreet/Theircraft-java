@@ -5,7 +5,7 @@ import com.chenyirun.theircraft.model.Point3Int;
 
 public class WhiteFlower extends Block {
     public WhiteFlower(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_WHITE_FLOWER, false);
+        super(pos.x, pos.y, pos.z, BLOCK_WHITE_FLOWER, false, true);
     }
 
     @Override

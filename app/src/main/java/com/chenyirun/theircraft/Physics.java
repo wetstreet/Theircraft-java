@@ -135,16 +135,12 @@ public class Physics {
         if (collidingBlocks.isEmpty()) {
             return new PositionStopVertical(eyePosition, false);
         }
-        /*
-        Set<Point3Int> collidings = new HashSet<>();
-        Set<Point3Int> noncollidings = new HashSet<>();
-        collidings.addAll(collidingBlocks);
-        noncollidings.addAll(blockMap.getNonCollidingBlocks());
 
-        for (Point3Int pos : collidings) {
-            noncollidings.contains(pos);
-            collidings.remove(pos);
-        }*/
+        for (Point3Int pos : collidingBlocks) {
+            if (blockMap.noncolliding(pos)){
+                collidingBlocks.remove(pos);
+            }
+        }
 
         boolean stopVertical = false;
         for (Point3Int collidingBlock : collidingBlocks) {

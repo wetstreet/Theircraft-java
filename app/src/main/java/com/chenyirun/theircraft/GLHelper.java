@@ -3,6 +3,7 @@ package com.chenyirun.theircraft;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
@@ -326,11 +327,32 @@ class GLHelper {
     private static Bitmap loadBitmap(Resources resources, int resourceId) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;   // No pre-scaling
-        Bitmap result = BitmapFactory.decodeResource(resources, resourceId, options);
-        if (result == null) {
+        Bitmap original = BitmapFactory.decodeResource(resources, resourceId, options);
+        if (original == null) {
             Exceptions.fail("Failed to decode bitmap from resource %d", resourceId);
         }
-        return result;
+        Bitmap processed = setBackgroundTransparent(original, 0xFFFF00FF);
+        return processed;
+    }
+
+    public static Bitmap setBackgroundTransparent(Bitmap bitmap,int backgroundColor) {
+        if (bitmap != null) {
+            int picw = bitmap.getWidth();
+            int pich = bitmap.getHeight();
+            int[] pix = new int[picw * pich];
+            bitmap.getPixels(pix, 0, picw, 0, 0, picw, pich);
+            for (int y = 0; y < pich; y++) {
+                for (int x = 0; x < picw; x++) {
+                    int index = y * picw + x;
+                    if (pix[index] == backgroundColor){
+                        pix[index] = Color.TRANSPARENT;
+                    }
+                }
+            }
+            Bitmap bm = Bitmap.createBitmap(pix, picw, pich,Bitmap.Config.ARGB_8888);
+            return bm;
+        }
+        return null;
     }
 
     public static void drawBackground(){

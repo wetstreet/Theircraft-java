@@ -42,22 +42,31 @@ public abstract class Block extends Point3Int {
             BLOCK_DARK_STONE,
             BLOCK_CHEST,
             BLOCK_LEAVES,
-            BLOCK_TALL_GRASS
+            BLOCK_TALL_GRASS,
+            BLOCK_YELLOW_FLOWER,
+            BLOCK_RED_FLOWER,
+            BLOCK_PURPLE_FLOWER,
+            BLOCK_SUN_FLOWER,
+            BLOCK_WHITE_FLOWER,
+            BLOCK_BLUE_FLOWER
     };
 
     private int type;
     private boolean collidable;
+    private boolean transparent;
 
-    public Block(int x, int y, int z, int type, boolean collidable) {
+    public Block(int x, int y, int z, int type, boolean collidable, boolean transparent) {
         super(x, y, z);
         this.type = type;
         this.collidable = collidable;
+        this.transparent = transparent;
     }
 
     public Block(int x, int y, int z, int type) {
         super(x, y, z);
         this.type = type;
         collidable = true;
+        transparent = false;
     }
 
     public int getType(){
@@ -66,6 +75,10 @@ public abstract class Block extends Point3Int {
 
     public boolean isCollidable(){
         return collidable;
+    }
+
+    public boolean isTransparent(){
+        return transparent;
     }
 
     public Point3Int getLocation(){

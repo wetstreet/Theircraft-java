@@ -5,7 +5,7 @@ import com.chenyirun.theircraft.model.Point3Int;
 
 public class YellowFlower extends Block {
     public YellowFlower(Point3Int pos){
-        super(pos.x, pos.y, pos.z, BLOCK_YELLOW_FLOWER, false);
+        super(pos.x, pos.y, pos.z, BLOCK_YELLOW_FLOWER, false, true);
     }
 
     @Override
