@@ -19,9 +19,9 @@ public class Renderer implements GvrView.StereoRenderer {
     private Context context;
     private final World world;
 
-    Renderer(Context context, Resources resources) {
+    public Renderer(Context context, Resources resources, int chunk_radius) {
         this.context = context;
-        world = new World(context, resources);
+        world = new World(context, resources, chunk_radius);
     }
 
     @Override
@@ -56,6 +56,7 @@ public class Renderer implements GvrView.StereoRenderer {
 
     public boolean dispatchGenericMotionEvent(MotionEvent ev, InputDevice inputDevice) {
         int eventSource = ev.getSource();
+        Toast.makeText(context, "keycode=" + ev.getActionButton(), Toast.LENGTH_SHORT).show();
         //Toast.makeText(context, "action=" + ev.getAction(), Toast.LENGTH_SHORT).show();
         if ((((eventSource & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
                 ((eventSource & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))

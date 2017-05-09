@@ -1,12 +1,16 @@
-package com.chenyirun.theircraft;
+package com.chenyirun.theircraft.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
+import com.chenyirun.theircraft.R;
+import com.chenyirun.theircraft.Renderer;
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat;
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat.InputDeviceListener;
 import com.google.vr.sdk.base.AndroidCompat;
@@ -14,6 +18,7 @@ import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
 
 public class MainActivity extends GvrActivity implements InputDeviceListener {
+    private static final String TAG = "MainActivity";
     public MainActivity() {
         super();
     }
@@ -23,9 +28,15 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     private InputManagerCompat mInputManager;
     private InputDevice mInputDevice;
 
+    private static int CHUNK_RADIUS;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+        CHUNK_RADIUS = intent.getIntExtra(ConfigureActivity.CHUNK_RADIUS, 3);
+        Log.i(TAG, "onCreate: chunk radius="+ CHUNK_RADIUS);
 
         initializeGvrView();
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -42,7 +53,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         //and stencilSize, and exactly the specified redSize, greenSize, blueSize and alphaSize.
         gvrView.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
 
-        mRenderer = new Renderer(getApplicationContext(), this.getResources());
+        mRenderer = new Renderer(getApplicationContext(), this.getResources(), CHUNK_RADIUS);
         gvrView.setRenderer(mRenderer);
 
         gvrView.setTransitionViewEnabled(true);
@@ -63,6 +74,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
     @Override
     public void onPause() {
+        Log.i(TAG, "onPause: ");
         super.onPause();
     }
 
@@ -73,6 +85,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
     @Override
     public void onDestroy(){
+        Log.i(TAG, "onDestroy: ");
         mRenderer.onDestroy();
         super.onDestroy();
     }

@@ -28,19 +28,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:enableVrMode="@string/gvr_vr_mode_component"
             android:resizeableActivity="false"
             android:screenOrientation="landscape"
-            android:theme="@style/VrActivityTheme">
-        </activity>
-        <activity android:name=".StartingActivity">
+            android:theme="@style/VrActivityTheme" />
+        <activity android:name=".activity.ConfigureActivity"></activity>
+        <activity android:name=".activity.SavesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.NewActivity"></activity>
     </application>
 
 </manifest>

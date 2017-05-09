@@ -34,8 +34,11 @@ public class MapManager {
 
     private static final Map<Chunk, Buffers> chunkToBuffers = new HashMap<>();
 
-    MapManager(DBService dbService){
+    private static int SHOWN_CHUNK_RADIUS = 3;
+
+    MapManager(DBService dbService, int chunk_radius){
         this.dbService = dbService;
+        SHOWN_CHUNK_RADIUS = chunk_radius;
         int seed = dbService.getSeed();
         generator = new Generator(seed);
         chunkLoader = createChunkLoader();
@@ -87,7 +90,6 @@ public class MapManager {
         }
     }
 
-    private static final int SHOWN_CHUNK_RADIUS = 3;
     private static Set<Chunk> neighboringChunks(Chunk center) {
         return neighboringChunks(center, SHOWN_CHUNK_RADIUS);
     }

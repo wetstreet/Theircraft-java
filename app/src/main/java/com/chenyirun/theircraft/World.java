@@ -36,11 +36,11 @@ public class World {
 
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
 
-    World(Context context, Resources resources){
+    World(Context context, Resources resources, int chunk_radius){
         this.context = context;
         this.resources = resources;
         dbService = new DBService(this.context);
-        mapManager = new MapManager(dbService);
+        mapManager = new MapManager(dbService, chunk_radius);
 
         Point3Int steveBlock = dbService.getSteve();
         if (steveBlock == null){
