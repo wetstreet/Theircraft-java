@@ -11,11 +11,11 @@ import android.widget.TextView;
 import com.chenyirun.theircraft.R;
 
 public class ConfigureActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
-    private static final String TAG = "ConfigureActivity";
+    public static final String ACTIVITY_NAME = "ConfigureActivity";
     public static final String CHUNK_RADIUS = "chunk_radius";
     public static final String SAVE_NAME = "save_name";
     public static final String ACTIVITY_NAME_KEY = "activity_name";
-    public static final String ACTIVITY_NAME = "ConfigureActivity";
+    public static final String SEED = "seed";
 
     private int chunk_radius;
     Bundle bundle;
@@ -52,8 +52,8 @@ public class ConfigureActivity extends AppCompatActivity implements SeekBar.OnSe
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(ConfigureActivity.this, MainActivity.class);
-            intent.putExtra(CHUNK_RADIUS, chunk_radius);
             intent.putExtra(ACTIVITY_NAME_KEY, ACTIVITY_NAME);
+            intent.putExtra(CHUNK_RADIUS, chunk_radius);
             setResult(RESULT_OK, intent);
             finish();
         }

@@ -36,8 +36,8 @@ public class MapManager {
 
     private static int SHOWN_CHUNK_RADIUS = 3;
 
-    MapManager(DBService dbService, int chunk_radius){
-        this.dbService = dbService;
+    MapManager(int chunk_radius){
+        dbService = DBService.getInstance();
         SHOWN_CHUNK_RADIUS = chunk_radius;
         int seed = dbService.getSeed();
         generator = new Generator(seed);

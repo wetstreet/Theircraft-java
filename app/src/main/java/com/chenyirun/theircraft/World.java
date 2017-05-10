@@ -39,8 +39,8 @@ public class World {
     World(Context context, Resources resources, int chunk_radius){
         this.context = context;
         this.resources = resources;
-        dbService = new DBService(this.context);
-        mapManager = new MapManager(dbService, chunk_radius);
+        dbService = DBService.getInstance();
+        mapManager = new MapManager(chunk_radius);
 
         Point3Int steveBlock = dbService.getSteve();
         if (steveBlock == null){

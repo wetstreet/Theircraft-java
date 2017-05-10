@@ -8,6 +8,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 9;
     public static final String DATABASE_NAME = "database.db";
     public static final String TABLE_BLOCK = "block";
+    public static final String TABLE_SAVE = "save";
     public static final String TABLE_SEED = "seed";
     public static final String TABLE_STEVE = "steve";
 
@@ -25,6 +26,13 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_SEED =
             "CREATE TABLE " + TABLE_SEED + " (" +
                     "seed INTEGER PRIMARY KEY);";
+
+    private static final String SQL_CREATE_SAVE =
+            "CREATE TABLE " + TABLE_SAVE + " (" +
+                    "id INTEGER PRIMARY KEY," +
+                    "name VARCHAR," +
+                    "seed INTEGER," +
+                    "data Date);";
 
     private static final String SQL_CREATE_STEVE =
             "CREATE TABLE " + TABLE_STEVE + " (" +
@@ -52,12 +60,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db){
         db.execSQL(SQL_CREATE_BLOCK);
         db.execSQL(SQL_CREATE_SEED);
+        db.execSQL(SQL_CREATE_SAVE);
         db.execSQL(SQL_CREATE_STEVE);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
         db.execSQL(SQL_DROP_TABLE + TABLE_BLOCK);
         db.execSQL(SQL_DROP_TABLE + TABLE_SEED);
+        db.execSQL(SQL_DROP_TABLE + TABLE_SAVE);
         db.execSQL(SQL_DROP_TABLE + TABLE_STEVE);
         onCreate(db);
     }

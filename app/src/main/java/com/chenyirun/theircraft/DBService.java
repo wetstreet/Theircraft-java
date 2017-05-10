@@ -16,12 +16,24 @@ import java.util.List;
 
 public class DBService {
     private static final String TAG = "DBService";
-    private Context context;
     private Point3Int steveLocation;
     public static final boolean DBEnabled = true;
 
-    public DBService(Context context){
-        this.context = context;
+    private static Context context = null;
+    private static DBService instance = null;
+
+    public static void setContext(Context c){
+        context = c;
+    }
+
+    public synchronized static DBService getInstance(){
+        if (context == null){
+            return null;
+        }
+        if (instance == null) {
+            instance = new DBService();
+        }
+        return instance;
     }
 
     public int getSeed(){

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.chenyirun.theircraft.DBService;
 import com.chenyirun.theircraft.R;
 
 public class SavesActivity extends AppCompatActivity {
@@ -20,6 +21,8 @@ public class SavesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.saves_ui);
+
+        DBService.setContext(getApplicationContext());
 
         button_config = (Button)findViewById(R.id.button_config);
         button_start = (Button)findViewById(R.id.button_start);
@@ -67,6 +70,7 @@ public class SavesActivity extends AppCompatActivity {
         switch (activity_name){
             case NewActivity.ACTIVITY_NAME:
                 String save_name = bundle.getString(ConfigureActivity.SAVE_NAME);
+                int seed = bundle.getInt(ConfigureActivity.SEED);
                 break;
             case ConfigureActivity.ACTIVITY_NAME:
                 chunk_radius = bundle.getInt(ConfigureActivity.CHUNK_RADIUS);
