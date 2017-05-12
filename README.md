@@ -26,13 +26,17 @@ Added database and controller support.
 
 ### Screenshot
 A little house that I built.
+
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_house.png)
 
 Choose which world to play.
+
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_saves.png)
 
 Create a new world.
+
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_new.png)
 
 Change configurations.
+
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_config.png)
