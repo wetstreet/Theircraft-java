@@ -9,12 +9,28 @@ Some codes in this project are adjusted from:
 
 Added database and controller support.
 
-### Screenshot
-![image](https://github.com/wetstreet/Theircraft/blob/master/Screenshot.png)
-
 ### Controls
+#### With Controller and Goggles
+- Turn your head to look around and select the block you want to operate with.
 - Use left analog stick to move horizontally.
-- Press left analog stick button or button A to jump.
-- Press button X to destroy a block.
+- Press button A or left analog stick button to jump.
+- Press button X to remove a block.
 - Press button B to add a block.
-- Press LB & RB to change the block you want to add.
+- Press LB & RB to choose the block you want.
+#### Only Phone
+- Turn your phone to look around and select the block you want to operate with.
+- Use Volumn Up(Down) buttons to move forwards(backwards).
+- Touch the screen to jump.
+
+### Screenshot
+A little house that I built.
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_house.png)
+
+Choose which world to play.
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_saves.png)
+
+Create a new world.
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_new.png)
+
+Change configurations.
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_config.png)
