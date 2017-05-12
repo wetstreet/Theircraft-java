@@ -17,10 +17,10 @@ Added database and controller support.
 - Press button A or left analog stick button to jump.
 - Press button X to remove a block.
 - Press button B to add a block.
-- Press LB & RB to choose the block you want.
+- Press button LB or RB to choose the block you want.
 #### Only Phone
 - Turn your phone to look around.
-- Hold volume up(down) button to move forwards(backwards).
+- Hold Volume Up(Down) button to move forwards(backwards).
 - Touch the screen to jump.
 
 
