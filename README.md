@@ -9,6 +9,7 @@ Some codes in this project are adjusted from:
 
 Added database and controller support.
 
+
 ### Controls
 #### With Controller and Goggles
 - Turn your head to look around and select the block you want to operate with.
@@ -18,9 +19,10 @@ Added database and controller support.
 - Press button B to add a block.
 - Press LB & RB to choose the block you want.
 #### Only Phone
-- Turn your phone to look around and select the block you want to operate with.
-- Use Volumn Up(Down) buttons to move forwards(backwards).
+- Turn your phone to look around.
+- Hold volume up(down) button to move forwards(backwards).
 - Touch the screen to jump.
+
 
 ### Screenshot
 A little house that I built.
