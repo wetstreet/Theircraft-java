@@ -36,6 +36,46 @@ public class DBService {
         return instance;
     }
 
+    public Cursor pageCursorQuery(){
+        SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
+        String[] projection = { "id as _id", "name", "seed", "date" };
+        Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, null, null, null, null, null, null);
+        return cursor;
+    }
+
+    public void addSave(String name, int seed, String date){
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("seed", seed);
+        values.put("date", date);
+        db.insert(DBHelper.TABLE_SAVE, null, values);
+    }
+
+    void removeSave(int id) {
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+        String selection = "id = ?";
+        String[] selectionArgs = { Integer.toString(id) };
+        db.delete(DBHelper.TABLE_BLOCK, selection, selectionArgs);
+    }
+
+    public List<Save> getSaves(){
+        SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
+        List<Save> result = new ArrayList<>();
+        String[] projection = { "id", "name", "seed", "date" };
+        Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+            int seed = cursor.getInt(cursor.getColumnIndexOrThrow("seed"));
+            String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+            Save save = new Save(id, name, seed, date);
+            result.add(save);
+        }
+        cursor.close();
+        return result;
+    }
+
     public int getSeed(){
         int seed;
         if (DBEnabled){

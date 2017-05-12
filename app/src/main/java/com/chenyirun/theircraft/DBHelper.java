@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 12;
     public static final String DATABASE_NAME = "database.db";
     public static final String TABLE_BLOCK = "block";
     public static final String TABLE_SAVE = "save";
@@ -29,10 +29,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_SAVE =
             "CREATE TABLE " + TABLE_SAVE + " (" +
-                    "id INTEGER PRIMARY KEY," +
-                    "name VARCHAR," +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "name TEXT," +
                     "seed INTEGER," +
-                    "data Date);";
+                    "date TEXT);";
 
     private static final String SQL_CREATE_STEVE =
             "CREATE TABLE " + TABLE_STEVE + " (" +

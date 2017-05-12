@@ -30,8 +30,10 @@ public class NewActivity extends AppCompatActivity {
         public void onClick(View v) {
             Intent intent = new Intent(NewActivity.this, ConfigureActivity.class);
             intent.putExtra(ConfigureActivity.ACTIVITY_NAME_KEY, ACTIVITY_NAME);
-            intent.putExtra(ConfigureActivity.SAVE_NAME, editText_name.getText());
-            intent.putExtra(ConfigureActivity.SEED, editText_seed.getText());
+            String name = editText_name.getText().toString();
+            int seed = Integer.parseInt(editText_seed.getText().toString());
+            intent.putExtra(ConfigureActivity.SAVE_NAME, name);
+            intent.putExtra(ConfigureActivity.SEED, seed);
             setResult(RESULT_OK, intent);
             finish();
         }
