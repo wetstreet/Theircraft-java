@@ -15,13 +15,12 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class Renderer implements GvrView.StereoRenderer {
-    private static final String TAG = "Renderer";
     private Context context;
     private final World world;
 
-    public Renderer(Context context, Resources resources, int chunk_radius) {
+    public Renderer(Context context, Resources resources, SaveAndConfig saveAndConfig) {
         this.context = context;
-        world = new World(context, resources, chunk_radius);
+        world = new World(context, resources, saveAndConfig);
     }
 
     @Override

@@ -36,10 +36,11 @@ public class MapManager {
 
     private static int SHOWN_CHUNK_RADIUS = 3;
 
-    MapManager(int chunk_radius){
+    MapManager(SaveAndConfig saveAndConfig){
         dbService = DBService.getInstance();
-        SHOWN_CHUNK_RADIUS = chunk_radius;
-        int seed = dbService.getSeed();
+        SHOWN_CHUNK_RADIUS = saveAndConfig.chunk_radius;
+        int seed = saveAndConfig.seed;
+        //int seed = dbService.getSeed();
         generator = new Generator(seed);
         chunkLoader = createChunkLoader();
         chunkLoader.start();

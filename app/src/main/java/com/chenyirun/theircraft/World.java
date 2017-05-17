@@ -29,6 +29,7 @@ public class World {
     private final DBService dbService;
     private final Resources resources;
     private final MapManager mapManager;
+    private final SaveAndConfig saveAndConfig;
 
     private int itemIndex = 0;
 
@@ -36,20 +37,30 @@ public class World {
 
     private static final int PHYSICS_ITERATIONS_PER_FRAME = 5;
 
-    World(Context context, Resources resources, int chunk_radius){
+    World(Context context, Resources resources, SaveAndConfig saveAndConfig){
         this.context = context;
         this.resources = resources;
+        this.saveAndConfig = saveAndConfig;
         dbService = DBService.getInstance();
-        mapManager = new MapManager(chunk_radius);
-
+        mapManager = new MapManager(saveAndConfig);
+/*
         Point3Int steveBlock = dbService.getSteve();
         if (steveBlock == null){
             float blockY = mapManager.highestSolidY(0, 0);
             steveBlock = new Point3Int(0, blockY, 0);
             dbService.insertSteve(steveBlock);
         }
-        steve = new Steve(steveBlock);
+*/
+        Point3Int steveBlock;
+        if (saveAndConfig.steveBlock.x == 0 && saveAndConfig.steveBlock.z == 0){
+            float blockY = mapManager.highestSolidY(0, 0);
+            steveBlock = new Point3Int(0, blockY, 0);
+            dbService.updateSteve(saveAndConfig.id, steveBlock);
+        } else {
+            steveBlock = saveAndConfig.steveBlock;
+        }
 
+        steve = new Steve(steveBlock);
         Chunk currChunk = steve.currentChunk();
         mapManager.loadNeighboringChunks(currChunk);
 
@@ -83,7 +94,7 @@ public class World {
             physics.move(steve, dt / PHYSICS_ITERATIONS_PER_FRAME, mapManager.getBlockMap());
         }
         if (steve.isOnTheGround() && !dbService.steveLocation().equals(steve.location())){
-            dbService.updateSteve(steve.location());
+            dbService.updateSteve(saveAndConfig.id, steve.location());
         }
 
         Chunk beforeChunk = steve.currentChunk();

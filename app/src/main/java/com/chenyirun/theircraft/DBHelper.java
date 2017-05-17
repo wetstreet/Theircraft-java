@@ -5,12 +5,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
     public static final String DATABASE_NAME = "database.db";
     public static final String TABLE_BLOCK = "block";
     public static final String TABLE_SAVE = "save";
     public static final String TABLE_SEED = "seed";
     public static final String TABLE_STEVE = "steve";
+
+    public static final String SAVE_PREFIX = "world_";
 
     private static final String SQL_CREATE_BLOCK =
             "CREATE TABLE " + TABLE_BLOCK + " (" +
@@ -32,7 +34,10 @@ public class DBHelper extends SQLiteOpenHelper {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT," +
                     "seed INTEGER," +
-                    "date TEXT);";
+                    "date TEXT," +
+                    "x INTEGER," +
+                    "y INTEGER," +
+                    "z INTEGER);";
 
     private static final String SQL_CREATE_STEVE =
             "CREATE TABLE " + TABLE_STEVE + " (" +
@@ -46,7 +51,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static DBHelper instance = null;
 
-    public synchronized static DBHelper getInstance(Context context){
+    private static Context context = null;
+
+    public static void setContext(Context c){
+        context = c;
+    }
+
+    public synchronized static DBHelper getInstance(){
         if (instance == null) {
             instance = new DBHelper(context);
         }

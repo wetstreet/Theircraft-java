@@ -11,8 +11,10 @@ import android.view.MotionEvent;
 
 import com.chenyirun.theircraft.R;
 import com.chenyirun.theircraft.Renderer;
+import com.chenyirun.theircraft.SaveAndConfig;
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat;
 import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat.InputDeviceListener;
+import com.chenyirun.theircraft.model.Point3Int;
 import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
@@ -28,15 +30,20 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     private InputManagerCompat mInputManager;
     private InputDevice mInputDevice;
 
-    private static int CHUNK_RADIUS;
+    private static SaveAndConfig save;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        CHUNK_RADIUS = intent.getIntExtra(ConfigureActivity.CHUNK_RADIUS, 3);
-        Log.i(TAG, "onCreate: chunk radius="+ CHUNK_RADIUS);
+        int chunk_radius = intent.getIntExtra(ConfigureActivity.CHUNK_RADIUS, 3);
+        int id = intent.getIntExtra(SaveAndConfig.ID, 1);
+        int seed = intent.getIntExtra(SaveAndConfig.SEED, -1451589742);
+        int x = intent.getIntExtra(SaveAndConfig.STEVE_X, 0);
+        int y = intent.getIntExtra(SaveAndConfig.STEVE_Y, 100);
+        int z = intent.getIntExtra(SaveAndConfig.STEVE_Z, -0);
+        save = new SaveAndConfig(id, seed, new Point3Int(x, y, z), chunk_radius);
 
         initializeGvrView();
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -53,7 +60,8 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         //and stencilSize, and exactly the specified redSize, greenSize, blueSize and alphaSize.
         gvrView.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
 
-        mRenderer = new Renderer(getApplicationContext(), this.getResources(), CHUNK_RADIUS);
+        Log.i(TAG, "initializeGvrView: save="+save.toString());
+        mRenderer = new Renderer(getApplicationContext(), this.getResources(), save);
         gvrView.setRenderer(mRenderer);
 
         gvrView.setTransitionViewEnabled(true);
