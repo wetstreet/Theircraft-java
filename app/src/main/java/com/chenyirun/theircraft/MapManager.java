@@ -31,12 +31,14 @@ public class MapManager {
     private final Thread chunkLoader;
     private final List<Chunk> preloadedChunks;
     private final DBService dbService;
+    private final SaveAndConfig saveAndConfig;
 
     private static final Map<Chunk, Buffers> chunkToBuffers = new HashMap<>();
 
     private static int SHOWN_CHUNK_RADIUS = 3;
 
     MapManager(SaveAndConfig saveAndConfig){
+        this.saveAndConfig = saveAndConfig;
         dbService = DBService.getInstance();
         SHOWN_CHUNK_RADIUS = saveAndConfig.chunk_radius;
         int seed = saveAndConfig.seed;
@@ -202,7 +204,7 @@ public class MapManager {
         blockMap.addChunk(chunk, blocksInChunk, blockLocations);
         // if db is enabled, load block from db
         if(DBService.DBEnabled){
-            List<Block> list = dbService.getBlockChangesInChunk(chunk);
+            List<Block> list = dbService.getBlockChangesInChunk(saveAndConfig.id, chunk);
             for (Block block : list) {
                 switch (block.getType()){
                     case Block.BLOCK_AIR:
@@ -261,7 +263,7 @@ public class MapManager {
         }
         Chunk chunk = new Chunk(block);
         blockMap.addBlock(block);
-        dbService.insertBlock(block);
+        dbService.insertBlock(saveAndConfig.id, block);
         // reload chunk
         chunkChanges.add(new ChunkLoad(chunk));
     }
@@ -273,7 +275,7 @@ public class MapManager {
             return;
         }
         blockMap.removeBlock(block);
-        dbService.deleteBlock(block);
+        dbService.deleteBlock(saveAndConfig.id, block);
         chunkChanges.add(new ChunkLoad(chunk));
     }
 

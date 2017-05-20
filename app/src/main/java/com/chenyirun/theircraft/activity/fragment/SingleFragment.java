@@ -1,24 +1,29 @@
-package com.chenyirun.theircraft.activity;
+package com.chenyirun.theircraft.activity.fragment;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chenyirun.theircraft.DBService;
 import com.chenyirun.theircraft.R;
 import com.chenyirun.theircraft.SaveAndConfig;
+import com.chenyirun.theircraft.activity.ConfigureActivity;
+import com.chenyirun.theircraft.activity.LoadingActivity;
+import com.chenyirun.theircraft.activity.NewActivity;
 
-public class SavesActivity extends AppCompatActivity {
-    private static final String TAG = "SavesActivity";
+import static android.app.Activity.RESULT_CANCELED;
+
+public class SingleFragment extends Fragment {
     private Button button_remove;
     private Button button_start;
     private Button button_new;
@@ -29,14 +34,13 @@ public class SavesActivity extends AppCompatActivity {
     private DBService dbService;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.saves_ui);
-        listView = (ListView)findViewById(R.id.listView);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.saves_ui, container, false);
 
-        button_remove = (Button)findViewById(R.id.button_remove);
-        button_start = (Button)findViewById(R.id.button_start);
-        button_new = (Button)findViewById(R.id.button_new);
+        listView = (ListView)view.findViewById(R.id.listView);
+        button_remove = (Button)view.findViewById(R.id.button_remove);
+        button_start = (Button)view.findViewById(R.id.button_start);
+        button_new = (Button)view.findViewById(R.id.button_new);
         button_remove.setOnClickListener(removeListener);
         button_start.setOnClickListener(startListener);
         button_new.setOnClickListener(newListener);
@@ -46,20 +50,21 @@ public class SavesActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position,long arg3) {
                 view.setSelected(true);
                 id = (int)arg3;
-                Log.i(TAG, "onItemClick: id="+id);
             }
         });
 
-        DBService.setContext(getApplicationContext());
+        DBService.setContext(getActivity());
         dbService = DBService.getInstance();
         UpdateList();
+
+        return view;
     }
 
     private void UpdateList(){
         Cursor cursor = dbService.pageCursorQuery();
         String from[] = { "_id", "name", "seed", "date" };
         int to[] = { R.id.textView_list_id, R.id.textView_list_name, R.id.textView_list_seed, R.id.textView_list_date };
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.list_layout, cursor, from, to);
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.list_layout, cursor, from, to);
         listView.setAdapter(adapter);
     }
 
@@ -75,12 +80,12 @@ public class SavesActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if (id == 0){
-                Toast.makeText(getApplicationContext(), "No save is selected!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "No save is selected!", Toast.LENGTH_SHORT).show();
                 return;
             }
             SaveAndConfig save = dbService.getSave(id);
             //Intent intent = new Intent(SavesActivity.this, MainActivity.class);
-            Intent intent = new Intent(SavesActivity.this, LoadingActivity.class);
+            Intent intent = new Intent(getActivity(), LoadingActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra(ConfigureActivity.CHUNK_RADIUS, ConfigureActivity.chunk_radius);
             intent.putExtra(SaveAndConfig.ID, save.id);
@@ -95,13 +100,13 @@ public class SavesActivity extends AppCompatActivity {
     private View.OnClickListener newListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(SavesActivity.this, NewActivity.class);
+            Intent intent = new Intent(getActivity(), NewActivity.class);
             startActivityForResult(intent, 0);
         }
     };
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent){
+    public void onActivityResult(int requestCode, int resultCode, Intent intent){
         if (resultCode == RESULT_CANCELED){
             return;
         }

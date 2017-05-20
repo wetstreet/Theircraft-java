@@ -96,6 +96,7 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         Log.i(TAG, "onDestroy: ");
         mRenderer.onDestroy();
         super.onDestroy();
+        System.exit(0);
     }
 
     @Override

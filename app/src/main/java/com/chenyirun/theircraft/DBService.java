@@ -9,6 +9,7 @@ import android.util.Log;
 import com.chenyirun.theircraft.block.Air;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 
 import java.util.ArrayList;
@@ -32,6 +33,14 @@ public class DBService {
         return instance;
     }
 
+    public void setSteveLocation(Point3Int loc){
+        steveLocation = new Point3Int(loc);
+    }
+
+    public Point3Int steveLocation(){
+        return steveLocation;
+    }
+
     public Cursor pageCursorQuery(){
         SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
         String[] projection = { "id as _id", "name", "seed", "date" };
@@ -52,12 +61,14 @@ public class DBService {
                         "PRIMARY KEY(blockX, blockY, blockZ));";
         SQLiteDatabase db = DBHelper.getInstance().getWritableDatabase();
         db.execSQL(sql);
+        db.close();
     }
 
     public void dropBlockTable(int id){
         String sql = "DROP TABLE IF EXISTS world_" + id;
         SQLiteDatabase db = DBHelper.getInstance().getWritableDatabase();
         db.execSQL(sql);
+        db.close();
     }
 
     public void addSave(String name, int seed, String date){
@@ -69,6 +80,7 @@ public class DBService {
         int id = (int)db.insert(DBHelper.TABLE_SAVE, null, values);
         Log.i(TAG, "addSave: rowid="+id);
         createBlockTable(id);
+        db.close();
     }
 
     public void removeSave(int id) {
@@ -77,6 +89,7 @@ public class DBService {
         String[] selectionArgs = { Integer.toString(id) };
         db.delete(DBHelper.TABLE_SAVE, selection, selectionArgs);
         dropBlockTable(id);
+        db.close();
     }
 
     public SaveAndConfig getSave(int id){
@@ -92,10 +105,11 @@ public class DBService {
         int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
         SaveAndConfig save = new SaveAndConfig(id, seed, new Point3Int(x, y ,z));
         cursor.close();
+        db.close();
         return save;
     }
 
-    void updateSteve(int id, Point3Int pos){
+    public void updateSteve(int id, Point3Int pos){
         SQLiteDatabase db = DBHelper.getInstance().getWritableDatabase();
         String selection = "id = ?";
         String[] selectionArgs = { Integer.toString(id) };
@@ -104,8 +118,8 @@ public class DBService {
         values.put("y", pos.y);
         values.put("z", pos.z);
         db.update(DBHelper.TABLE_SAVE, values, selection, selectionArgs);
-        steveLocation = pos;
         Log.i(TAG, "update steve position at "+pos);
+        db.close();
     }
 
     private boolean blockExists(int id, Block block){
@@ -121,10 +135,11 @@ public class DBService {
             result = false;
         }
         cursor.close();
+        db.close();
         return result;
     }
 
-    void insertBlock(int id, Block block){
+    public void insertBlock(int id, Block block){
         if (blockExists(id, block)){
             Log.i(TAG, "insertBlock: block exists!");
             return;
@@ -141,21 +156,23 @@ public class DBService {
         values.put("blockType", block.getType());
         long newRowId = db.insert(DBHelper.SAVE_PREFIX + id, null, values);
         Log.i(TAG, "insert a new block at ("+block.x+","+block.y+","+block.z+")"+" type="+block.getType()+" row id:"+ newRowId);
+        db.close();
     }
 
-    void deleteBlock(int id, Block block){
-        if (blockExists(block)){
+    public void deleteBlock(int id, Block block){
+        if (blockExists(id, block)){
             SQLiteDatabase db = DBHelper.getInstance().getWritableDatabase();
             String selection = "blockX = ? and blockY = ? and blockZ = ?";
             String[] selectionArgs = { Integer.toString(block.x), Integer.toString(block.y), Integer.toString(block.z) };
             db.delete(DBHelper.SAVE_PREFIX + id, selection, selectionArgs);
+            db.close();
         } else {
             Air air = new Air(block.getLocation());
-            insertBlock(air);
+            insertBlock(id, air);
         }
     }
 
-    List<Block> getBlockChangesInChunk(int id, Chunk chunk){
+    public List<Block> getBlockChangesInChunk(int id, Chunk chunk){
         SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
         List<Block> result = new ArrayList<>();
         String[] projection = { "chunkX", "chunkY", "chunkZ", "blockX", "blockY", "blockZ", "blockType" };
@@ -173,6 +190,7 @@ public class DBService {
             }
         }
         cursor.close();
+        db.close();
         return result;
     }
 /*
@@ -278,10 +296,6 @@ public class DBService {
         steveLocation = blockLocation;
         Log.i(TAG, "insert new steve! position"+blockLocation+" row id:"+ newRowId);
     }
-*/
-    Point3Int steveLocation(){
-        return steveLocation;
-    }
 
     private boolean blockExists(Block block){
         boolean result;
@@ -350,7 +364,7 @@ public class DBService {
         cursor.close();
         return result;
     }
-
+*/
     void onDestroy(){
         DBHelper.getInstance().close();
     }

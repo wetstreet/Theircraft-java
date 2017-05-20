@@ -24,6 +24,12 @@ public class Point3Int {
         this.z = Math.round(point.z);
     }
 
+    public Point3Int(Point3Int point) {
+        this.x = point.x;
+        this.y = point.y;
+        this.z = point.z;
+    }
+
     public float distance(Point3Int pos){
         return (float)Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2) + Math.pow(pos.z - z, 2));
     }

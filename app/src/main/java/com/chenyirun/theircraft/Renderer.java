@@ -55,8 +55,8 @@ public class Renderer implements GvrView.StereoRenderer {
 
     public boolean dispatchGenericMotionEvent(MotionEvent ev, InputDevice inputDevice) {
         int eventSource = ev.getSource();
-        Toast.makeText(context, "keycode=" + ev.getActionButton(), Toast.LENGTH_SHORT).show();
-        //Toast.makeText(context, "action=" + ev.getAction(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "keycode=" + ev.getActionButton(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "action=" + ev.getAction(), Toast.LENGTH_SHORT).show();
         if ((((eventSource & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
                 ((eventSource & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))
                 && ev.getAction() == MotionEvent.ACTION_MOVE) {

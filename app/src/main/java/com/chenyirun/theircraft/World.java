@@ -59,6 +59,7 @@ public class World {
         } else {
             steveBlock = saveAndConfig.steveBlock;
         }
+        dbService.setSteveLocation(steveBlock);
 
         steve = new Steve(steveBlock);
         Chunk currChunk = steve.currentChunk();
@@ -95,6 +96,7 @@ public class World {
         }
         if (steve.isOnTheGround() && !dbService.steveLocation().equals(steve.location())){
             dbService.updateSteve(saveAndConfig.id, steve.location());
+            dbService.setSteveLocation(steve.location());
         }
 
         Chunk beforeChunk = steve.currentChunk();
