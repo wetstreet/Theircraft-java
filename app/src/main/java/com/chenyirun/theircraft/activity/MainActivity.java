@@ -37,13 +37,12 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        int chunk_radius = intent.getIntExtra(ConfigureActivity.CHUNK_RADIUS, 3);
         int id = intent.getIntExtra(SaveAndConfig.ID, 1);
         int seed = intent.getIntExtra(SaveAndConfig.SEED, -1451589742);
         int x = intent.getIntExtra(SaveAndConfig.STEVE_X, 0);
         int y = intent.getIntExtra(SaveAndConfig.STEVE_Y, 100);
         int z = intent.getIntExtra(SaveAndConfig.STEVE_Z, -0);
-        save = new SaveAndConfig(id, seed, new Point3Int(x, y, z), chunk_radius);
+        save = new SaveAndConfig(id, seed, new Point3Int(x, y, z));
 
         initializeGvrView();
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -93,10 +92,8 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
 
     @Override
     public void onDestroy(){
-        Log.i(TAG, "onDestroy: ");
         mRenderer.onDestroy();
         super.onDestroy();
-        System.exit(0);
     }
 
     @Override

@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +13,9 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import com.chenyirun.theircraft.DBService;
+import com.chenyirun.theircraft.database.DBService;
 import com.chenyirun.theircraft.R;
 import com.chenyirun.theircraft.SaveAndConfig;
-import com.chenyirun.theircraft.activity.ConfigureActivity;
 import com.chenyirun.theircraft.activity.LoadingActivity;
 import com.chenyirun.theircraft.activity.NewActivity;
 
@@ -84,10 +82,8 @@ public class SingleFragment extends Fragment {
                 return;
             }
             SaveAndConfig save = dbService.getSave(id);
-            //Intent intent = new Intent(SavesActivity.this, MainActivity.class);
             Intent intent = new Intent(getActivity(), LoadingActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra(ConfigureActivity.CHUNK_RADIUS, ConfigureActivity.chunk_radius);
             intent.putExtra(SaveAndConfig.ID, save.id);
             intent.putExtra(SaveAndConfig.SEED, save.seed);
             intent.putExtra(SaveAndConfig.STEVE_X, save.steveBlock.x);

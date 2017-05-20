@@ -41,14 +41,10 @@
             android:screenOrientation="landscape"
             android:theme="@style/VrActivityTheme" />
 
-        <activity
-            android:name=".activity.SavesActivity"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity android:name=".activity.ConfigureActivity" />
         <activity android:name=".activity.NewActivity" />
-        <activity android:name=".activity.LoadingActivity" />
+        <activity
+            android:name=".activity.LoadingActivity"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".activity.NavigateActivity"

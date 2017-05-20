@@ -9,13 +9,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.chenyirun.theircraft.R;
+import com.chenyirun.theircraft.SaveAndConfig;
 
 public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
     private SeekBar seekBar;
     private TextView textView;
-
-    public static int chunk_radius = 3;
-    public static boolean sight_vector = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,8 +29,8 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
         // chunk_radius no less than 1
-        chunk_radius = progress + 1;
-        textView.setText(chunk_radius + "");
+        SaveAndConfig.chunk_radius = progress + 1;
+        textView.setText(SaveAndConfig.chunk_radius + "");
     }
 
     @Override

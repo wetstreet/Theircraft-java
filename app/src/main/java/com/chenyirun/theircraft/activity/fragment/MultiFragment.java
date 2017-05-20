@@ -28,9 +28,9 @@ public class MultiFragment extends Fragment {
         textView_message = (TextView)view.findViewById(R.id.textView_message);
         editText_ip = (EditText)view.findViewById(R.id.editText_ip);
 
-        //获取wifi服务
+        // get Wifi service
         WifiManager wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        //判断wifi是否开启
+        // if Wifi is not enabled, enable it
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
         }

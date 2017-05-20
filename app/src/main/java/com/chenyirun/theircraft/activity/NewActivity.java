@@ -7,7 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.chenyirun.theircraft.DBService;
+import com.chenyirun.theircraft.database.DBService;
 import com.chenyirun.theircraft.R;
 
 import java.text.SimpleDateFormat;

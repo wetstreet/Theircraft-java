@@ -9,22 +9,17 @@ public class SaveAndConfig {
     public static final String STEVE_Y = "steve_y";
     public static final String STEVE_Z = "steve_z";
 
+    public static int chunk_radius = 3;
+    public static boolean sight_vector = false;
+
     public int id;
     public int seed;
     public Point3Int steveBlock;
-    public int chunk_radius;
 
     public SaveAndConfig(int id, int seed, Point3Int steveBlock){
         this.id = id;
         this.seed = seed;
         this.steveBlock = steveBlock;
-    }
-
-    public SaveAndConfig(int id, int seed, Point3Int steveBlock, int chunk_radius){
-        this.id = id;
-        this.seed = seed;
-        this.steveBlock = steveBlock;
-        this.chunk_radius = chunk_radius;
     }
 
     public String toString(){
