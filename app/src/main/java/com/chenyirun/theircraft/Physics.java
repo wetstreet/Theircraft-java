@@ -2,8 +2,11 @@ package com.chenyirun.theircraft;
 
 import android.util.Log;
 
+import com.chenyirun.theircraft.map.BlockMap;
+import com.chenyirun.theircraft.map.MapManager;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Hitbox;
 import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
 
@@ -51,16 +54,21 @@ public class Physics {
         return result;
     }
 
+    Point3 pos = new Point3();
+    Point3Int prevBlockLoc = new Point3Int();
+    Point3Int newBlockPos = new Point3Int();
     public Point3Int hitTestFunc(boolean previous, BlockMap blockMap, Chunk chunk, Steve steve){
-        Point3 pos = new Point3(steve.position());
-        Point3Int prevBlockLoc = new Point3Int(pos);
+        pos.set(steve.position());
+        prevBlockLoc.set(pos);
         List<Block> chunkBlocks = blockMap.getChunkBlocks(chunk);
         if (chunkBlocks == null){
             return null;
         }
+        Point3 delta = steve.sightVector().divideEqual(SAMPLE_RATE);
+        newBlockPos.set(pos);
         // get the position of the first pos in the sight direction
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
-            Point3Int newBlockPos = new Point3Int(pos);
+            newBlockPos.set(pos);
             if (!prevBlockLoc.equals(newBlockPos)){
                 if (blockMap.contain(newBlockPos)){
                     Block b = blockMap.getBlock(newBlockPos);
@@ -74,11 +82,12 @@ public class Physics {
                 }
                 prevBlockLoc = newBlockPos;
             }
-            pos = pos.plus(steve.sightVector().divide(SAMPLE_RATE));
+            pos.plusEqual(delta);
         }
         return null;
     }
 
+    private Point3 newPosition = new Point3();
     public void move(Steve steve, float dt, BlockMap blockMap){
         if (dt <= 0.0f) {
             return;
@@ -90,10 +99,10 @@ public class Physics {
         }
 
         float verticalSpeed = Math.max(steve.verticalSpeed() - dt * GRAVITY, -TERMINAL_VELOCITY);
-        Point3 newPosition;
         if (steve.isWalking()){
             Point3 dxyz = steve.motionVector().times(dt * STEVE_WALKING_SPEED).plusY(dt * verticalSpeed);
-            newPosition = steve.position().plus(dxyz);
+            newPosition.set(steve.position());
+            newPosition.plusEqual(dxyz);
         } else {
             // -1 <= x <= 1, -1 <= y <= 1
             float x = steve.mHeadingX;

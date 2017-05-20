@@ -2,11 +2,13 @@ package com.chenyirun.theircraft;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
+import com.chenyirun.theircraft.model.SaveAndConfig;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
@@ -15,6 +17,7 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class Renderer implements GvrView.StereoRenderer {
+    private static final String TAG = "Renderer";
     private Context context;
     private final World world;
 

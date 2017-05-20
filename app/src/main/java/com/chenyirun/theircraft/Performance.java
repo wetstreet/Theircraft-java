@@ -2,9 +2,9 @@ package com.chenyirun.theircraft;
 
 import android.os.SystemClock;
 
-class Performance {
+public class Performance {
     private static final long FPS_INTERVAL = 5 * 1000;  // 5 seconds
-    static final float[] FPS_THRESHOLDS = { 10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f };
+    public static final float[] FPS_THRESHOLDS = { 10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f };
 
     private long prevFrameTimestamp = -1L;
     private long currFrameTimestamp;
@@ -34,7 +34,7 @@ class Performance {
 
     private Performance(){}
 
-    static Performance getInstance(){
+    public static Performance getInstance(){
         return performance;
     }
 
@@ -42,7 +42,7 @@ class Performance {
      * Returns interval in seconds since the last tick, if any.  If this is the first tick,
      * returns a negative number.  Updates internal data to compute FPS.
      */
-    float startFrame() {
+    public float startFrame() {
         currFrameTimestamp = SystemClock.uptimeMillis();
         if (prevFrameTimestamp < 0L) {
             prevFrameTimestamp = currFrameTimestamp;
@@ -65,11 +65,11 @@ class Performance {
         return secondsPassed;
     }
 
-    boolean hasStats() {
+    public boolean hasStats() {
         return currFrameTimestamp - fpsStartTimestamp >= FPS_INTERVAL;
     }
 
-    float fps() {
+    public float fps() {
         return frameCount * 1000.0f / (currFrameTimestamp - fpsStartTimestamp);
     }
 
@@ -106,11 +106,11 @@ class Performance {
         return (int) (physicsSpent / frameCount);
     }
 
-    void startRendering() {
+    public void startRendering() {
         renderStartTimestamp = SystemClock.uptimeMillis();
     }
 
-    void endRendering() {
+    public void endRendering() {
         renderSpent += SystemClock.uptimeMillis() - renderStartTimestamp;
         renderStartTimestamp = 0L;
     }
@@ -119,7 +119,7 @@ class Performance {
         return (int) (renderSpent / frameCount);
     }
 
-    void endFrame() {
+    public void endFrame() {
         prevFrameTimestamp = currFrameTimestamp;
         // After the frame is done with stats, reset computed values until more data is available.
         if (currFrameTimestamp - fpsStartTimestamp >= FPS_INTERVAL) {
@@ -139,13 +139,13 @@ class Performance {
         }
     }
 
-    void startChunkLoad() {
+    public void startChunkLoad() {
         synchronized (chunkLoadLock) {
             chunkLoadStartTimestamp = SystemClock.uptimeMillis();
         }
     }
 
-    void endChunkLoad() {
+    public void endChunkLoad() {
         synchronized (chunkLoadLock) {
             ++chunkLoadCount;
             chunkLoadSpent += SystemClock.uptimeMillis() - chunkLoadStartTimestamp;
@@ -165,13 +165,13 @@ class Performance {
         }
     }
 
-    void startChunkUnload() {
+    public void startChunkUnload() {
         synchronized (chunkUnloadLock) {
             chunkUnloadTimestamp = SystemClock.uptimeMillis();
         }
     }
 
-    void endChunkUnload() {
+    public void endChunkUnload() {
         synchronized (chunkUnloadLock) {
             ++chunkUnloadCount;
             chunkUnloadSpent += SystemClock.uptimeMillis() - chunkUnloadTimestamp;

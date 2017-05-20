@@ -2,13 +2,12 @@ package com.chenyirun.theircraft.activity;
 
 import android.content.Intent;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import com.chenyirun.theircraft.R;
-import com.chenyirun.theircraft.SaveAndConfig;
+import com.chenyirun.theircraft.model.SaveAndConfig;
 
 public class LoadingActivity extends AppCompatActivity {
     private TextView textView_loading;
@@ -48,7 +47,7 @@ public class LoadingActivity extends AppCompatActivity {
                 toIntent.putExtra(SaveAndConfig.STEVE_X, x);
                 toIntent.putExtra(SaveAndConfig.STEVE_Y, y);
                 toIntent.putExtra(SaveAndConfig.STEVE_Z, z);
-                SystemClock.sleep(300);
+                SystemClock.sleep(400);
                 startActivityForResult(toIntent, 0);
             }
         };

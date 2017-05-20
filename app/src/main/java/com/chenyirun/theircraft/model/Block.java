@@ -55,11 +55,14 @@ public abstract class Block extends Point3Int {
     private boolean collidable;
     private boolean transparent;
 
+    private Point3Int location;
+
     public Block(int x, int y, int z, int type, boolean collidable, boolean transparent) {
         super(x, y, z);
         this.type = type;
         this.collidable = collidable;
         this.transparent = transparent;
+        location = new Point3Int(x, y, z);
     }
 
     public Block(int x, int y, int z, int type) {
@@ -82,7 +85,7 @@ public abstract class Block extends Point3Int {
     }
 
     public Point3Int getLocation(){
-        return new Point3Int(x, y, z);
+        return location;
     }
 
     @Override

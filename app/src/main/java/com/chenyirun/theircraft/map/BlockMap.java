@@ -1,11 +1,11 @@
-package com.chenyirun.theircraft;
+package com.chenyirun.theircraft.map;
 
-import android.util.Log;
-
+import com.chenyirun.theircraft.GLHelper;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3Int;
+import com.chenyirun.theircraft.model.VertexIndexTextureList;
 import com.chenyirun.theircraft.perlin.Generator;
 
 import java.util.ArrayList;
@@ -41,12 +41,8 @@ public class BlockMap {
         return null;
     }
 
-    public boolean contain(int x, int y, int z){
-        return blockLocations.contains(new Point3Int(x, y, z));
-    }
-
     public boolean contain(Point3Int point){
-        return contain(point.x, point.y, point.z);
+        return blockLocations.contains(point);
     }
 
     public boolean noncolliding(Point3Int loc){

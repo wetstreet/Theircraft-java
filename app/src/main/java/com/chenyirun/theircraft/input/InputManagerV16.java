@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chenyirun.theircraft.inputmanagercompat;
+package com.chenyirun.theircraft.input;
 
 import android.annotation.TargetApi;
 import android.content.Context;

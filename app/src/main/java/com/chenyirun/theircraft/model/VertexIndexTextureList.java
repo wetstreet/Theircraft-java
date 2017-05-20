@@ -1,4 +1,4 @@
-package com.chenyirun.theircraft;
+package com.chenyirun.theircraft.model;
 
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Point3;
@@ -6,14 +6,14 @@ import com.chenyirun.theircraft.model.Point3;
 import java.util.ArrayList;
 import java.util.List;
 
-class VertexIndexTextureList {
+public class VertexIndexTextureList {
     // Here vertices are represented as 3 consecutive Floats, thus the length of the inner list is
     // 3 times the number of vertices.
     private final List<Float> coords = new ArrayList<Float>();
     private final List<Short> indices = new ArrayList<Short>();
     private final List<Float> textureCoords = new ArrayList<Float>();
 
-    void addFace(Block block, Point3[] vertices, short[] drawListIdxs, float[] texCoords) {
+    public void addFace(Block block, Point3[] vertices, short[] drawListIdxs, float[] texCoords) {
         Point3 p = block.toPoint3();
         short[] faceIndices = {
                 add(coords, p.plus(vertices[0])),
@@ -44,15 +44,15 @@ class VertexIndexTextureList {
         return (short) vertexCount;
     }
 
-    float[] getVertexArray() {
+    public float[] getVertexArray() {
         return toFloatArray(coords);
     }
 
-    short[] getIndexArray() {
+    public short[] getIndexArray() {
         return toShortArray(indices);
     }
 
-    float[] getTextureCoordArray() {
+    public float[] getTextureCoordArray() {
         return toFloatArray(textureCoords);
     }
 

@@ -1,15 +1,19 @@
-package com.chenyirun.theircraft;
+package com.chenyirun.theircraft.map;
 
 import android.content.res.Resources;
 import android.os.SystemClock;
 
+import com.chenyirun.theircraft.GLHelper;
+import com.chenyirun.theircraft.Performance;
 import com.chenyirun.theircraft.block.*;
 import com.chenyirun.theircraft.database.DBService;
+import com.chenyirun.theircraft.map.BlockMap;
 import com.chenyirun.theircraft.model.Block;
 import com.chenyirun.theircraft.model.Buffers;
 import com.chenyirun.theircraft.model.Chunk;
 import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
+import com.chenyirun.theircraft.model.SaveAndConfig;
 import com.chenyirun.theircraft.perlin.Generator;
 
 import java.util.ArrayList;
@@ -38,7 +42,7 @@ public class MapManager {
 
     private static int SHOWN_CHUNK_RADIUS = 3;
 
-    MapManager(SaveAndConfig saveAndConfig){
+    public MapManager(SaveAndConfig saveAndConfig){
         this.saveAndConfig = saveAndConfig;
         dbService = DBService.getInstance();
         SHOWN_CHUNK_RADIUS = saveAndConfig.chunk_radius;
@@ -110,7 +114,7 @@ public class MapManager {
                     if (!chunkShown(dx, dy, dz)) {
                         continue;
                     }
-                    Chunk chunk = center.plus(new Chunk(dx, dy, dz));
+                    Chunk chunk = center.plus(dx, dy, dz);
                     if (chunk.y < minChunkY || chunk.y > maxChunkY) {
                         continue;
                     }
@@ -226,6 +230,7 @@ public class MapManager {
         blockMap.removeChunk(chunk);
     }
 
+    // generate buffer according to the blocks of the chunk
     private void addChunkBuffer(Chunk chunk, List<Block> shownBlocks) {
         Buffers buffers = blockMap.createBuffers(shownBlocks);
         synchronized(chunkToBuffers) {

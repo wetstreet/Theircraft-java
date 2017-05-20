@@ -4,8 +4,10 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import com.chenyirun.theircraft.model.Chunk;
+import com.chenyirun.theircraft.model.Hitbox;
 import com.chenyirun.theircraft.model.Point3;
 import com.chenyirun.theircraft.model.Point3Int;
+import com.chenyirun.theircraft.model.SteveEye;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +31,7 @@ class Steve {
     private int walking = NOT_WALKING;
     /** Speed in axis y direction (up), in m/s. */
     private float verticalSpeed = 0.0f;
+    private Point3 sightVector = new Point3();
 
     public float mPitch;
     public float mYaw;
@@ -58,7 +61,7 @@ class Steve {
         double x = -Math.sin(mYaw) * m;
         double y = Math.sin(mPitch);
         double z = -Math.cos(mYaw) * m;
-        return new Point3((float)x, (float)y, (float)z);
+        return sightVector.set((float)x, (float)y, (float)z);
     }
 
     // return the location of the block steve is standing on
@@ -175,20 +178,21 @@ class Steve {
     Set<Point3Int> hitboxCornerBlocks(Point3 eyePosition) {
         Hitbox hit = hitbox(eyePosition);
         float minY = hit.minY + PRECISION_COMPENSATION;
+
         
         Set<Point3Int> result = new HashSet<>();
-        result.add(new Point3Int(hit.minX, hit.maxY, hit.minZ));
-        result.add(new Point3Int(hit.maxX, hit.maxY, hit.minZ));
-        result.add(new Point3Int(hit.minX, hit.maxY, hit.maxZ));
-        result.add(new Point3Int(hit.maxX, hit.maxY, hit.maxZ));
-        result.add(new Point3Int(hit.minX, hit.minY, hit.minZ));
-        result.add(new Point3Int(hit.maxX, hit.minY, hit.minZ));
-        result.add(new Point3Int(hit.minX, hit.minY, hit.maxZ));
-        result.add(new Point3Int(hit.maxX, hit.minY, hit.maxZ));
-        result.add(new Point3Int(hit.minX, minY, hit.minZ));
-        result.add(new Point3Int(hit.maxX, minY, hit.minZ));
-        result.add(new Point3Int(hit.minX, minY, hit.maxZ));
-        result.add(new Point3Int(hit.maxX, minY, hit.maxZ));
+        result.add(hit.hitbox[0].set(hit.minX, hit.maxY, hit.minZ));
+        result.add(hit.hitbox[1].set(hit.maxX, hit.maxY, hit.minZ));
+        result.add(hit.hitbox[2].set(hit.minX, hit.maxY, hit.maxZ));
+        result.add(hit.hitbox[3].set(hit.maxX, hit.maxY, hit.maxZ));
+        result.add(hit.hitbox[4].set(hit.minX, hit.minY, hit.minZ));
+        result.add(hit.hitbox[5].set(hit.maxX, hit.minY, hit.minZ));
+        result.add(hit.hitbox[6].set(hit.minX, hit.minY, hit.maxZ));
+        result.add(hit.hitbox[7].set(hit.maxX, hit.minY, hit.maxZ));
+        result.add(hit.hitbox[8].set(hit.minX, minY, hit.minZ));
+        result.add(hit.hitbox[9].set(hit.maxX, minY, hit.minZ));
+        result.add(hit.hitbox[10].set(hit.minX, minY, hit.maxZ));
+        result.add(hit.hitbox[11].set(hit.maxX, minY, hit.maxZ));
         return result;
     }
 

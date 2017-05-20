@@ -6,10 +6,26 @@ public class Point3 {
     public float y;
     public float z;
 
+    public Point3() {}
+
+    public Point3 set(float x, float y, float z){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        return this;
+    }
+
+    public Point3 set(Point3 point){
+        x = point.x;
+        y = point.y;
+        z = point.z;
+        return this;
+    }
+
     public Point3(Point3 point) {
-        this.x = point.x;
-        this.y = point.y;
-        this.z = point.z;
+        x = point.x;
+        y = point.y;
+        z = point.z;
     }
 
     public Point3(float x, float y, float z) {
@@ -18,8 +34,11 @@ public class Point3 {
         this.z = z;
     }
 
-    public Point3 divide(float denominator){
-        return new Point3(x/denominator, y/denominator, z/denominator);
+    public Point3 divideEqual(float deno){
+        x /= deno;
+        y /= deno;
+        z /= deno;
+        return this;
     }
 
     public Point3 plus(float x, float y, float z) {
@@ -27,7 +46,14 @@ public class Point3 {
     }
 
     public Point3 plus(Point3 p) {
-        return new Point3(x + p.x, y + p.y, z + p.z);
+        return new Point3(this.x + p.x, this.y + p.y, this.z + p.z);
+    }
+
+    public Point3 plusEqual(Point3 p) {
+        x += p.x;
+        y += p.y;
+        z += p.z;
+        return this;
     }
 
     public Point3 times(float mult) {

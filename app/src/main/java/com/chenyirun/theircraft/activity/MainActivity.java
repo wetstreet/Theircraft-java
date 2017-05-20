@@ -11,9 +11,9 @@ import android.view.MotionEvent;
 
 import com.chenyirun.theircraft.R;
 import com.chenyirun.theircraft.Renderer;
-import com.chenyirun.theircraft.SaveAndConfig;
-import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat;
-import com.chenyirun.theircraft.inputmanagercompat.InputManagerCompat.InputDeviceListener;
+import com.chenyirun.theircraft.model.SaveAndConfig;
+import com.chenyirun.theircraft.input.InputManagerCompat;
+import com.chenyirun.theircraft.input.InputManagerCompat.InputDeviceListener;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.google.vr.sdk.base.AndroidCompat;
 import com.google.vr.sdk.base.GvrActivity;

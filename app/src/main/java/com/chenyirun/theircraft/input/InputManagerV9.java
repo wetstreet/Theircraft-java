@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chenyirun.theircraft.inputmanagercompat;
+package com.chenyirun.theircraft.input;
 
 import android.os.Handler;
 import android.os.Message;

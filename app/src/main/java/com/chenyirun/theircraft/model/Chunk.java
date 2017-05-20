@@ -14,8 +14,8 @@ public class Chunk extends Point3Int {
                 (int)Math.floor(block.z / (float)CHUNK_SIZE));
     }
 
-    public Chunk plus(Chunk chunk) {
-        return new Chunk(x + chunk.x, y + chunk.y, z + chunk.z);
+    public Chunk plus(int x, int y, int z) {
+        return new Chunk(this.x + x, this.y + y, this.z + z);
     }
 
     @Override

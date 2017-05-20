@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.chenyirun.theircraft.database.DBService;
 import com.chenyirun.theircraft.R;
-import com.chenyirun.theircraft.SaveAndConfig;
+import com.chenyirun.theircraft.model.SaveAndConfig;
 import com.chenyirun.theircraft.activity.LoadingActivity;
 import com.chenyirun.theircraft.activity.NewActivity;
 

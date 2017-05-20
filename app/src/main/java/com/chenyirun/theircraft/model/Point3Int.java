@@ -6,6 +6,22 @@ public class Point3Int {
     public int y;
     public int z;
 
+    public Point3Int set(Point3 point){
+        this.x = Math.round(point.x);
+        this.y = Math.round(point.y);
+        this.z = Math.round(point.z);
+        return this;
+    }
+
+    public Point3Int set(float x, float y, float z){
+        this.x = Math.round(x);
+        this.y = Math.round(y);
+        this.z = Math.round(z);
+        return this;
+    }
+
+    public Point3Int() {}
+
     public Point3Int(int x, int y, int z) {
         this.x = x;
         this.y = y;
@@ -57,27 +73,29 @@ public class Point3Int {
         return "Point3Int{x=" + x + ", y=" + y + ", z=" + z + '}';
     }
 
+    static private Point3Int loc = new Point3Int();
+    
     public Point3Int getTopLoc(){
-        return new Point3Int(x, y + 1, z);
+        return loc.set(x, y + 1, z);
     }
 
     public Point3Int getBottomLoc(){
-        return new Point3Int(x, y - 1, z);
+        return loc.set(x, y - 1, z);
     }
 
     public Point3Int getFrontLoc(){
-        return new Point3Int(x, y, z + 1);
+        return loc.set(x, y, z + 1);
     }
 
     public Point3Int getBackLoc(){
-        return new Point3Int(x, y, z - 1);
+        return loc.set(x, y, z - 1);
     }
 
     public Point3Int getRightLoc(){
-        return new Point3Int(x + 1, y, z);
+        return loc.set(x + 1, y, z);
     }
 
     public Point3Int getLeftLoc(){
-        return new Point3Int(x - 1, y, z);
+        return loc.set(x - 1, y, z);
     }
 }

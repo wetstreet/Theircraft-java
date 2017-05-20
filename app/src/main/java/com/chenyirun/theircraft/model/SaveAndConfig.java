@@ -1,6 +1,4 @@
-package com.chenyirun.theircraft;
-
-import com.chenyirun.theircraft.model.Point3Int;
+package com.chenyirun.theircraft.model;
 
 public class SaveAndConfig {
     public static final String ID = "id";

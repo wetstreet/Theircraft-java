@@ -9,7 +9,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.chenyirun.theircraft.R;
-import com.chenyirun.theircraft.SaveAndConfig;
+import com.chenyirun.theircraft.model.SaveAndConfig;
 
 public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
     private SeekBar seekBar;

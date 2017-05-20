@@ -18,7 +18,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-class GLHelper {
+public class GLHelper {
     private static final String TAG = "GLHelper";
 
     private int blockProgram;
@@ -178,14 +178,7 @@ class GLHelper {
         };
         drawLines(coords);
     }
-/*
-    public void drawCrossHair(){
-        float[] coords = {
-                1920 / 2.0f, 1080.0f / 2.0f,
-        };
-        drawPoints(coords, 2);
-    }
-*/
+
     private static final float[] pointMatrix = {
             2 / 1920.0f, 0, 0, 0,
             0, 2 / 1080.0f, 0, 0,
@@ -224,8 +217,9 @@ class GLHelper {
     }
 
     private static final int FLOAT_SIZE_IN_BYTES = 4;
+    private static final int SHORT_SIZE_IN_BYTES = 2;
 
-    static FloatBuffer createFloatBuffer(float[] from) {
+    public static FloatBuffer createFloatBuffer(float[] from) {
         FloatBuffer result = ByteBuffer.allocateDirect(FLOAT_SIZE_IN_BYTES * from.length)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -234,9 +228,7 @@ class GLHelper {
         return result;
     }
 
-    private static final int SHORT_SIZE_IN_BYTES = 2;
-
-    static ShortBuffer createShortBuffer(short[] from) {
+    public static ShortBuffer createShortBuffer(short[] from) {
         ShortBuffer result = ByteBuffer.allocateDirect(SHORT_SIZE_IN_BYTES * from.length)
                 .order(ByteOrder.nativeOrder())
                 .asShortBuffer();
@@ -302,7 +294,7 @@ class GLHelper {
         return program;
     }
 
-    static int loadTexture(Resources resources, int resourceId) {
+    public static int loadTexture(Resources resources, int resourceId) {
         int textureHandles[] = new int[1];
         GLES20.glGenTextures(1, textureHandles, 0);
         if (textureHandles[0] == 0) {
