@@ -13,11 +13,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.chenyirun.theircraft.R;
+import com.chenyirun.theircraft.audio.send.AudioRecorder;
 
 public class MultiFragment extends Fragment {
     private Button button_connect;
+    private Button button_record;
     private TextView textView_message;
     private EditText editText_ip;
+    private AudioRecorder audioRecorder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -25,6 +28,8 @@ public class MultiFragment extends Fragment {
 
         button_connect = (Button)view.findViewById(R.id.button_connect);
         button_connect.setOnClickListener(connectListener);
+        button_record = (Button)view.findViewById(R.id.button_record);
+        button_record.setOnClickListener(recordListener);
         textView_message = (TextView)view.findViewById(R.id.textView_message);
         editText_ip = (EditText)view.findViewById(R.id.editText_ip);
 
@@ -53,11 +58,15 @@ public class MultiFragment extends Fragment {
     private View.OnClickListener connectListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            connect(editText_ip.getText().toString());
+            String ip = editText_ip.getText().toString();
+            audioRecorder = new AudioRecorder(ip);
         }
     };
 
-    private void connect(String ip){
-
-    }
+    private View.OnClickListener recordListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            audioRecorder.startRecording();
+        }
+    };
 }

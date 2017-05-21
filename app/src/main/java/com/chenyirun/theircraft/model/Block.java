@@ -70,6 +70,7 @@ public abstract class Block extends Point3Int {
         this.type = type;
         collidable = true;
         transparent = false;
+        location = new Point3Int(x, y, z);
     }
 
     public int getType(){

@@ -20,6 +20,13 @@ public class Point3Int {
         return this;
     }
 
+    public Point3Int set(Point3Int point){
+        x = point.x;
+        y = point.y;
+        z = point.z;
+        return this;
+    }
+
     public Point3Int() {}
 
     public Point3Int(int x, int y, int z) {

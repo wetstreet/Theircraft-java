@@ -46,6 +46,9 @@ public class DBService {
         SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
         String[] projection = { "id as _id", "name", "seed", "date" };
         Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, null, null, null, null, null, null);
+        cursor.moveToLast();
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
+        Log.i(TAG, "pageCursorQuery: last id="+id);
         return cursor;
     }
 
@@ -62,14 +65,12 @@ public class DBService {
                         "PRIMARY KEY(blockX, blockY, blockZ));";
         SQLiteDatabase db = DBHelper.getInstance().getWritableDatabase();
         db.execSQL(sql);
-        
     }
 
     public void dropBlockTable(int id){
         String sql = "DROP TABLE IF EXISTS world_" + id;
         SQLiteDatabase db = DBHelper.getInstance().getWritableDatabase();
         db.execSQL(sql);
-        
     }
 
     public void addSave(String name, int seed, String date){

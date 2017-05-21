@@ -55,6 +55,7 @@ public class Physics {
     }
 
     Point3 pos = new Point3();
+    Point3 delta = new Point3();
     Point3Int prevBlockLoc = new Point3Int();
     Point3Int newBlockPos = new Point3Int();
     public Point3Int hitTestFunc(boolean previous, BlockMap blockMap, Chunk chunk, Steve steve){
@@ -64,12 +65,14 @@ public class Physics {
         if (chunkBlocks == null){
             return null;
         }
-        Point3 delta = steve.sightVector().divideEqual(SAMPLE_RATE);
-        newBlockPos.set(pos);
+        delta.set(steve.sightVector());
+        delta.divideEqual(SAMPLE_RATE);
         // get the position of the first pos in the sight direction
         for (int i = 0; i < REACH_DISTANCE * SAMPLE_RATE; i++){
             newBlockPos.set(pos);
+            // if sight ray reaches a new location
             if (!prevBlockLoc.equals(newBlockPos)){
+                // if there is a block at this location
                 if (blockMap.contain(newBlockPos)){
                     Block b = blockMap.getBlock(newBlockPos);
                     if (b != null){
@@ -80,7 +83,7 @@ public class Physics {
                         }
                     }
                 }
-                prevBlockLoc = newBlockPos;
+                prevBlockLoc.set(newBlockPos);
             }
             pos.plusEqual(delta);
         }
