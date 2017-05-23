@@ -31,12 +31,16 @@ A little house that I built.
 
 Choose which world to play.
 
-![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_saves.png)
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_single.png)
 
 Create a new world.
 
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_new.png)
 
+Multiplayer mode is under development.
+
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_multi.png)
+
 Change configurations.
 
-![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_config.png)
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_settings.png)
