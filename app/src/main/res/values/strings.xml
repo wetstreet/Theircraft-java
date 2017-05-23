@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Theircraft</string>
-    <string name="title_activity_navigate">NavigateActivity</string>
-    <string name="title_single">Single</string>
-    <string name="title_multi">Multi</string>
+    <string name="title_single">Singleplayer</string>
+    <string name="title_multi">Multiplayer</string>
     <string name="title_settings">Settings</string>
+    <string name="button_new">New</string>
 </resources>

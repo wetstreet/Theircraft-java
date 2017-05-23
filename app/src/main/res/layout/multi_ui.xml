@@ -52,4 +52,34 @@
         android:text="Record"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_message" />
+
+    <Button
+        android:id="@+id/button_receive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="receive"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_record" />
+
+    <Button
+        android:id="@+id/button_record_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="stop"
+        app:layout_constraintLeft_toRightOf="@+id/button_record"
+        app:layout_constraintTop_toBottomOf="@+id/textView_message" />
+
+    <Button
+        android:id="@+id/button_receive_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="stop"
+        app:layout_constraintLeft_toRightOf="@+id/button_receive"
+        app:layout_constraintTop_toBottomOf="@+id/button_record_stop" />
 </android.support.constraint.ConstraintLayout>

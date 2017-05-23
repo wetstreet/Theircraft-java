@@ -14,8 +14,22 @@ import com.chenyirun.theircraft.activity.fragment.MultiFragment;
 import com.chenyirun.theircraft.activity.fragment.SettingsFragment;
 import com.chenyirun.theircraft.activity.fragment.SingleFragment;
 
-public class NavigateActivity extends AppCompatActivity {
+public class NavigateActivity extends TitleActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_navigate);
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.setSelectedItemId(R.id.navigation_single);
+    }
+
     private void loadSingleFragment(){
+        setTitle("Your Saves");
+        showForwardView(R.string.button_new, true);
+        showBackwardView(R.string.button_new, false);
+
         SingleFragment fragment = new SingleFragment();
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager. beginTransaction();
@@ -24,6 +38,10 @@ public class NavigateActivity extends AppCompatActivity {
     }
 
     private void loadMultiFragment(){
+        setTitle("Multiplayer Mode(Test)");
+        showForwardView(R.string.button_new, false);
+        showBackwardView(R.string.button_new, false);
+
         MultiFragment fragment = new MultiFragment();
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager. beginTransaction();
@@ -32,6 +50,10 @@ public class NavigateActivity extends AppCompatActivity {
     }
 
     private void loadSettingsFragment(){
+        setTitle("Configurations");
+        showForwardView(R.string.button_new, false);
+        showBackwardView(R.string.button_new, false);
+
         SettingsFragment fragment = new SettingsFragment();
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager. beginTransaction();
@@ -59,15 +81,4 @@ public class NavigateActivity extends AppCompatActivity {
         }
 
     };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigate);
-
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        navigation.setSelectedItemId(R.id.navigation_single);
-    }
-
 }

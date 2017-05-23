@@ -7,8 +7,13 @@ public class SaveAndConfig {
     public static final String STEVE_Y = "steve_y";
     public static final String STEVE_Z = "steve_z";
 
-    public static int chunk_radius = 3;
-    public static boolean sight_vector = false;
+    public static final String KEY_CHUNK_RADIUS = "chunk_radius";
+    public static final String KEY_SIGHT_VECTOR = "sight_vector";
+    public static final String KEY_AUTO_JUMP = "auto_jump";
+
+    public static int chunk_radius;
+    public static boolean sight_vector;
+    public static boolean auto_jump;
 
     public int id;
     public int seed;

@@ -26,7 +26,7 @@ public class AudioSender implements Runnable {
         try {
             ip = InetAddress.getByName(string_ip);
             Log.i(TAG, "AudioSender: target ip:"+ip.toString());
-            port = 8808;
+            port = 5656;
             socket = new DatagramSocket();
         } catch (Exception e) {
             e.printStackTrace();

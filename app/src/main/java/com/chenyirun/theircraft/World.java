@@ -182,14 +182,14 @@ public class World {
         if (--itemIndex < 0){
             itemIndex = Block.items.length - 1;
         }
-        Toast.makeText(context, "item=" + Block.items[itemIndex], Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "item=" + Block.items[itemIndex], Toast.LENGTH_SHORT).show();
     }
 
     public void pressRB(){
         if (++itemIndex >= Block.items.length){
             itemIndex = 0;
         }
-        Toast.makeText(context, "item=" + Block.items[itemIndex], Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "item=" + Block.items[itemIndex], Toast.LENGTH_SHORT).show();
     }
 
     public void walk(int walking){

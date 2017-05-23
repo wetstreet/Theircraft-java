@@ -46,9 +46,6 @@ public class DBService {
         SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
         String[] projection = { "id as _id", "name", "seed", "date" };
         Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, null, null, null, null, null, null);
-        cursor.moveToLast();
-        int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
-        Log.i(TAG, "pageCursorQuery: last id="+id);
         return cursor;
     }
 
