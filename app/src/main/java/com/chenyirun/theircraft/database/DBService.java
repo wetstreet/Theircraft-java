@@ -41,10 +41,16 @@ public class DBService {
     public Point3Int steveLocation(){
         return steveLocation;
     }
-
+/*
     public Cursor pageCursorQuery(){
         SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
         String[] projection = { "id as _id", "name", "seed", "date" };
+        Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, null, null, null, null, null, null);
+        return cursor;
+    }*/
+    public Cursor pageCursorQuery(){
+        SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
+        String[] projection = { "id as _id", "name" };
         Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, null, null, null, null, null, null);
         return cursor;
     }

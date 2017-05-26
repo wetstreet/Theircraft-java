@@ -1,8 +1,8 @@
 package com.chenyirun.theircraft.activity;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,24 +25,24 @@ public class NewActivity extends TitleActivity {
 
         setTitle("Create New Save");
         showBackwardView(R.string.button_back, true);
-        showBackwardView(R.string.button_new, false);
+        showForwardView(R.string.button_new, false);
 
         button_create = (Button)findViewById(R.id.button_create);
-        button_create.setOnClickListener(configListener);
+        button_create.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createSave();
+                setResult(RESULT_OK, null);
+                finish();
+            }
+        });
+
         editText_name = (EditText)findViewById(R.id.editText_name);
+
         editText_seed = (EditText)findViewById(R.id.editText_seed);
         int seed = new Random().nextInt();
         editText_seed.setText("" + seed, TextView.BufferType.EDITABLE);
     }
-
-    private View.OnClickListener configListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            createSave();
-            setResult(RESULT_OK, null);
-            finish();
-        }
-    };
 
     private void createSave(){
         String name = editText_name.getText().toString();

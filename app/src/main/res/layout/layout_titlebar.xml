@@ -25,12 +25,11 @@
         android:gravity="center"
         android:maxLines="1"
         android:onClick="onClick"
-        android:paddingStart="5dp"
         android:paddingEnd="5dp"
+        android:paddingStart="5dp"
         android:text="@string/button_back"
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:visibility="invisible" />
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/button_forward"
@@ -43,11 +42,10 @@
         android:gravity="center"
         android:maxLines="1"
         android:onClick="onClick"
-        android:paddingStart="5dp"
         android:paddingEnd="5dp"
+        android:paddingStart="5dp"
         android:text="@string/button_new"
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:visibility="invisible" />
+        android:textSize="18sp" />
 
 </RelativeLayout>

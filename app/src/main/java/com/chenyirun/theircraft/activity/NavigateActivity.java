@@ -2,6 +2,8 @@ package com.chenyirun.theircraft.activity;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -13,12 +15,15 @@ import com.chenyirun.theircraft.R;
 import com.chenyirun.theircraft.activity.fragment.MultiFragment;
 import com.chenyirun.theircraft.activity.fragment.SettingsFragment;
 import com.chenyirun.theircraft.activity.fragment.SingleFragment;
+import com.chenyirun.theircraft.model.SaveAndConfig;
 
 public class NavigateActivity extends TitleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigate);
+
+        readConfig();
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -81,4 +86,11 @@ public class NavigateActivity extends TitleActivity {
         }
 
     };
+
+    private void readConfig(){
+        SharedPreferences sp = getApplicationContext().getSharedPreferences("config", Context.MODE_PRIVATE);
+        SaveAndConfig.chunk_radius = sp.getInt(SaveAndConfig.KEY_CHUNK_RADIUS, 3);
+        SaveAndConfig.sight_vector = sp.getBoolean(SaveAndConfig.KEY_SIGHT_VECTOR, false);
+        SaveAndConfig.auto_jump = sp.getBoolean(SaveAndConfig.KEY_AUTO_JUMP, false);
+    }
 }

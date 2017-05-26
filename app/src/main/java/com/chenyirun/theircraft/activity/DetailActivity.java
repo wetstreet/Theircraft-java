@@ -39,7 +39,6 @@ public class DetailActivity extends AppCompatActivity {
         button_delete.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
                 DBService.getInstance().removeSave(id);
-                setResult(RESULT_OK);
                 finish();
             }
         });

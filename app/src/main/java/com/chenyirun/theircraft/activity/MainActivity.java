@@ -80,17 +80,6 @@ public class MainActivity extends GvrActivity implements InputDeviceListener {
     }
 
     @Override
-    public void onPause() {
-        Log.i(TAG, "onPause: ");
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onDestroy(){
         mRenderer.onDestroy();
         super.onDestroy();

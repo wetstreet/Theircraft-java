@@ -2,9 +2,7 @@ package com.chenyirun.theircraft.model;
 
 public class SaveAndConfig {
     public static final String ID = "id";
-    public static final String NAME = "name";
     public static final String SEED = "seed";
-    public static final String DATE = "date";
     public static final String STEVE_X = "steve_x";
     public static final String STEVE_Y = "steve_y";
     public static final String STEVE_Z = "steve_z";

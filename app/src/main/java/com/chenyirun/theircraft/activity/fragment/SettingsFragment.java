@@ -61,7 +61,9 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        readConfig();
+        seekBar.setProgress(SaveAndConfig.chunk_radius - 1);
+        toggleButton_sightVector.setChecked(SaveAndConfig.sight_vector);
+        toggleButton_autoJump.setChecked(SaveAndConfig.auto_jump);
         return view;
     }
 
@@ -72,15 +74,5 @@ public class SettingsFragment extends Fragment {
         editor.putBoolean(SaveAndConfig.KEY_SIGHT_VECTOR, SaveAndConfig.sight_vector);
         editor.putBoolean(SaveAndConfig.KEY_AUTO_JUMP, SaveAndConfig.auto_jump);
         editor.apply();
-    }
-
-    private void readConfig(){
-        SharedPreferences sp = getContext().getSharedPreferences("config", Context.MODE_PRIVATE);
-        int chunk_radius = sp.getInt(SaveAndConfig.KEY_CHUNK_RADIUS, 3);
-        seekBar.setProgress(chunk_radius - 1);
-        SaveAndConfig.sight_vector = sp.getBoolean(SaveAndConfig.KEY_SIGHT_VECTOR, false);
-        toggleButton_sightVector.setChecked(SaveAndConfig.sight_vector);
-        SaveAndConfig.auto_jump = sp.getBoolean(SaveAndConfig.KEY_AUTO_JUMP, false);
-        toggleButton_autoJump.setChecked(SaveAndConfig.auto_jump);
     }
 }
