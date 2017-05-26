@@ -33,6 +33,10 @@ Choose which world to play.
 
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_single.png)
 
+Display the detail information of a save.
+
+![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_detail.png)
+
 Create a new world.
 
 ![image](https://github.com/wetstreet/Theircraft/blob/master/screenshots/Screenshot_new.png)
