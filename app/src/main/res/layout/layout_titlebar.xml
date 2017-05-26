@@ -12,9 +12,9 @@
         android:ellipsize="marquee"
         android:gravity="center"
         android:maxLines="1"
-        android:text="Title"
+        android:text="@string/app_name"
         android:textColor="#FFFFFF"
-        android:textSize="20dp" />
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/button_backward"
@@ -23,12 +23,13 @@
         android:drawablePadding="6dp"
         android:ellipsize="end"
         android:gravity="center"
-        android:onClick="onClick"
-        android:paddingLeft="5dp"
         android:maxLines="1"
-        android:text="返回"
+        android:onClick="onClick"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="@string/button_back"
         android:textColor="#FFFFFF"
-        android:textSize="18dp"
+        android:textSize="18sp"
         android:visibility="invisible" />
 
     <Button
@@ -36,15 +37,17 @@
         android:layout_width="60dp"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
         android:drawablePadding="6dp"
         android:ellipsize="end"
         android:gravity="center"
+        android:maxLines="1"
         android:onClick="onClick"
         android:paddingStart="5dp"
-        android:maxLines="1"
-        android:text="提交"
+        android:paddingEnd="5dp"
+        android:text="@string/button_new"
         android:textColor="#FFFFFF"
-        android:textSize="18dp"
+        android:textSize="18sp"
         android:visibility="invisible" />
 
 </RelativeLayout>

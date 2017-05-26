@@ -93,16 +93,18 @@ public class DBService {
 
     public SaveAndConfig getSave(int id){
         SQLiteDatabase db = DBHelper.getInstance().getReadableDatabase();
-        String[] projection = { "seed", "x", "y", "z" };
+        String[] projection = { "name", "seed", "date", "x", "y", "z" };
         String selection = "id = ?";
         String[] selectionArgs = { Integer.toString(id) };
         Cursor cursor = db.query(DBHelper.TABLE_SAVE, projection, selection, selectionArgs, null, null, null);
         cursor.moveToNext();
+        String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
         int seed = cursor.getInt(cursor.getColumnIndexOrThrow("seed"));
+        String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
         int x = cursor.getInt(cursor.getColumnIndexOrThrow("x"));
         int y = cursor.getInt(cursor.getColumnIndexOrThrow("y"));
         int z = cursor.getInt(cursor.getColumnIndexOrThrow("z"));
-        SaveAndConfig save = new SaveAndConfig(id, seed, new Point3Int(x, y ,z));
+        SaveAndConfig save = new SaveAndConfig(id, name, seed, date, new Point3Int(x, y ,z));
         cursor.close();
         
         return save;

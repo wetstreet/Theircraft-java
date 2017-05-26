@@ -5,19 +5,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.chenyirun.theircraft.R;
 import com.chenyirun.theircraft.model.SaveAndConfig;
 
-public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
-    private static final String TAG = "DBService";
+public class SettingsFragment extends Fragment {
+    private static final String TAG = "SettingsFragment";
 
     private SeekBar seekBar;
     private TextView textView;
@@ -29,35 +30,39 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
         View view = inflater.inflate(R.layout.config_ui, container, false);
 
         textView = (TextView)view.findViewById(R.id.textView_chunkRadius);
+
         seekBar = (SeekBar)view.findViewById(R.id.seekBar);
-        seekBar.setOnSeekBarChangeListener(this);
+        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+            public void onStartTrackingTouch(SeekBar seekBar){}
+            public void onStopTrackingTouch(SeekBar seekBar){}
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                // chunk_radius no less than 1
+                SaveAndConfig.chunk_radius = progress + 1;
+                textView.setText(SaveAndConfig.chunk_radius + "");
+                saveConfig();
+            }
+        });
+
         toggleButton_autoJump = (ToggleButton)view.findViewById(R.id.toggleButton_autoJump);
+        toggleButton_autoJump.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                toggleButton_autoJump.setChecked(isChecked);
+                SaveAndConfig.auto_jump = isChecked;
+                saveConfig();
+            }
+        });
+
         toggleButton_sightVector = (ToggleButton)view.findViewById(R.id.toggleButton_sightVector);
+        toggleButton_sightVector.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                toggleButton_sightVector.setChecked(isChecked);
+                SaveAndConfig.sight_vector = isChecked;
+                saveConfig();
+            }
+        });
 
         readConfig();
-
         return view;
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-        // chunk_radius no less than 1
-        SaveAndConfig.chunk_radius = progress + 1;
-        textView.setText(SaveAndConfig.chunk_radius + "");
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar){}
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar){}
-
-    @Override
-    public void onDestroy(){
-        SaveAndConfig.auto_jump = toggleButton_autoJump.isChecked();
-        SaveAndConfig.sight_vector = toggleButton_sightVector.isChecked();
-        saveConfig();
-        super.onDestroy();
     }
 
     private void saveConfig(){
@@ -72,9 +77,7 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
     private void readConfig(){
         SharedPreferences sp = getContext().getSharedPreferences("config", Context.MODE_PRIVATE);
         int chunk_radius = sp.getInt(SaveAndConfig.KEY_CHUNK_RADIUS, 3);
-        Log.i(TAG, "readConfig: before="+SaveAndConfig.chunk_radius);
         seekBar.setProgress(chunk_radius - 1);
-        Log.i(TAG, "readConfig: after="+SaveAndConfig.chunk_radius);
         SaveAndConfig.sight_vector = sp.getBoolean(SaveAndConfig.KEY_SIGHT_VECTOR, false);
         toggleButton_sightVector.setChecked(SaveAndConfig.sight_vector);
         SaveAndConfig.auto_jump = sp.getBoolean(SaveAndConfig.KEY_AUTO_JUMP, false);

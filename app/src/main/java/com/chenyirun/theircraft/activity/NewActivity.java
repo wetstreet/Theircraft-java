@@ -13,7 +13,7 @@ import com.chenyirun.theircraft.R;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
-public class NewActivity extends AppCompatActivity {
+public class NewActivity extends TitleActivity {
     private Button button_create;
     private EditText editText_name;
     private EditText editText_seed;
@@ -22,6 +22,11 @@ public class NewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_ui);
+
+        setTitle("Create New Save");
+        showBackwardView(R.string.button_back, true);
+        showBackwardView(R.string.button_new, false);
+
         button_create = (Button)findViewById(R.id.button_create);
         button_create.setOnClickListener(configListener);
         editText_name = (EditText)findViewById(R.id.editText_name);
