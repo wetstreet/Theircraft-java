@@ -234,7 +234,7 @@ public class MapManager {
     private void addChunkBuffer(Chunk chunk, List<Block> shownBlocks) {
         Buffers buffers = blockMap.createBuffers(shownBlocks);
         synchronized(chunkToBuffers) {
-            // if there is a buffer already, replace the old buffer with the new one
+            // if there is a buffer already, replace the old buffer with the new_save one
             chunkToBuffers.put(chunk, buffers);
         }
     }

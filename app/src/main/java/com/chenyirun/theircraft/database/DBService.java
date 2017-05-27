@@ -163,7 +163,7 @@ public class DBService {
         values.put("blockZ", block.z);
         values.put("blockType", block.getType());
         long newRowId = db.insert(DBHelper.SAVE_PREFIX + id, null, values);
-        Log.i(TAG, "insert a new block at ("+block.x+","+block.y+","+block.z+")"+" type="+block.getType()+" row id:"+ newRowId);
+        Log.i(TAG, "insert a new_save block at ("+block.x+","+block.y+","+block.z+")"+" type="+block.getType()+" row id:"+ newRowId);
     }
 
     public void deleteBlock(int id, Block block){

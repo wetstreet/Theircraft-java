@@ -13,7 +13,7 @@ import com.chenyirun.theircraft.database.DBService;
 import com.chenyirun.theircraft.model.Point3Int;
 import com.chenyirun.theircraft.model.SaveAndConfig;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends TitleActivity {
 
     private static SaveAndConfig save;
 
@@ -30,6 +30,10 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        setTitle("Save Detail");
+        showBackwardView(R.string.button_back, true);
+        showForwardView(R.string.button_new, false);
 
         Intent intent = getIntent();
         id = intent.getIntExtra(SaveAndConfig.ID, 1);
